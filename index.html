@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Naka Sale | 7 al 17/5</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#F2F4F7;color:#111827;min-height:100vh;font-size:14px}
+
+/* HEADER */
+.header{background:#1A1A1A;height:60px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+.header-title{color:#fff;font-size:.92rem;font-weight:600;display:flex;align-items:center;gap:10px}
+.header-badge{background:#E8520A;color:#fff;font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.5px}
+.header-right{display:flex;gap:8px;align-items:center}
+
+/* GLOBAL DAY FILTER BAR */
+.dayfilter-bar{background:#111111;border-bottom:1px solid rgba(255,255,255,.08);padding:0 28px;display:flex;align-items:center;gap:10px;position:sticky;top:60px;z-index:190;height:48px;flex-wrap:wrap}
+.dayfilter-label{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap}
+.daychip{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:500;cursor:pointer;border:1.5px solid rgba(255,255,255,.18);background:transparent;color:rgba(255,255,255,.55);transition:.12s;user-select:none;font-family:inherit;line-height:1.5;white-space:nowrap}
+.daychip:hover{border-color:rgba(255,255,255,.45);color:rgba(255,255,255,.85)}
+.daychip.active{background:#E8520A;border-color:#E8520A;color:#fff;font-weight:700}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:none;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;line-height:1}
+.btn-orange{background:#E8520A;color:#fff}
+.btn-orange:hover{background:#cf4709}
+.btn-ghost{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.btn-ghost:hover{background:rgba(255,255,255,.18)}
+svg.icon{flex-shrink:0}
+
+.export-wrap{position:relative}
+.export-menu{display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid #E5E7EB;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:185px;overflow:hidden;z-index:300}
+.export-menu.open{display:block}
+.export-opt{display:flex;align-items:center;gap:9px;padding:10px 14px;font-size:.8rem;font-weight:500;color:#374151;cursor:pointer;background:none;border:none;width:100%;text-align:left;font-family:inherit;transition:.1s}
+.export-opt:hover{background:#F9FAFB}
+.export-sep{height:1px;background:#F3F4F6}
+
+/* LAYOUT */
+.main{padding:20px 28px;display:flex;flex-direction:column;gap:16px}
+.sec-title{font-size:.78rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:1.2px;padding:6px 0 10px;border-bottom:2px solid #E5E7EB;margin-bottom:4px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi-card{background:#fff;border-radius:10px;border:1px solid #E5E7EB;padding:18px 20px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,#E8520A)}
+.kpi-label{font-size:.68rem;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:.7px}
+.kpi-value{font-size:1.7rem;font-weight:800;color:#111827;letter-spacing:-1px;line-height:1.1}
+.kpi-sub{font-size:.72rem;color:#9CA3AF;margin-top:2px}
+
+/* CHARTS */
+.charts-row{display:grid;gap:12px}
+.charts-row.col2{grid-template-columns:1fr 380px}
+.charts-row.col2b{grid-template-columns:1fr 1fr}
+
+.card{background:#fff;border-radius:10px;border:1px solid #E5E7EB;padding:20px;display:flex;flex-direction:column}
+.card-head{margin-bottom:14px}
+.card-title{font-size:.88rem;font-weight:700;color:#111827}
+.card-sub{font-size:.7rem;color:#9CA3AF;margin-top:2px}
+
+.chart-box{position:relative;height:300px}
+.chart-box.md{height:260px}
+
+.legend{display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:10px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:.71rem;color:#4B5563;font-weight:500}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+/* DONUT / PROV */
+.donut-box{position:relative;height:220px;display:flex;align-items:center;justify-content:center}
+.prov-rows{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:200px;overflow-y:auto;padding-right:4px}
+.prov-row{display:flex;align-items:center;gap:8px}
+.pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pname{font-size:.72rem;color:#374151;min-width:115px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pbar-track{flex:1;height:5px;background:#F3F4F6;border-radius:3px;overflow:hidden}
+.pbar-fill{height:5px;border-radius:3px}
+.ppct{font-size:.72rem;font-weight:700;color:#111827;min-width:36px;text-align:right}
+
+/* TABLE */
+.table-card{background:#fff;border-radius:10px;border:1px solid #E5E7EB;overflow:hidden}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:14px 20px;border-bottom:1px solid #F3F4F6}
+.table-toolbar-title{font-size:.88rem;font-weight:700;color:#111827}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:#F9FAFB;border-bottom:2px solid #E5E7EB;padding:9px 16px;text-align:left;font-size:.67rem;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+thead th.r{text-align:right}
+thead th.delta{text-align:right;color:#B0B7C3;font-size:.63rem}
+tbody tr{border-bottom:1px solid #F3F4F6;transition:.1s}
+tbody tr:hover{background:#FAFBFC}
+tbody td{padding:9px 16px;color:#374151;font-size:.82rem}
+tbody td.r{text-align:right;font-variant-numeric:tabular-nums;font-weight:500;color:#111827}
+tbody td.delta{text-align:right;font-size:.75rem;font-weight:600;font-variant-numeric:tabular-nums;padding-left:6px;white-space:nowrap}
+.delta-up{color:#059669}
+.delta-dn{color:#DC2626}
+.delta-na{color:#9CA3AF;font-weight:400}
+tfoot tr{border-top:2px solid #E5E7EB;background:#F9FAFB}
+tfoot td{padding:9px 16px;font-size:.82rem;font-weight:700;color:#111827}
+tfoot td.r{text-align:right;font-variant-numeric:tabular-nums}
+tfoot td.delta{text-align:right;font-size:.73rem;color:#9CA3AF;font-weight:400;padding-left:6px}
+.tag-fecha{display:inline-block;padding:2px 8px;border-radius:4px;background:#F3F4F6;font-size:.75rem;font-weight:600;color:#374151}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:28px;width:90%;max-width:420px;box-shadow:0 20px 50px rgba(0,0,0,.2)}
+.modal-title{font-size:.95rem;font-weight:700;color:#111827;margin-bottom:6px}
+.modal-desc{font-size:.8rem;color:#6B7280;line-height:1.6;margin-bottom:18px}
+.drop-zone{border:2px dashed #D1D5DB;border-radius:8px;padding:32px 20px;text-align:center;cursor:pointer;transition:.15s;display:block}
+.drop-zone:hover,.drop-zone.over{border-color:#E8520A;background:#FFF7F4}
+.drop-zone input{display:none}
+.dz-icon{font-size:2rem;margin-bottom:8px}
+.dz-title{font-size:.85rem;font-weight:600;color:#374151;margin-bottom:4px}
+.dz-hint{font-size:.73rem;color:#9CA3AF}
+.upload-msg{margin-top:12px;font-size:.8rem;font-weight:500;display:none}
+.upload-msg.ok{color:#059669;display:block}
+.upload-msg.err{color:#DC2626;display:block}
+.modal-footer{display:flex;justify-content:flex-end;margin-top:16px}
+.modal-tabs{display:flex;gap:4px;margin-bottom:14px;background:#F3F4F6;border-radius:8px;padding:4px}
+.modal-tab{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 10px;border-radius:6px;border:none;background:transparent;font-family:inherit;font-size:.78rem;font-weight:500;color:#6B7280;cursor:pointer;transition:.12s}
+.modal-tab.active{background:#fff;color:#111827;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.modal-panel{}
+
+/* PRODUCT SEARCH */
+.prod-search-bar{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:10px 16px}
+.prod-search-input{flex:1;border:none;outline:none;font-family:inherit;font-size:.88rem;color:#111827;background:transparent}
+.prod-search-input::placeholder{color:#9CA3AF}
+.prod-search-clear{background:none;border:none;cursor:pointer;color:#9CA3AF;font-size:.85rem;padding:2px 4px;line-height:1;transition:.12s}
+.prod-search-clear:hover{color:#374151}
+
+/* PRODUCT TABLE */
+.prod-th{cursor:default;user-select:none}
+.prod-th.sortable{cursor:pointer}
+.prod-th.sortable:hover{background:#F3F4F6;color:#111827}
+.prod-th.sort-asc .sort-icon::after{content:'▲';color:#E8520A;font-size:.7em}
+.prod-th.sort-desc .sort-icon::after{content:'▼';color:#E8520A;font-size:.7em}
+.prod-th.sort-asc .sort-icon,.prod-th.sort-desc .sort-icon{opacity:0}
+.sort-icon{font-size:.75em;color:#D1D5DB;margin-left:3px;vertical-align:middle}
+.prod-th.sort-asc .sort-icon,.prod-th.sort-desc .sort-icon{display:none}
+.prod-th.sort-asc::after{content:' ▲';font-size:.7em;color:#E8520A}
+.prod-th.sort-desc::after{content:' ▼';font-size:.7em;color:#E8520A}
+td.des-cell{max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.dto-cell{font-weight:600}
+.dto-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:.73rem;font-weight:700;background:#FEF3C7;color:#92400E}
+.dto-zero{color:#9CA3AF;font-size:.8rem}
+
+/* PAGINATION */
+.prod-pag{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-top:1px solid #F3F4F6;flex-wrap:wrap;gap:8px}
+.prod-pag-info{font-size:.78rem;color:#6B7280}
+.prod-pag-btns{display:flex;gap:4px;align-items:center}
+.pag-btn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:6px;border:1px solid #E5E7EB;background:#fff;color:#374151;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.12s}
+.pag-btn:hover:not(:disabled){background:#F9FAFB;border-color:#9CA3AF}
+.pag-btn.active{background:#1A1A1A;border-color:#1A1A1A;color:#fff}
+.pag-btn:disabled{opacity:.35;cursor:default}
+.pag-ellipsis{font-size:.82rem;color:#9CA3AF;padding:0 4px}
+
+@media(max-width:820px){
+  .charts-row.col2,.charts-row.col2b{grid-template-columns:1fr}
+  .kpi-row{grid-template-columns:1fr 1fr}
+  .main{padding:14px 16px}
+  .dayfilter-bar{height:auto;padding:8px 16px;gap:6px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-title">
+    Naka Sale | 7 al 17/5
+    <span class="header-badge">SALE</span>
+  </div>
+  <div class="header-right">
+    <button class="btn btn-ghost" onclick="openModal()">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      Actualizar datos
+    </button>
+    <div class="export-wrap">
+      <button class="btn btn-orange" onclick="toggleExport(event)">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar
+        <svg class="icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="export-menu" id="exportMenu">
+        <button class="export-opt" onclick="doExport('xlsx')">
+          <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Exportar tabla como XLSX
+        </button>
+        <div class="export-sep"></div>
+        <button class="export-opt" onclick="doExport('csv')">
+          <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+          Exportar tabla como CSV
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- GLOBAL DAY FILTER -->
+<div class="dayfilter-bar" id="dayfilterBar">
+  <span class="dayfilter-label">Filtrar dia</span>
+  <!-- chips generados por JS -->
+</div>
+
+<main class="main">
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:#E8520A">
+      <div class="kpi-label">Facturacion Total</div>
+      <div class="kpi-value" id="kpiFacturacion">-</div>
+      <div class="kpi-sub" id="kpiFacturacionSub"></div>
+    </div>
+    <div class="kpi-card" style="--accent:#1A1A1A">
+      <div class="kpi-label">Total Pedidos</div>
+      <div class="kpi-value" id="kpiPedidos">-</div>
+      <div class="kpi-sub" id="kpiPedidosSub"></div>
+    </div>
+    <div class="kpi-card" style="--accent:#6B7280">
+      <div class="kpi-label">Ticket Medio</div>
+      <div class="kpi-value" id="kpiTicket">-</div>
+      <div class="kpi-sub">facturacion / pedidos</div>
+    </div>
+    <div class="kpi-card" style="--accent:#3B82F6">
+      <div class="kpi-label">Items por Carrito</div>
+      <div class="kpi-value" id="kpiIPC">-</div>
+      <div class="kpi-sub">productos / pedido</div>
+    </div>
+  </div>
+
+  <!-- Evolutivo + Torta provincias -->
+  <div class="sec-title">Evolucion por Dia</div>
+  <div class="charts-row col2">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">PEDIDOS Y FACTURACION POR DIA</div>
+        <div class="card-sub">Barras = Facturacion &nbsp;|&nbsp; Linea = Cantidad de pedidos</div>
+      </div>
+      <div class="chart-box"><canvas id="evolChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Participacion por Provincia</div>
+        <div class="card-sub">% sobre total de pedidos</div>
+      </div>
+      <div class="donut-box"><canvas id="provChart"></canvas></div>
+      <div class="prov-rows" id="provRows"></div>
+    </div>
+  </div>
+
+  <!-- Tabla por dia -->
+  <div class="sec-title">Detalle Diario</div>
+  <div class="table-card">
+    <div class="table-toolbar">
+      <div>
+        <div class="table-toolbar-title">Facturacion por dia</div>
+        <div class="kpi-sub" style="margin-top:3px">Ticket medio = Facturacion / Pedidos &nbsp;·&nbsp; % = variacion vs dia anterior</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Dia</th>
+          <th class="r">Pedidos</th>
+          <th class="delta">vs ant.</th>
+          <th class="r">Facturacion</th>
+          <th class="delta">vs ant.</th>
+          <th class="r">Ticket Medio</th>
+          <th class="delta">vs ant.</th>
+        </tr></thead>
+        <tbody id="tablaDia"></tbody>
+        <tfoot id="tablaFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       ANÁLISIS PRODUCTO
+  ══════════════════════════════════════════ -->
+  <div class="sec-title" style="margin-top:8px">Analisis Producto</div>
+
+  <!-- Gráfico distribución descuento -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">DISTRIBUCION DE PEDIDOS POR DESCUENTO</div>
+      <div class="card-sub">Cantidad de items segun el % de descuento aplicado</div>
+    </div>
+    <div class="chart-box" style="height:220px"><canvas id="dtoChart"></canvas></div>
+  </div>
+
+  <!-- Barra de búsqueda -->
+  <div class="prod-search-bar">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2" style="flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="prodSearch" class="prod-search-input" placeholder="Buscar por descripcion, marca o codigo...">
+    <button id="prodSearchClear" class="prod-search-clear" onclick="clearProdSearch()" title="Limpiar">&#x2715;</button>
+  </div>
+
+  <!-- Tabla de items -->
+  <div class="table-card">
+    <div class="table-toolbar" style="gap:8px">
+      <div>
+        <div class="table-toolbar-title">Listado de items</div>
+        <div class="kpi-sub" style="margin-top:3px" id="prodCount">—</div>
+      </div>
+      <div id="prodPagInfo" style="font-size:.78rem;color:#6B7280;font-weight:500"></div>
+    </div>
+    <div class="table-wrap">
+      <table id="prodTable">
+        <thead>
+          <tr>
+            <th class="prod-th sortable" data-col="des" data-dir="0">Descripcion <span class="sort-icon">⇅</span></th>
+            <th class="prod-th sortable" data-col="mar" data-dir="0">Marca <span class="sort-icon">⇅</span></th>
+            <th class="prod-th sortable r" data-col="cod" data-dir="0">Codigo <span class="sort-icon">⇅</span></th>
+            <th class="prod-th sortable r" data-col="uni" data-dir="0">Unidades <span class="sort-icon">⇅</span></th>
+            <th class="prod-th sortable r" data-col="dto" data-dir="0">Dto % <span class="sort-icon">⇅</span></th>
+            <th class="prod-th sortable r" data-col="tot" data-dir="0">Facturado <small style="font-weight:400;text-transform:none;letter-spacing:0">(desc.&nbsp;aplicado)</small> <span class="sort-icon">⇅</span></th>
+          </tr>
+        </thead>
+        <tbody id="prodBody"></tbody>
+        <tfoot id="prodFoot"></tfoot>
+      </table>
+    </div>
+    <!-- Paginación -->
+    <div class="prod-pag" id="prodPag"></div>
+  </div>
+
+  <!-- Envio + Forma pago -->
+  <div class="sec-title" style="margin-top:8px">Logistica y Pagos</div>
+  <div class="charts-row col2b">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">DISTRIBUCION METODO DE ENVIO</div>
+        <div class="card-sub">Pedidos y % sobre el total por tipo de envio</div>
+      </div>
+      <div class="chart-box md"><canvas id="envioChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Distribucion pedidos segun metodo de pago</div>
+        <div class="card-sub">Distribucion sobre total de pedidos</div>
+      </div>
+      <div class="donut-box" style="height:200px"><canvas id="pagoChart"></canvas></div>
+      <div class="legend" id="pagoLegend" style="justify-content:center;margin-top:16px"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="closeOverlay(event)">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-title">Actualizar datos</div>
+    <div class="modal-desc">Selecciona la carpeta donde guardas los exports o carga los archivos uno por uno.</div>
+
+    <!-- TABS -->
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tabFolder" onclick="switchModalTab('folder')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Seleccionar carpeta
+      </button>
+      <button class="modal-tab" id="tabFiles" onclick="switchModalTab('files')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Archivos individuales
+      </button>
+    </div>
+
+    <!-- PANEL: FOLDER -->
+    <div id="panelFolder" class="modal-panel">
+      <label class="drop-zone" id="dropFolder">
+        <input type="file" id="folderInput" webkitdirectory onchange="handleFolder(this.files)" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none">
+        <div class="dz-icon">&#128193;</div>
+        <div class="dz-title">Seleccionar carpeta</div>
+        <div class="dz-hint">La carpeta debe contener los dos archivos .xlsx<br>(export de pedidos + items)</div>
+      </label>
+      <div class="upload-msg" id="folderMsg"></div>
+    </div>
+
+    <!-- PANEL: FILES -->
+    <div id="panelFiles" class="modal-panel" style="display:none">
+      <p style="font-size:.75rem;color:#6B7280;margin-bottom:8px">Pedidos (export_XXXX.xlsx)</p>
+      <label class="drop-zone" id="dropZone" style="padding:18px 16px;margin-bottom:10px">
+        <input type="file" id="fileInput" accept=".xlsx" onchange="handleFile(this.files[0])">
+        <div class="dz-icon" style="font-size:1.4rem;margin-bottom:4px">&#128196;</div>
+        <div class="dz-title" style="font-size:.8rem">Arrastra o clic — export pedidos</div>
+      </label>
+      <p style="font-size:.75rem;color:#6B7280;margin-bottom:8px">Items (items.xlsx)</p>
+      <label class="drop-zone" id="dropItems" style="padding:18px 16px">
+        <input type="file" id="itemsInput" accept=".xlsx" onchange="handleItemsFile(this.files[0])">
+        <div class="dz-icon" style="font-size:1.4rem;margin-bottom:4px">&#128196;</div>
+        <div class="dz-title" style="font-size:.8rem">Arrastra o clic — items</div>
+      </label>
+      <div class="upload-msg" id="uploadMsg"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" style="background:#F3F4F6;color:#374151;border:1px solid #E5E7EB" onclick="document.getElementById('overlay').classList.remove('open')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── EMBEDDED DATA ──────────────────────────────────────────────────────────
+const EMBEDDED = [{"f": "2026-05-07", "p": "CORDOBA", "e": "Domicilio", "m": 416190.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 453161.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "SAN LUIS", "e": "Domicilio", "m": 176660.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 220724.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "RIO NEGRO", "e": "Domicilio", "m": 494936.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "CAPITAL FEDERAL", "e": "Same Day", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 47488.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "CAPITAL FEDERAL", "e": "Same Day", "m": 80406.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "NEUQUEN", "e": "Domicilio", "m": 247930.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "RIO NEGRO", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "MENDOZA", "e": "Domicilio", "m": 193284.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Next Day", "m": 8532.0, "fp": "EFECTIVO"}, {"f": "2026-05-07", "p": "MENDOZA", "e": "Domicilio", "m": 723652.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "ENTRE RIOS", "e": "Domicilio", "m": 204609.0, "fp": "EFECTIVO"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 355098.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 496500.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Encomienda", "m": 68376.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 63750.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "SANTA CRUZ", "e": "Suc. Correo", "m": 151185.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "NEUQUEN", "e": "Suc. Correo", "m": 61757.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Domicilio", "m": 306183.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 68856.0, "fp": "EFECTIVO"}, {"f": "2026-05-07", "p": "CORDOBA", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "CORDOBA", "e": "Domicilio", "m": 381402.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 49522.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 10640.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 222547.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 45343.8, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "SANTA FE", "e": "Domicilio", "m": 191521.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "CORDOBA", "e": "Domicilio", "m": 287130.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "LA RIOJA", "e": "Domicilio", "m": 338000.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "NEUQUEN", "e": "Suc. Correo", "m": 197225.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Same Day", "m": 321524.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 281962.0, "fp": "EFECTIVO"}, {"f": "2026-05-08", "p": "NEUQUEN", "e": "Domicilio", "m": 46989.0, "fp": "EFECTIVO"}, {"f": "2026-05-08", "p": "CORDOBA", "e": "Domicilio", "m": 169213.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "TIERRA DEL FUEGO", "e": "Suc. Correo", "m": 313070.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CORDOBA", "e": "Suc. Correo", "m": 60956.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 121570.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CHUBUT", "e": "Suc. Correo", "m": 301218.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Domicilio", "m": 169904.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 435292.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "MENDOZA", "e": "A Convenir", "m": 379056.0, "fp": "EFECTIVO"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 1070470.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 175516.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Same Day", "m": 244644.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 63750.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 75980.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Same Day", "m": 264609.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CORDOBA", "e": "Suc. Correo", "m": 305075.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CORDOBA", "e": "Domicilio", "m": 286919.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Same Day", "m": 346795.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 416190.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "SANTA FE", "e": "Suc. Correo", "m": 1688400.0, "fp": "EFECTIVO"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Same Day", "m": 77028.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Same Day", "m": 389900.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CAPITAL FEDERAL", "e": "Same Day", "m": 168557.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "MENDOZA", "e": "Suc. Correo", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "MENDOZA", "e": "Domicilio", "m": 188785.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Same Day", "m": 497282.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Domicilio", "m": 26612.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 39197.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Domicilio", "m": 154818.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CHUBUT", "e": "Suc. Correo", "m": 63596.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CAPITAL FEDERAL", "e": "Suc. Correo", "m": 40405.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 389612.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 53607.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Same Day", "m": 39452.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "NEUQUEN", "e": "Domicilio", "m": 241499.0, "fp": "EFECTIVO"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Next Day", "m": 66318.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 332666.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 530635.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Domicilio", "m": 478588.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "NEUQUEN", "e": "Suc. Correo", "m": 657977.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "SANTA FE", "e": "Domicilio", "m": 152145.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "RIO NEGRO", "e": "Domicilio", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "SANTA FE", "e": "Suc. Correo", "m": 285629.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "RIO NEGRO", "e": "Domicilio", "m": 203694.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CHUBUT", "e": "Suc. Correo", "m": 480591.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CORDOBA", "e": "Suc. Correo", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 39197.0, "fp": "EFECTIVO"}, {"f": "2026-05-08", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 89303.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CORDOBA", "e": "Suc. Correo", "m": 379960.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Domicilio", "m": 494936.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "TUCUMAN", "e": "Suc. Correo", "m": 368191.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "MENDOZA", "e": "Suc. Correo", "m": 77562.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "SANTA FE", "e": "Suc. Correo", "m": 225845.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CHUBUT", "e": "Suc. Correo", "m": 293566.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "NEUQUEN", "e": "Domicilio", "m": 247930.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Domicilio", "m": 223490.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 56800.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 20202.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Domicilio", "m": 546602.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CORDOBA", "e": "Suc. Correo", "m": 43997.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Domicilio", "m": 285735.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 145815.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "BUENOS AIRES", "e": "Next Day", "m": 346795.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "SALTA", "e": "Encomienda", "m": 1205270.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "TUCUMAN", "e": "Suc. Correo", "m": 61757.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CORDOBA", "e": "Suc. Correo", "m": 60307.8, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "TUCUMAN", "e": "Suc. Correo", "m": 33658.0, "fp": "EFECTIVO"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Next Day", "m": 388748.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "SANTA FE", "e": "Domicilio", "m": 373498.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "MENDOZA", "e": "Suc. Correo", "m": 204923.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CAPITAL FEDERAL", "e": "Suc. Correo", "m": 14453.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 56156.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 19616.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "SAN LUIS", "e": "Suc. Correo", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 99149.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Next Day", "m": 201568.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "TUCUMAN", "e": "Suc. Correo", "m": 70811.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "NEUQUEN", "e": "Domicilio", "m": 989872.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "SANTA FE", "e": "Domicilio", "m": 504368.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "LA RIOJA", "e": "Domicilio", "m": 168699.0, "fp": "EFECTIVO"}, {"f": "2026-05-09", "p": "TUCUMAN", "e": "Suc. Correo", "m": 176881.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "RIO NEGRO", "e": "Domicilio", "m": 253823.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "SANTA FE", "e": "Suc. Correo", "m": 161187.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 301218.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 447589.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CATAMARCA", "e": "Suc. Correo", "m": 248611.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "SANTA FE", "e": "Domicilio", "m": 306856.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CHUBUT", "e": "Domicilio", "m": 214511.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 346795.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "SANTA CRUZ", "e": "Suc. Correo", "m": 135194.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 408250.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 303326.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CORDOBA", "e": "Suc. Correo", "m": 360355.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 447200.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 713908.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 170935.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 157500.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 188987.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "TIERRA DEL FUEGO", "e": "Suc. Correo", "m": 341896.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 166059.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 336365.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CAPITAL FEDERAL", "e": "Suc. Correo", "m": 66859.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "NEUQUEN", "e": "Domicilio", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 269900.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "RIO NEGRO", "e": "Domicilio", "m": 360100.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "NEUQUEN", "e": "Suc. Correo", "m": 287130.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CORDOBA", "e": "Suc. Correo", "m": 65383.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 89567.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 346795.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 178201.0, "fp": "EFECTIVO"}, {"f": "2026-05-10", "p": "BUENOS AIRES", "e": "Next Day", "m": 78108.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "SANTA FE", "e": "Domicilio", "m": 239178.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "CHUBUT", "e": "Suc. Correo", "m": 1038660.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "NEUQUEN", "e": "Domicilio", "m": 338000.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "CORDOBA", "e": "Domicilio", "m": 87500.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 33918.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "SANTA FE", "e": "Suc. Correo", "m": 503137.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 44697.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "CORDOBA", "e": "Domicilio", "m": 214511.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "SAN JUAN", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "MENDOZA", "e": "Suc. Correo", "m": 188181.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 73468.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 73983.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "CORDOBA", "e": "Domicilio", "m": 305398.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 331959.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "BUENOS AIRES", "e": "Domicilio", "m": 137594.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 893727.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 452880.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "TIERRA DEL FUEGO", "e": "Domicilio", "m": 189518.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "LA PAMPA", "e": "Domicilio", "m": 379960.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 214511.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 114763.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 44697.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "BUENOS AIRES", "e": "Domicilio", "m": 357205.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 152161.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 346795.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 35399.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "MENDOZA", "e": "Suc. Correo", "m": 213005.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "BUENOS AIRES", "e": "Domicilio", "m": 287130.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 359098.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "SANTA FE", "e": "Suc. Correo", "m": 43997.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "MENDOZA", "e": "Suc. Correo", "m": 372669.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "MENDOZA", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "MENDOZA", "e": "Domicilio", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "MENDOZA", "e": "Domicilio", "m": 302936.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "SAN JUAN", "e": "Domicilio", "m": 167914.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Suc. Correo", "m": 77915.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Same Day", "m": 297285.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Domicilio", "m": 467090.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 93800.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Suc. Correo", "m": 1237210.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Same Day", "m": 66730.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "MENDOZA", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Domicilio", "m": 168910.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CHUBUT", "e": "Suc. Correo", "m": 322579.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "MENDOZA", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 575132.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "NEUQUEN", "e": "Domicilio", "m": 304851.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 55157.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Domicilio", "m": 2013560.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 86970.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "NEUQUEN", "e": "Domicilio", "m": 231047.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Next Day", "m": 120929.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Domicilio", "m": 198058.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Suc. Correo", "m": 169882.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Suc. Correo", "m": 116218.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Next Day", "m": 72253.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Next Day", "m": 581968.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 301218.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Domicilio", "m": 301218.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Domicilio", "m": 220662.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 72785.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "MENDOZA", "e": "Domicilio", "m": 704618.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Next Day", "m": 8532.0, "fp": "EFECTIVO"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Suc. Correo", "m": 107954.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "LA PAMPA", "e": "Domicilio", "m": 136324.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 62192.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "NEUQUEN", "e": "Domicilio", "m": 248513.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "NEUQUEN", "e": "Suc. Correo", "m": 11340.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Suc. Correo", "m": 277944.0, "fp": "EFECTIVO"}, {"f": "2026-05-11", "p": "RIO NEGRO", "e": "Domicilio", "m": 264842.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Domicilio", "m": 424080.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "SANTA FE", "e": "Domicilio", "m": 1577360.0, "fp": "EFECTIVO"}, {"f": "2026-05-11", "p": "CHUBUT", "e": "Suc. Correo", "m": 454514.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 62033.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "MENDOZA", "e": "Domicilio", "m": 305313.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 7902.0, "fp": "EFECTIVO"}, {"f": "2026-05-11", "p": "RIO NEGRO", "e": "Domicilio", "m": 301218.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 44043.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CHUBUT", "e": "Domicilio", "m": 250456.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Suc. Correo", "m": 33184.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 40199.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "MENDOZA", "e": "Suc. Correo", "m": 264395.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 191572.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "RIO NEGRO", "e": "Domicilio", "m": 153315.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 14001.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 125608.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 20322.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Domicilio", "m": 160796.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 152194.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 264842.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Domicilio", "m": 188097.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "LA PAMPA", "e": "Domicilio", "m": 157688.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CHUBUT", "e": "Suc. Correo", "m": 305075.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 73175.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 234993.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Next Day", "m": 143075.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "NEUQUEN", "e": "Domicilio", "m": 268824.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "MENDOZA", "e": "Suc. Correo", "m": 184001.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Same Day", "m": 158011.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Domicilio", "m": 626229.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CHUBUT", "e": "Suc. Correo", "m": 120914.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 114827.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "NEUQUEN", "e": "Domicilio", "m": 55602.8, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CORDOBA", "e": "Domicilio", "m": 301218.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "SAN LUIS", "e": "Suc. Correo", "m": 129103.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 45465.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "NEUQUEN", "e": "Suc. Correo", "m": 352267.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 111093.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 94982.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "SANTA FE", "e": "Domicilio", "m": 202542.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "ENTRE RIOS", "e": "Domicilio", "m": 281059.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CORDOBA", "e": "Domicilio", "m": 148822.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 343469.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 55676.7, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "SANTA FE", "e": "Domicilio", "m": 284476.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 20148.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 199303.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 7902.0, "fp": "EFECTIVO"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 431024.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Next Day", "m": 2445470.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "NEUQUEN", "e": "Domicilio", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 162258.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 148705.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "TUCUMAN", "e": "Domicilio", "m": 384928.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CORDOBA", "e": "Suc. Correo", "m": 137315.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 176370.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 7901.0, "fp": "EFECTIVO"}, {"f": "2026-05-12", "p": "MENDOZA", "e": "Suc. Correo", "m": 179225.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "SAN JUAN", "e": "A Convenir", "m": 1070470.0, "fp": "EFECTIVO"}, {"f": "2026-05-12", "p": "CAPITAL FEDERAL", "e": "A Convenir", "m": 957176.0, "fp": "EFECTIVO"}, {"f": "2026-05-12", "p": "SANTA FE", "e": "Suc. Correo", "m": 152194.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CORDOBA", "e": "Domicilio", "m": 301218.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "ENTRE RIOS", "e": "Suc. Correo", "m": 238225.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "NEUQUEN", "e": "Suc. Correo", "m": 153000.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Next Day", "m": 225106.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "SAN LUIS", "e": "Domicilio", "m": 16407.0, "fp": "EFECTIVO"}, {"f": "2026-05-12", "p": "MENDOZA", "e": "Domicilio", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "NEUQUEN", "e": "Domicilio", "m": 177772.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Next Day", "m": 77514.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CHUBUT", "e": "Suc. Correo", "m": 254308.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Domicilio", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Domicilio", "m": 207214.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 268322.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CHUBUT", "e": "Suc. Correo", "m": 159273.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "NEUQUEN", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Domicilio", "m": 154297.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "NEUQUEN", "e": "Domicilio", "m": 528790.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Next Day", "m": 141243.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "MENDOZA", "e": "Domicilio", "m": 1003780.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "TUCUMAN", "e": "Suc. Correo", "m": 303857.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Next Day", "m": 145271.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Domicilio", "m": 64157.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Next Day", "m": 689800.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "NEUQUEN", "e": "Domicilio", "m": 211987.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "SAN LUIS", "e": "Suc. Correo", "m": 57970.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Domicilio", "m": 352281.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Domicilio", "m": 227421.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "NEUQUEN", "e": "Domicilio", "m": 347078.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Same Day", "m": 112880.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Domicilio", "m": 108689.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "MENDOZA", "e": "Suc. Correo", "m": 125400.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Same Day", "m": 561630.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 13008.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "SANTA FE", "e": "Domicilio", "m": 162739.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Next Day", "m": 63471.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "TIERRA DEL FUEGO", "e": "Suc. Correo", "m": 59594.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "CATAMARCA", "e": "Suc. Correo", "m": 350324.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Same Day", "m": 284215.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "SALTA", "e": "Domicilio", "m": 36451.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 7901.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 34931.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "SANTA FE", "e": "Suc. Correo", "m": 512919.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "LA RIOJA", "e": "Domicilio", "m": 178503.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "A Convenir", "m": 1700260.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 24312.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Next Day", "m": 362398.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 186385.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "TUCUMAN", "e": "Domicilio", "m": 100700.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 41220.3, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 51612.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "JUJUY", "e": "Domicilio", "m": 364441.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "CORDOBA", "e": "Encomienda", "m": 103741.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Domicilio", "m": 196929.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CORDOBA", "e": "Domicilio", "m": 336365.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "SANTA FE", "e": "Suc. Correo", "m": 239150.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "SALTA", "e": "Domicilio", "m": 416190.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 69250.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CORDOBA", "e": "Domicilio", "m": 116735.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 157501.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "TUCUMAN", "e": "Domicilio", "m": 100700.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "NEUQUEN", "e": "Domicilio", "m": 161484.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CHUBUT", "e": "Suc. Correo", "m": 102596.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "SAN LUIS", "e": "Suc. Correo", "m": 290636.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Next Day", "m": 192559.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 48709.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Domicilio", "m": 69690.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 284751.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "SALTA", "e": "Suc. Correo", "m": 20045.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "SANTA FE", "e": "Domicilio", "m": 301218.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Domicilio", "m": 209073.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 39197.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Domicilio", "m": 264395.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CHUBUT", "e": "Suc. Correo", "m": 480500.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 70171.2, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Domicilio", "m": 264842.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 41220.3, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 20569.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Domicilio", "m": 163799.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 288234.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CORDOBA", "e": "Suc. Correo", "m": 301218.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 178503.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "CORDOBA", "e": "Suc. Correo", "m": 28690.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "SALTA", "e": "Domicilio", "m": 153927.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "SALTA", "e": "Domicilio", "m": 418800.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 56257.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CORDOBA", "e": "Suc. Correo", "m": 288234.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 70196.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Next Day", "m": 192559.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 79500.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 30701.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 60150.9, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 71650.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 33918.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 48424.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CORDOBA", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Next Day", "m": 707524.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 358558.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CORDOBA", "e": "Suc. Correo", "m": 336365.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 416190.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Domicilio", "m": 265212.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "SANTA FE", "e": "Domicilio", "m": 227241.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "TUCUMAN", "e": "Suc. Correo", "m": 247863.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "NEUQUEN", "e": "Domicilio", "m": 226231.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CORDOBA", "e": "Domicilio", "m": 473359.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 43506.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Domicilio", "m": 164340.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "SAN LUIS", "e": "Domicilio", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 310642.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 236483.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 71239.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "CORDOBA", "e": "Domicilio", "m": 225106.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 288234.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "NEUQUEN", "e": "Suc. Correo", "m": 176660.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 289492.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "CAPITAL FEDERAL", "e": "Same Day", "m": 226245.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 39712.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "RIO NEGRO", "e": "Domicilio", "m": 185949.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "NEUQUEN", "e": "Suc. Correo", "m": 176660.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "NEUQUEN", "e": "Domicilio", "m": 2144280.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 405978.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 42500.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "CORDOBA", "e": "Suc. Correo", "m": 301218.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 132176.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Domicilio", "m": 301218.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 136494.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 78541.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 327972.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "A Convenir", "m": 402455.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "RIO NEGRO", "e": "Domicilio", "m": 94800.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "LA PAMPA", "e": "Suc. Correo", "m": 30088.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "NEUQUEN", "e": "Domicilio", "m": 293493.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 264842.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Domicilio", "m": 186867.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 332941.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 5.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 112241.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "MENDOZA", "e": "Suc. Correo", "m": 168133.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "NEUQUEN", "e": "Domicilio", "m": 338000.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "NEUQUEN", "e": "Suc. Correo", "m": 209443.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "ENTRE RIOS", "e": "Suc. Correo", "m": 30663.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "RIO NEGRO", "e": "Domicilio", "m": 129376.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "NEUQUEN", "e": "Domicilio", "m": 214511.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Domicilio", "m": 289719.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "CORDOBA", "e": "Suc. Correo", "m": 2515470.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "SANTA FE", "e": "Suc. Correo", "m": 48424.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "NEUQUEN", "e": "Domicilio", "m": 310642.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 229816.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "TUCUMAN", "e": "Domicilio", "m": 181198.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "MENDOZA", "e": "Suc. Correo", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 70512.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 288234.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "NEUQUEN", "e": "Domicilio", "m": 178503.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 415622.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 84400.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Next Day", "m": 369668.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Next Day", "m": 177162.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Domicilio", "m": 29748.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "MENDOZA", "e": "Domicilio", "m": 286304.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 136494.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Next Day", "m": 301218.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 360100.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 1101810.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 53638.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Domicilio", "m": 288234.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "CAPITAL FEDERAL", "e": "Next Day", "m": 49033.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Retiro Local", "m": 67838.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "NEUQUEN", "e": "Domicilio", "m": 160442.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "RIO NEGRO", "e": "Suc. Correo", "m": 245907.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "CORDOBA", "e": "Suc. Correo", "m": 22966.0, "fp": "TARJETA"}, {"f": "2026-05-08", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 247930.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "CAPITAL FEDERAL", "e": "Retiro Local", "m": 179297.0, "fp": "EFECTIVO"}, {"f": "2026-05-09", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 41365.0, "fp": "TARJETA"}, {"f": "2026-05-09", "p": "MENDOZA", "e": "Suc. Correo", "m": 133924.0, "fp": "TARJETA"}, {"f": "2026-05-10", "p": "CAPITAL FEDERAL", "e": "Domicilio", "m": 81476.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "TUCUMAN", "e": "Domicilio", "m": 157409.0, "fp": "EFECTIVO"}, {"f": "2026-05-11", "p": "CHUBUT", "e": "Suc. Correo", "m": 40876.0, "fp": "TARJETA"}, {"f": "2026-05-11", "p": "TUCUMAN", "e": "Domicilio", "m": 202582.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "NEUQUEN", "e": "Domicilio", "m": 160530.0, "fp": "EFECTIVO"}, {"f": "2026-05-12", "p": "SANTA FE", "e": "Suc. Correo", "m": 158747.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "TUCUMAN", "e": "Suc. Correo", "m": 133924.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CORDOBA", "e": "Suc. Correo", "m": 350045.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "CORDOBA", "e": "Suc. Correo", "m": 158490.0, "fp": "EFECTIVO"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 215824.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 338145.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "MENDOZA", "e": "Suc. Correo", "m": 132952.0, "fp": "EFECTIVO"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Domicilio", "m": 73896.0, "fp": "TARJETA"}, {"f": "2026-05-14", "p": "NEUQUEN", "e": "Suc. Correo", "m": 87103.0, "fp": "TARJETA"}, {"f": "2026-05-07", "p": "BUENOS AIRES", "e": "Domicilio", "m": 68144.0, "fp": "TARJETA"}, {"f": "2026-05-12", "p": "BUENOS AIRES", "e": "Suc. Correo", "m": 210668.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "BUENOS AIRES", "e": "Domicilio", "m": 144199.0, "fp": "TARJETA"}, {"f": "2026-05-13", "p": "MENDOZA", "e": "Suc. Correo", "m": 15308.0, "fp": "EFECTIVO"}, {"f": "2026-05-14", "p": "BUENOS AIRES", "e": "Domicilio", "m": 74448.0, "fp": "TARJETA"}];
+let ITEMS      = [{"f": "2026-05-07", "cod": "8058428215409", "mar": "LA SPORTIVA", "des": "La Sportiva Boulder X Mid Goretex [49 | CARBON - FLAME]", "uni": 1, "dto": 0.0, "tot": 416190.0}, {"f": "2026-05-07", "cod": "38174", "mar": "ROPE LOGIC", "des": "Rope Logic X-Rigging Ring sling 3-5 pies", "uni": 1, "dto": 0.0, "tot": 453161.0}, {"f": "2026-05-07", "cod": "8020647962617", "mar": "LA SPORTIVA", "des": "La Sportiva Tarentula velcro [42.5 | CARBON/RED]", "uni": 1, "dto": 0.0, "tot": 176660.0}, {"f": "2026-05-07", "cod": "8020647650811", "mar": "LA SPORTIVA", "des": "La Sportiva Solution [40 EU | WHITE/YELLOW]", "uni": 1, "dto": 0.0, "tot": 395724.0}, {"f": "2026-05-07", "cod": "8058428251674", "mar": "LA SPORTIVA", "des": "La Sportiva TX5 EVO MID GTX Mujer [36.5 | CARBON/REDWOOD]", "uni": 1, "dto": 0.0, "tot": 494936.0}, {"f": "2026-05-07", "cod": "8020647961269", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Mujer [39.5 | RED PLUM]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-07", "cod": "6924442465392", "mar": "AONIJIE", "des": "Aonijie M-58 Guantes Deportivos Softshell [L | GRIS]", "uni": 1, "dto": 0.0, "tot": 29431.0}, {"f": "2026-05-07", "cod": "8596253151306", "mar": "ACEPAC", "des": "Acepac Alforja Cicloturismo Fuel Bag L", "uni": 1, "dto": 15.0, "tot": 73450.0}, {"f": "2026-05-07", "cod": "6924442429523", "mar": "AONIJIE", "des": "Aonijie Bastones De Trail Running Carbono 4 Secciones E4204-D [NARANJA | 120 CM]", "uni": 1, "dto": 0.0, "tot": 247930.0}, {"f": "2026-05-07", "cod": "8020647221776", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantulace [42 | CARBON/LIME PUNCH]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-07", "cod": "8436020414039", "mar": "FIXE", "des": "Fixe Manyac Cabo Din\u00e1mico Doble", "uni": 1, "dto": 0.0, "tot": 60401.0}, {"f": "2026-05-07", "cod": "9972", "mar": "OTRAS", "des": "VAP Correo Argentino", "uni": 1, "dto": 0.0, "tot": 1.0}, {"f": "2026-05-07", "cod": "8058428245789", "mar": "LA SPORTIVA", "des": "La Sportiva Trango Tech GTX [44.5 | BLACK - YELLOW]", "uni": 1, "dto": 0.0, "tot": 723652.0}, {"f": "2026-05-07", "cod": "3700288028198", "mar": "EDELWEISS", "des": "Edelweiss Guard HMS Negro", "uni": 4, "dto": 25.0, "tot": 132788.0}, {"f": "2026-05-07", "cod": "4028545192048", "mar": "EDELRID", "des": "Edelrid Sirana TC [TALLE M]", "uni": 1, "dto": 20.0, "tot": 178688.0}, {"f": "2026-05-07", "cod": "8421650144289", "mar": "ALTUS", "des": "Altus Mochila 30 L Musala J30", "uni": 2, "dto": 20.0, "tot": 368002.0}, {"f": "2026-05-07", "cod": "7378", "mar": "EDELWEISS", "des": "Edelweiss Guard Oval Negro", "uni": 2, "dto": 20.0, "tot": 68376.0}, {"f": "2026-05-07", "cod": "100200017903", "mar": "EPIC", "des": "Epic Flow Pantal\u00f3n de Escalada Unisex [M | CAMEL]", "uni": 1, "dto": 15.0, "tot": 63750.0}, {"f": "2026-05-07", "cod": "3342540847194", "mar": "PETZL", "des": "Petzl Tikka 350 lumens [AMARILLO]", "uni": 1, "dto": 0.0, "tot": 85458.0}, {"f": "2026-05-07", "cod": "500108559004", "mar": "EPIC", "des": "Epic Centinela Half Zip Hoody [L | BORRAVINO]", "uni": 1, "dto": 20.0, "tot": 56257.0}, {"f": "2026-05-07", "cod": "8020647941537", "mar": "LA SPORTIVA", "des": "La Sportiva Boulder X [47 | CLAY/SAFFRON]", "uni": 1, "dto": 0.0, "tot": 313070.0}, {"f": "2026-05-07", "cod": "8436020416071", "mar": "FIXE", "des": "Fixe Mosqueton Symmetric Adur Oval de acero con Seguro a Rosca", "uni": 4, "dto": 0.0, "tot": 64056.0}, {"f": "2026-05-07", "cod": "8020647216062", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula [41.5 | CARBON/LIME PUNCH]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-07", "cod": "3700288017284", "mar": "EDELWEISS", "des": "Edelweiss Flashlight 10mm 70m [ROJO]", "uni": 1, "dto": 25.0, "tot": 381402.0}, {"f": "2026-05-07", "cod": "205000000106", "mar": "LIBO", "des": "Libo Jogger [TALLE XL]", "uni": 1, "dto": 0.0, "tot": 49522.0}, {"f": "2026-05-07", "cod": "6924442440702", "mar": "AONIJIE", "des": "Aonijie Botella Pl\u00e1stica 250ml SD06", "uni": 1, "dto": 25.0, "tot": 5840.0}, {"f": "2026-05-07", "cod": "6975755962115", "mar": "FLEXTAIL", "des": "Flextail Max Shower Ducha El\u00e9ctrica Port\u00e1til", "uni": 1, "dto": 15.0, "tot": 150930.0}, {"f": "2026-05-07", "cod": "100600-003-03", "mar": "EPIC", "des": "Epic Zen Pantal\u00f3n para escalada y yoga jean elastizado [TALLE M]", "uni": 1, "dto": 40.0, "tot": 39196.8}, {"f": "2026-05-07", "cod": "8801901090129", "mar": "NIKKO", "des": "Bombona de gas a rosca Nikko 230g", "uni": 2, "dto": 0.0, "tot": 15924.0}, {"f": "2026-05-07", "cod": "8020647651467", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Cordones [41 | LIMA]", "uni": 1, "dto": 20.0, "tot": 287130.0}, {"f": "2026-05-07", "cod": "198605192890", "mar": "HOKA", "des": "Hoka Mafate 5 Zapatillas Trail Running [46 | BLACK/GOLD BKGD]", "uni": 1, "dto": 0.0, "tot": 338000.0}, {"f": "2026-05-07", "cod": "8801901090129", "mar": "NIKKO", "des": "Bombona de gas a rosca Nikko 230g", "uni": 1, "dto": 0.0, "tot": 7962.0}, {"f": "2026-05-08", "cod": "6976023926334", "mar": "NATUREHIKE", "des": "Naturehike Cloud Skies Toldo con Parantes 500x380cm", "uni": 1, "dto": 0.0, "tot": 182261.0}, {"f": "2026-05-08", "cod": "500108559002", "mar": "EPIC", "des": "Epic Centinela Half Zip Hoody [S | BORRAVINO]", "uni": 1, "dto": 20.0, "tot": 56257.0}, {"f": "2026-05-08", "cod": "8595033339323", "mar": "SINGING ROCK", "des": "Singing Rock Timber Accesory Cord Prusik 8mm X 80cm", "uni": 1, "dto": 0.0, "tot": 30583.0}, {"f": "2026-05-08", "cod": "8436020004018", "mar": "FIXE", "des": "Fixe Cinta Nylon 16mm x 80cm", "uni": 1, "dto": 15.0, "tot": 18111.0}, {"f": "2026-05-08", "cod": "8020647941476", "mar": "LA SPORTIVA", "des": "La Sportiva Boulder X [44 | CLAY/SAFFRON]", "uni": 1, "dto": 0.0, "tot": 313070.0}, {"f": "2026-05-08", "cod": "200300-011-03", "mar": "EPIC", "des": "Epic Kibo Cooldry Camiseta t\u00e9rmica Hombre [TALLE M | GRIS ACERO]", "uni": 1, "dto": 30.0, "tot": 16959.0}, {"f": "2026-05-08", "cod": "200410000802", "mar": "EPIC", "des": "Epic Acay Microterm Camiseta Mujer [TALLE S | ROSA CANDY]", "uni": 1, "dto": 10.0, "tot": 37355.0}, {"f": "2026-05-08", "cod": "8058428239610", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Mujer Goretex [39 | CARBON / ICEBERG]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-08", "cod": "4028545115917", "mar": "EDELRID", "des": "Edelrid Ultralight Casco de escalada [SNOW]", "uni": 1, "dto": 0.0, "tot": 169904.0}, {"f": "2026-05-08", "cod": "8058428218608", "mar": "LA SPORTIVA", "des": "La Sportiva TxS Gtx [43 | CARBON - BAMBOO]", "uni": 1, "dto": 0.0, "tot": 435292.0}, {"f": "2026-05-08", "cod": "8436020415869", "mar": "FIXE", "des": "Fixe Magnesio Crunch 250g", "uni": 10, "dto": 0.0, "tot": 243120.0}, {"f": "2026-05-08", "cod": "8020647783274", "mar": "LA SPORTIVA", "des": "La Sportiva Nepal Extreme [39]", "uni": 1, "dto": 0.0, "tot": 1070470.0}, {"f": "2026-05-08", "cod": "8058428112593", "mar": "LA SPORTIVA", "des": "La Sportiva Telendos Hoody Mujer [M | REDWOOD]", "uni": 1, "dto": 0.0, "tot": 175516.0}, {"f": "2026-05-08", "cod": "4028545204710", "mar": "EDELRID", "des": "Edelrid Pinch", "uni": 1, "dto": 10.0, "tot": 244644.0}, {"f": "2026-05-08", "cod": "100200016603", "mar": "EPIC", "des": "Epic Flow Pantal\u00f3n de Escalada Unisex [M | VERDE OLIVA]", "uni": 1, "dto": 15.0, "tot": 63750.0}, {"f": "2026-05-08", "cod": "886798024943", "mar": "CAMELBAK", "des": "Camelbak Podium Chill 620ml [RACE EDITION]", "uni": 1, "dto": 0.0, "tot": 36783.0}, {"f": "2026-05-08", "cod": "6975755966625", "mar": "FLEXTAIL", "des": "Flextail Aislante Autoinflable AVS R03", "uni": 1, "dto": 20.0, "tot": 264609.0}, {"f": "2026-05-08", "cod": "8020647651931", "mar": "LA SPORTIVA", "des": "La Sportiva Katana [42.5 | YELLOW/BLACK]", "uni": 1, "dto": 15.0, "tot": 305075.0}, {"f": "2026-05-08", "cod": "8020647651429", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Cordones [39 | LIMA]", "uni": 1, "dto": 20.0, "tot": 287130.0}, {"f": "2026-05-08", "cod": "8058428099139", "mar": "LA SPORTIVA", "des": "La Sportiva Solution Comp Mujer [39 | HIBUSCUS / MALIBU BLUE]", "uni": 1, "dto": 15.0, "tot": 346795.0}, {"f": "2026-05-08", "cod": "8058428215300", "mar": "LA SPORTIVA", "des": "La Sportiva Boulder X Mid Goretex [44 | CARBON - FLAME]", "uni": 1, "dto": 0.0, "tot": 416190.0}, {"f": "2026-05-08", "cod": "8421650064860", "mar": "ALTUS", "des": "Altus Andes 400 Duvet 700PF (L\u00edmite 5\u00b0)", "uni": 1, "dto": 30.0, "tot": 314513.0}, {"f": "2026-05-08", "cod": "6927595724651", "mar": "NATUREHIKE", "des": "Naturehike Manta para Picnic Liviana L", "uni": 1, "dto": 0.0, "tot": 51638.0}, {"f": "2026-05-08", "cod": "195699956100", "mar": "PATAGONIA", "des": "Patagonia Torrentshell 3L Campera Impermeable [M | NOUVEAU GREEN]", "uni": 1, "dto": 0.0, "tot": 389900.0}, {"f": "2026-05-08", "cod": "6924442460038", "mar": "AONIJIE", "des": "Aonijie Chaleco Running 10 L C9116-10L [M | NEGRO]", "uni": 1, "dto": 0.0, "tot": 168557.0}, {"f": "2026-05-08", "cod": "8058428057825", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder Mujer [36.5 | CARBON/SPRINGTIME]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-08", "cod": "8596253505000", "mar": "ACEPAC", "des": "Acepac  Bolso Pouch Cicloturismo Groundsheet", "uni": 1, "dto": 30.0, "tot": 36816.0}, {"f": "2026-05-08", "cod": "888663541470", "mar": "MOUNTAIN HARDWEAR", "des": "Mountain Hardwear Lamina 0 (L\u00edmite -18\u00b0)", "uni": 1, "dto": 20.0, "tot": 497282.0}, {"f": "2026-05-08", "cod": "3342540103795", "mar": "PETZL", "des": "Petzl Tope para PANTIN [DERECHO]", "uni": 1, "dto": 0.0, "tot": 18712.0}, {"f": "2026-05-08", "cod": "100600-003-03", "mar": "EPIC", "des": "Epic Zen Pantal\u00f3n para escalada y yoga jean elastizado [TALLE M]", "uni": 1, "dto": 40.0, "tot": 39197.0}, {"f": "2026-05-08", "cod": "4052285295356", "mar": "EDELRID", "des": "Edelrid SM Clip - Portamaterial", "uni": 3, "dto": 15.0, "tot": 41307.0}, {"f": "2026-05-08", "cod": "6924442444489", "mar": "AONIJIE", "des": "Aonijie Soft Flask 250ml SD21", "uni": 1, "dto": 0.0, "tot": 20242.0}, {"f": "2026-05-08", "cod": "100600-003-04", "mar": "EPIC", "des": "Epic Zen Pantal\u00f3n para escalada y yoga jean elastizado [TALLE L]", "uni": 1, "dto": 40.0, "tot": 39197.0}, {"f": "2026-05-08", "cod": "9788498292114", "mar": "DESNIVEL", "des": "Manual completo de nudos", "uni": 1, "dto": 0.0, "tot": 37701.0}, {"f": "2026-05-08", "cod": "L703300596VE28T", "mar": "SOX", "des": "Sox Bipack Trekking TE100A + VE28C [TALLE XL (44-46)]", "uni": 1, "dto": 0.0, "tot": 20322.0}, {"f": "2026-05-08", "cod": "4028545116167", "mar": "EDELRID", "des": "Edelrid Cord\u00edn 4mm [RED]", "uni": 7, "dto": 0.0, "tot": 12369.0}, {"f": "2026-05-08", "cod": "8020647960835", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula [44 | OLIVE/NEON]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-08", "cod": "8020647201389", "mar": "LA SPORTIVA", "des": "La Sportiva Karacal Mujer [39 | CHERRY TOMATO/VELVET]", "uni": 1, "dto": 20.0, "tot": 241499.0}, {"f": "2026-05-08", "cod": "500108-008-03GRP", "mar": "EPIC", "des": "Epic Centinela Half Zip Hoody [M | NEGRO / PLATEADO]", "uni": 1, "dto": 20.0, "tot": 56257.0}, {"f": "2026-05-08", "cod": "6927595722169", "mar": "NATUREHIKE", "des": "Naturehike Hamaca [AZUL]", "uni": 1, "dto": 30.0, "tot": 35399.0}, {"f": "2026-05-08", "cod": "4028545205786", "mar": "EDELRID", "des": "Edelrid Arn\u00e9s Jayne 4 Mujer [TALLE XS | DOLPHIN]", "uni": 1, "dto": 0.0, "tot": 176687.0}, {"f": "2026-05-08", "cod": "8058428217007", "mar": "LA SPORTIVA", "des": "La Sportiva Trango TRK GTX [40.5 | SPACE BLUE - MAPLE]", "uni": 1, "dto": 0.0, "tot": 478588.0}, {"f": "2026-05-08", "cod": "8058428178261", "mar": "LA SPORTIVA", "des": "La Sportiva Lumina 200 Down JKT 1000FP [XL | REDWOOD]", "uni": 1, "dto": 15.0, "tot": 657977.0}, {"f": "2026-05-08", "cod": "8436020416088", "mar": "FIXE", "des": "Fixe Rock Stone Screw", "uni": 1, "dto": 0.0, "tot": 34892.0}, {"f": "2026-05-08", "cod": "8020647106523", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder [42.5 | METAL/SUNSET]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-08", "cod": "3700288017116", "mar": "EDELWEISS", "des": "Edelweiss Guru Alpin Asegurador", "uni": 1, "dto": 20.0, "tot": 54582.4}, {"f": "2026-05-08", "cod": "8020647846009", "mar": "LA SPORTIVA", "des": "La Sportiva Lycan 2 [43 | BLACK/YELLOW]", "uni": 1, "dto": 25.0, "tot": 214511.0}, {"f": "2026-05-08", "cod": "8020647840793", "mar": "LA SPORTIVA", "des": "La Sportiva Solution Comp [42 EU | BLACK/YELLOW]", "uni": 1, "dto": 15.0, "tot": 346795.0}, {"f": "2026-05-08", "cod": "8020647961177", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Mujer [35 | RED PLUM]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-08", "cod": "100700-003-02", "mar": "EPIC", "des": "Epic Mantra Pantal\u00f3n de Escalada Mujer [TALLE S]", "uni": 1, "dto": 40.0, "tot": 39197.0}, {"f": "2026-05-08", "cod": "L703401003TOPO0", "mar": "SOX", "des": "Sox Trekking Invictus-Kumbre Premium TE100A [TALLE S (35-37) | TOPO]", "uni": 2, "dto": 0.0, "tot": 29664.0}, {"f": "2026-05-08", "cod": "8058428152858", "mar": "LA SPORTIVA", "des": "La Sportiva Prodigio Pro [45 | MOUNTAIN RED / YELLOW]", "uni": 1, "dto": 0.0, "tot": 379960.0}, {"f": "2026-05-08", "cod": "8058428251070", "mar": "LA SPORTIVA", "des": "La Sportiva TX5 EVO MID GTX [46 | CARBON/YELLOW]", "uni": 1, "dto": 0.0, "tot": 494936.0}, {"f": "2026-05-08", "cod": "8058428097166", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Cordones [44 | LIME]", "uni": 1, "dto": 20.0, "tot": 287130.0}, {"f": "2026-05-08", "cod": "763571699010", "mar": "CAMPS FOODS", "des": "Camps Foods - Guiso de Lentejas Alimento liofilizado x 100gr", "uni": 1, "dto": 0.0, "tot": 17507.0}, {"f": "2026-05-08", "cod": "8421650005566", "mar": "ALTUS", "des": "Altus Boj Bastones de Trekking", "uni": 1, "dto": 20.0, "tot": 132652.0}, {"f": "2026-05-08", "cod": "8020647651481", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Cordones [42 | LIMA]", "uni": 1, "dto": 20.0, "tot": 287130.0}, {"f": "2026-05-08", "cod": "8020647216260", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantulace [35 | CARBON/LIME PUNCH]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-08", "cod": "6924442429530", "mar": "AONIJIE", "des": "Aonijie Bastones De Trail Running Carbono 4 Secciones E4204-D [NARANJA | 125 CM]", "uni": 1, "dto": 0.0, "tot": 247930.0}, {"f": "2026-05-08", "cod": "8436020415784", "mar": "FIXE", "des": "Fixe Linus Arn\u00e9s Universal", "uni": 1, "dto": 0.0, "tot": 98057.0}, {"f": "2026-05-08", "cod": "8428927330062", "mar": "BUFF", "des": "Buff Merino Wool Solid Grey (Lana Merino)", "uni": 1, "dto": 0.0, "tot": 52000.0}, {"f": "2026-05-08", "cod": "6927595750469", "mar": "NATUREHIKE", "des": "Naturehike GL05 Guante softshell [TALLE M | BLACK]", "uni": 1, "dto": 0.0, "tot": 30532.0}, {"f": "2026-05-08", "cod": "8020647216352", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantulace [39.5 | CARBON/LIME PUNCH]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-08", "cod": "8058428213146", "mar": "LA SPORTIVA", "des": "La Sportiva TX4 EVO GTX [43 | CARBON / BAMBOO]", "uni": 1, "dto": 0.0, "tot": 418151.0}, {"f": "2026-05-08", "cod": "100600-003-04", "mar": "EPIC", "des": "Epic Zen Pantal\u00f3n para escalada y yoga jean elastizado [TALLE L]", "uni": 1, "dto": 40.0, "tot": 39197.0}, {"f": "2026-05-08", "cod": "8020647651658", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Mujer Cordones [37]", "uni": 1, "dto": 20.0, "tot": 287130.0}, {"f": "2026-05-08", "cod": "6924442465392", "mar": "AONIJIE", "des": "Aonijie M-58 Guantes Deportivos Softshell [L | GRIS]", "uni": 1, "dto": 0.0, "tot": 29431.0}, {"f": "2026-05-08", "cod": "8020647840984", "mar": "LA SPORTIVA", "des": "La Sportiva Solution Comp Mujer [38 | HIBISCUS/MALIBU BLUE]", "uni": 1, "dto": 15.0, "tot": 346795.0}, {"f": "2026-05-08", "cod": "8595033345850", "mar": "SINGING ROCK", "des": "Singing Rock Expert 3D Speed [XL | NEGRO / AMARILLO]", "uni": 1, "dto": 0.0, "tot": 662137.0}, {"f": "2026-05-09", "cod": "500108-008-02GRP", "mar": "EPIC", "des": "Epic Centinela Half Zip Hoody [S | NEGRO / PLATEADO]", "uni": 1, "dto": 20.0, "tot": 56257.0}, {"f": "2026-05-09", "cod": "2020000765", "mar": "SALPA", "des": "Salpa Cuello Olas Verdes Microfibra", "uni": 1, "dto": 0.0, "tot": 13081.0}, {"f": "2026-05-09", "cod": "2020000718", "mar": "DROW", "des": "Drow Magnesiera [CAT]", "uni": 1, "dto": 0.0, "tot": 28158.0}, {"f": "2026-05-09", "cod": "6977465868428", "mar": "NATUREHIKE", "des": "Naturehike Sunny Day U450 Bolsa de Dormir (L\u00edmite -1.3\u00ba) [CIERRE IZQUIERDO | AZUL]", "uni": 1, "dto": 0.0, "tot": 135932.0}, {"f": "2026-05-09", "cod": "8020647150885", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Goretex [47.5 | CARBON/MOSS]", "uni": 1, "dto": 20.0, "tot": 373498.0}, {"f": "2026-05-09", "cod": "4028545205786", "mar": "EDELRID", "des": "Edelrid Arn\u00e9s Jayne 4 Mujer [TALLE XS | DOLPHIN]", "uni": 1, "dto": 0.0, "tot": 176687.0}, {"f": "2026-05-09", "cod": "8020647034604", "mar": "LA SPORTIVA", "des": "La Sportiva Lace Mountain Aequilibrium Cordones 180cm", "uni": 1, "dto": 0.0, "tot": 9653.0}, {"f": "2026-05-09", "cod": "200300-011-03", "mar": "EPIC", "des": "Epic Kibo Cooldry Camiseta t\u00e9rmica Hombre [TALLE M | GRIS ACERO]", "uni": 1, "dto": 30.0, "tot": 16959.0}, {"f": "2026-05-09", "cod": "6927595798355", "mar": "NATUREHIKE", "des": "Naturehike Bid\u00f3n de Agua Plegable 10L [AMARILLO]", "uni": 1, "dto": 0.0, "tot": 9808.0}, {"f": "2026-05-09", "cod": "8020647106790", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder Mujer [38 | ICE/CRYSTAL]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-09", "cod": "6927595722169", "mar": "NATUREHIKE", "des": "Naturehike Hamaca [AZUL]", "uni": 1, "dto": 30.0, "tot": 35399.0}, {"f": "2026-05-09", "cod": "NQCCL-25MM", "mar": "NOTCH", "des": "Notch Quick Cinch Eslinga para Motosierra 25mm", "uni": 1, "dto": 0.0, "tot": 103066.0}, {"f": "2026-05-09", "cod": "6977465869425", "mar": "NATUREHIKE", "des": "Naturehike Bast\u00f3n Aluminio 3 secciones 60-135 cm [VERDE]", "uni": 1, "dto": 0.0, "tot": 65311.0}, {"f": "2026-05-09", "cod": "8058428251681", "mar": "LA SPORTIVA", "des": "La Sportiva TX5 EVO MID GTX Mujer [37 | CARBON/REDWOOD]", "uni": 1, "dto": 0.0, "tot": 494936.0}, {"f": "2026-05-09", "cod": "8058428021604", "mar": "LA SPORTIVA", "des": "La Sportiva Discover Shell Jkt Mujer Juniper Everglade [L | JUNIPER/EVERGLADE]", "uni": 1, "dto": 0.0, "tot": 504368.0}, {"f": "2026-05-09", "cod": "8058428057894", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder Mujer [40 | CARBON/SPRINGTIME]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-09", "cod": "6977465866431", "mar": "NATUREHIKE", "des": "Naturehike Almohada Inflable Cuadrada [GRIS]", "uni": 1, "dto": 0.0, "tot": 6836.0}, {"f": "2026-05-09", "cod": "6924442444373", "mar": "AONIJIE", "des": "Aonijie Bastones De Trail Running 3 Secciones E4201 [VIOLETA | 120 CM]", "uni": 1, "dto": 0.0, "tot": 128424.0}, {"f": "2026-05-09", "cod": "L703302135NEGRO", "mar": "SOX", "des": "Sox Fibertreck TE213A [L | NEGRO]", "uni": 1, "dto": 0.0, "tot": 13802.0}, {"f": "2026-05-09", "cod": "8020647043095", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Goretex [41 | METAL/FLASH GREEN]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-09", "cod": "8436020003981", "mar": "FIXE", "des": "Fixe Miku kit Descensor Doble Light + HMS", "uni": 1, "dto": 20.0, "tot": 92024.0}, {"f": "2026-05-09", "cod": "8436020008375", "mar": "FIXE", "des": "Fixe Cinta Nylon 16mm x 65cm", "uni": 1, "dto": 15.0, "tot": 16081.0}, {"f": "2026-05-09", "cod": "8020647961702", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantulace [37.5 | BLACK POPPY]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-09", "cod": "8020647846030", "mar": "LA SPORTIVA", "des": "La Sportiva Lycan 2 [44.5 | BLACK/YELLOW]", "uni": 1, "dto": 25.0, "tot": 214511.0}, {"f": "2026-05-09", "cod": "8020647840960", "mar": "LA SPORTIVA", "des": "La Sportiva Solution Comp Mujer [37 | HIBISCUS/MALIBU BLUE]", "uni": 1, "dto": 15.0, "tot": 346795.0}, {"f": "2026-05-09", "cod": "4028545134833", "mar": "EDELRID", "des": "Edelrid Moe 3 [TALLE S]", "uni": 1, "dto": 20.0, "tot": 129694.0}, {"f": "2026-05-09", "cod": "100200048102", "mar": "EPIC", "des": "Epic Flow Pantal\u00f3n de Escalada Unisex [S | GRIS]", "uni": 1, "dto": 15.0, "tot": 63750.0}, {"f": "2026-05-09", "cod": "6977465866097", "mar": "NATUREHIKE", "des": "Naturehike Colchoneta AutoInflable 3cm R3.1 [VERDE]", "uni": 2, "dto": 0.0, "tot": 160092.0}, {"f": "2026-05-09", "cod": "8595033349612", "mar": "SINGING ROCK", "des": "Singing Rock Cord\u00edn Negro 5mm x Metro", "uni": 3, "dto": 0.0, "tot": 5154.0}, {"f": "2026-05-09", "cod": "310107   02 200", "mar": "ANSILTA", "des": "Ansilta Fitz Roy Campera H\u00edbrida con Capucha [S | NEGRO]", "uni": 1, "dto": 0.0, "tot": 447200.0}, {"f": "2026-05-09", "cod": "6927595730607", "mar": "NATUREHIKE", "des": "Naturehike Cloud UP 3 Personas 20D con Faldones", "uni": 1, "dto": 0.0, "tot": 713908.0}, {"f": "2026-05-09", "cod": "500104-003-03", "mar": "EPIC", "des": "Epic Buzo Madsen Plus Termofleece para Hombre [TALLE M | AZUL]", "uni": 1, "dto": 20.0, "tot": 43506.0}, {"f": "2026-05-09", "cod": "320096   01 250", "mar": "ANSILTA", "des": "Ansilta N\u00e1utica Bermuda Cordura Mujer [TALLE XS | TOPO]", "uni": 1, "dto": 0.0, "tot": 157500.0}, {"f": "2026-05-09", "cod": "3700288011947", "mar": "EDELWEISS", "des": "Edelweiss Link", "uni": 2, "dto": 25.0, "tot": 56472.0}, {"f": "2026-05-09", "cod": "100200048104", "mar": "EPIC", "des": "Epic Flow Pantal\u00f3n de Escalada Unisex [L | GRIS]", "uni": 1, "dto": 15.0, "tot": 63750.0}, {"f": "2026-05-09", "cod": "L101300175FFUCS", "mar": "SOX", "des": "Sox Charming Colors CI17C [L | FUCSIA]", "uni": 2, "dto": 0.0, "tot": 16480.0}, {"f": "2026-05-09", "cod": "8020647650798", "mar": "LA SPORTIVA", "des": "La Sportiva Solution [39 EU | WHITE/YELLOW]", "uni": 1, "dto": 15.0, "tot": 336365.0}, {"f": "2026-05-09", "cod": "6977465866875", "mar": "NATUREHIKE", "des": "Naturehike Mitones Abrigo Impermeables [TALLE XL | NEGRO]", "uni": 1, "dto": 0.0, "tot": 62059.0}, {"f": "2026-05-09", "cod": "8020647106127", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder [39 | NIGHT BLUE/MOSS]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-09", "cod": "194187721930", "mar": "PATAGONIA", "des": "Patagonia Refugio 30 [BLACK]", "uni": 1, "dto": 0.0, "tot": 269900.0}, {"f": "2026-05-09", "cod": "310011   04 300", "mar": "ANSILTA", "des": "Ansilta Pantal\u00f3n Raptor 4 [TALLE L | AZUL]", "uni": 1, "dto": 0.0, "tot": 360100.0}, {"f": "2026-05-09", "cod": "8020647651399", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Cordones [37.5 | LIMA]", "uni": 1, "dto": 20.0, "tot": 287130.0}, {"f": "2026-05-09", "cod": "500101000002", "mar": "EPIC", "des": "Epic Micropolar Buzo Mountain Hoody con Capucha Hombre [TALLE S | NEGRO]", "uni": 1, "dto": 20.0, "tot": 43624.0}, {"f": "2026-05-09", "cod": "3700288014610", "mar": "EDELWEISS", "des": "Edelweiss Jet", "uni": 1, "dto": 25.0, "tot": 27473.0}, {"f": "2026-05-09", "cod": "8020647840991", "mar": "LA SPORTIVA", "des": "La Sportiva Solution Comp Mujer [38.5 | HIBISCUS/MALIBU BLUE]", "uni": 1, "dto": 15.0, "tot": 346795.0}, {"f": "2026-05-09", "cod": "5059865031938", "mar": "HI-TEC", "des": "Hi-Tec Altitude Basecamp Lite Waterproof [43.5 | NEGRO]", "uni": 1, "dto": 0.0, "tot": 178201.0}, {"f": "2026-05-10", "cod": "6927595783818", "mar": "NATUREHIKE", "des": "Naturehike Liner Para Bolsa de Dormir El\u00e1stico [GRIS]", "uni": 1, "dto": 0.0, "tot": 59006.0}, {"f": "2026-05-10", "cod": "8436020416095", "mar": "FIXE", "des": "Fixe Mosqueton Rock Stone con Seguro Autom\u00e1tico de Dos Movimientos", "uni": 1, "dto": 0.0, "tot": 44624.0}, {"f": "2026-05-10", "cod": "8058428178407", "mar": "LA SPORTIVA", "des": "La Sportiva Lumina 300 Down JKT 1000FP [S | NIGHT SKY]", "uni": 1, "dto": 15.0, "tot": 790146.0}, {"f": "2026-05-10", "cod": "198605192913", "mar": "HOKA", "des": "Hoka Mafate 5 Zapatillas Trail Running [40 | BLACK/GOLD BKGD]", "uni": 1, "dto": 0.0, "tot": 338000.0}, {"f": "2026-05-10", "cod": "115302   04 200", "mar": "ANSILTA", "des": "Ansilta Dandelion Chaleco [TALLE L | NEGRO]", "uni": 1, "dto": 0.0, "tot": 79600.0}, {"f": "2026-05-10", "cod": "200300-010-03", "mar": "EPIC", "des": "Epic Kibo Cooldry Camiseta t\u00e9rmica Hombre [TALLE M | MARINO]", "uni": 1, "dto": 30.0, "tot": 16959.0}, {"f": "2026-05-10", "cod": "8595033330283", "mar": "SINGING ROCK", "des": "Singing Rock Safety Chain 140 cm [BLANCO / NEGRO]", "uni": 1, "dto": 0.0, "tot": 43738.0}, {"f": "2026-05-10", "cod": "100700-003-02", "mar": "EPIC", "des": "Epic Mantra Pantal\u00f3n de Escalada Mujer [TALLE S]", "uni": 1, "dto": 40.0, "tot": 39197.0}, {"f": "2026-05-10", "cod": "8020647180332", "mar": "LA SPORTIVA", "des": "La Sportiva Lycan 2 Mujer [39.5 | STORM BLUE/LAGOON]", "uni": 1, "dto": 25.0, "tot": 214511.0}, {"f": "2026-05-10", "cod": "8020647960668", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula [35.5 | OLIVE/NEON]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-10", "cod": "550056922504", "mar": "EPIC", "des": "Epic Meliquina Remera de Algod\u00f3n [L | VERDE]", "uni": 1, "dto": 20.0, "tot": 27812.0}, {"f": "2026-05-10", "cod": "888663617694", "mar": "MOUNTAIN HARDWEAR", "des": "Mountain Hardwear Campera Micropolar Polartec Full Zip [TALLE M | BLACK]", "uni": 1, "dto": 20.0, "tot": 82202.0}, {"f": "2026-05-10", "cod": "200300-011-03", "mar": "EPIC", "des": "Epic Kibo Cooldry Camiseta t\u00e9rmica Hombre [TALLE M | GRIS ACERO]", "uni": 4, "dto": 30.0, "tot": 67836.0}, {"f": "2026-05-10", "cod": "8020647105083", "mar": "LA SPORTIVA", "des": "La Sportiva Lycan GTX [41 | NIGHT BLUE/MOSS]", "uni": 1, "dto": 25.0, "tot": 305398.0}, {"f": "2026-05-10", "cod": "6977465866943", "mar": "NATUREHIKE", "des": "Naturehike Mitones Abrigo Impermeables [TALLE S | NEGRO]", "uni": 1, "dto": 0.0, "tot": 62059.0}, {"f": "2026-05-10", "cod": "4028545134833", "mar": "EDELRID", "des": "Edelrid Moe 3 [TALLE S]", "uni": 1, "dto": 20.0, "tot": 129694.0}, {"f": "2026-05-10", "cod": "8058428189748", "mar": "LA SPORTIVA", "des": "La Sportiva Aequilibrium LT Mujer GTX [38.5 | BLACK - HIBISCUS]", "uni": 1, "dto": 0.0, "tot": 893727.0}, {"f": "2026-05-10", "cod": "8058428239580", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Mujer Goretex [37.5 | CARBON / ICEBERG]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-10", "cod": "435", "mar": "PETZL", "des": "Petzl OK negro", "uni": 2, "dto": 0.0, "tot": 101812.0}, {"f": "2026-05-10", "cod": "8058428150274", "mar": "LA SPORTIVA", "des": "La Sportiva Prodigio Pro Mujer [38 | NIGHT SKY / ROSEBAY]", "uni": 1, "dto": 0.0, "tot": 379960.0}, {"f": "2026-05-10", "cod": "8020647845972", "mar": "LA SPORTIVA", "des": "La Sportiva Lycan 2 [41.5 | BLACK/YELLOW]", "uni": 1, "dto": 25.0, "tot": 214511.0}, {"f": "2026-05-10", "cod": "8595033365995", "mar": "SINGING ROCK", "des": "Singing Rock Rob Arn\u00e9s de Escalada [TALLE L]", "uni": 1, "dto": 0.0, "tot": 109963.0}, {"f": "2026-05-10", "cod": "100700-003-02", "mar": "EPIC", "des": "Epic Mantra Pantal\u00f3n de Escalada Mujer [TALLE S]", "uni": 1, "dto": 40.0, "tot": 39197.0}, {"f": "2026-05-10", "cod": "8595033331303GR", "mar": "SINGING ROCK", "des": "Singing Rock Buddy Asegurador [GRIS]", "uni": 1, "dto": 0.0, "tot": 36879.0}, {"f": "2026-05-10", "cod": "3342540847040", "mar": "PETZL", "des": "Petzl Tikka Core 450 lumens [MARRON]", "uni": 1, "dto": 0.0, "tot": 147361.0}, {"f": "2026-05-10", "cod": "8020647055531", "mar": "LA SPORTIVA", "des": "La Sportiva Katana Laces [42.5 EU | YELLOW/BLACK]", "uni": 1, "dto": 15.0, "tot": 346795.0}, {"f": "2026-05-10", "cod": "6927595722145", "mar": "NATUREHIKE", "des": "Naturehike Hamaca [NARANJA]", "uni": 1, "dto": 30.0, "tot": 35399.0}, {"f": "2026-05-10", "cod": "6924442433537", "mar": "AONIJIE", "des": "Aonijie Linterna Frontal IPX7 Recargable 200 Lm E4031 [GRIS]", "uni": 1, "dto": 0.0, "tot": 49051.0}, {"f": "2026-05-10", "cod": "8020647651467", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Cordones [41 | LIMA]", "uni": 1, "dto": 20.0, "tot": 287130.0}, {"f": "2026-05-10", "cod": "2020000669", "mar": "EPIC", "des": "Epic Magnesiera Dospuntocero [AZUL/TURQUESA]", "uni": 1, "dto": 10.0, "tot": 39737.0}, {"f": "2026-05-10", "cod": "100600-003-02", "mar": "EPIC", "des": "Epic Zen Pantal\u00f3n para escalada y yoga jean elastizado [TALLE S]", "uni": 1, "dto": 40.0, "tot": 39197.0}, {"f": "2026-05-10", "cod": "8023577009001", "mar": "KONG", "des": "Kong Cam Clean Bloqueador de Pecho [ROJO]", "uni": 2, "dto": 25.0, "tot": 221776.0}, {"f": "2026-05-10", "cod": "8020647961030", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Mujer [37.5 | TOPAZ]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-10", "cod": "8058428057870", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder Mujer [39 | CARBON/SPRINGTIME]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-10", "cod": "8595033347564", "mar": "SINGING ROCK", "des": "Singing Rock Magnum Crunch Dose 100g", "uni": 1, "dto": 0.0, "tot": 18721.0}, {"f": "2026-05-10", "cod": "6927595722145", "mar": "NATUREHIKE", "des": "Naturehike Hamaca [NARANJA]", "uni": 1, "dto": 30.0, "tot": 35399.0}, {"f": "2026-05-11", "cod": "200300-011-04", "mar": "EPIC", "des": "Epic Kibo Cooldry Camiseta t\u00e9rmica Hombre [TALLE L | GRIS ACERO]", "uni": 2, "dto": 30.0, "tot": 33918.0}, {"f": "2026-05-11", "cod": "6975641880837", "mar": "NATUREHIKE", "des": "Naturehike Pantufla (Patuco) Ultraliviana Duvet [S | NEGRO]", "uni": 1, "dto": 0.0, "tot": 53762.0}, {"f": "2026-05-11", "cod": "8058428211319", "mar": "LA SPORTIVA", "des": "La Sportiva TX4 EVO MID GTX [43 | CARBON / BAMBOO]", "uni": 1, "dto": 0.0, "tot": 467090.0}, {"f": "2026-05-11", "cod": "8428927330062", "mar": "BUFF", "des": "Buff Merino Wool Solid Grey (Lana Merino)", "uni": 1, "dto": 0.0, "tot": 52000.0}, {"f": "2026-05-11", "cod": "8020647783120", "mar": "LA SPORTIVA", "des": "La Sportiva Nepal Evo GTX [42]", "uni": 1, "dto": 0.0, "tot": 1237210.0}, {"f": "2026-05-11", "cod": "500101000504", "mar": "EPIC", "des": "Epic Micropolar Buzo Mountain Hoody con Capucha Hombre [TALLE L | GRIS OSCURO]", "uni": 1, "dto": 20.0, "tot": 43624.0}, {"f": "2026-05-11", "cod": "8020647961023", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Mujer [37 | TOPAZ]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-11", "cod": "200400000204", "mar": "EPIC", "des": "Epic Acay Microterm Camiseta Hombre [TALLE L | GRIS]", "uni": 1, "dto": 10.0, "tot": 37355.0}, {"f": "2026-05-11", "cod": "8058428100514", "mar": "LA SPORTIVA", "des": "La Sportiva Kubo Mujer [39.5 | ROYAL - LOVE POTION]", "uni": 1, "dto": 15.0, "tot": 284215.0}, {"f": "2026-05-11", "cod": "8020647961030", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Mujer [37.5 | TOPAZ]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-11", "cod": "6977465868206", "mar": "NATUREHIKE", "des": "Naturehike Aislante Plegable Troues R3 [ARMY GREEN]", "uni": 1, "dto": 0.0, "tot": 95843.0}, {"f": "2026-05-11", "cod": "3660576310902", "mar": "JULBO", "des": "Julbo Crossline Categor\u00eda 3 Polarizado [BROWN/SHINY TRANSLUCENT ARMY GREEN]", "uni": 1, "dto": 0.0, "tot": 304851.0}, {"f": "2026-05-11", "cod": "7798129850202", "mar": "SABOR DE REYES", "des": "Pollo con papas, arvejas y salsa italiana", "uni": 1, "dto": 0.0, "tot": 28965.0}, {"f": "2026-05-11", "cod": "8801901091447", "mar": "KOVEA", "des": "Kovea Garrafa De Gas Propano Butano 450gr", "uni": 2, "dto": 0.0, "tot": 31400.0}, {"f": "2026-05-11", "cod": "6977465866844", "mar": "NATUREHIKE", "des": "Naturehike Guantes Touch-Screen para Nieve [TALLE M | BLANCO]", "uni": 1, "dto": 0.0, "tot": 82170.0}, {"f": "2026-05-11", "cod": "8058428057658", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Mujer [37.5 | ZEST/EVERGLADE]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-11", "cod": "4028545153315", "mar": "EDELRID", "des": "Edelrid Salathe [SNOW | TALLE 2 (52-62CM)]", "uni": 1, "dto": 15.0, "tot": 231047.0}, {"f": "2026-05-11", "cod": "8595033365117", "mar": "SINGING ROCK", "des": "Singing Rock D Triple Lock Mosquet\u00f3n Acero Negro", "uni": 2, "dto": 0.0, "tot": 78706.0}, {"f": "2026-05-11", "cod": "6976023929939", "mar": "NATUREHIKE", "des": "Naturehike Stellaluna L04 Silla Plegable M [NEGRO]", "uni": 2, "dto": 0.0, "tot": 198058.0}, {"f": "2026-05-11", "cod": "8421650000615", "mar": "ALTUS", "des": "Altus Bolsa impermeable M", "uni": 1, "dto": 20.0, "tot": 17116.0}, {"f": "2026-05-11", "cod": "3700288014610", "mar": "EDELWEISS", "des": "Edelweiss Jet", "uni": 2, "dto": 25.0, "tot": 54946.0}, {"f": "2026-05-11", "cod": "8020647221745", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantulace [40.5 | CARBON/LIME PUNCH]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-11", "cod": "6975641884026", "mar": "NATUREHIKE", "des": "Naturehike Zapatillas de Vadeo Antideslizantes [47 EU | GREY/ORANGE]", "uni": 1, "dto": 0.0, "tot": 62192.0}, {"f": "2026-05-11", "cod": "8020647942725", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Goretex [42 | BLACK/CLAY]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-11", "cod": "8020647942749", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Goretex [43 | BLACK/CLAY]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-11", "cod": "8020647942749", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Goretex [43 | BLACK/CLAY]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-11", "cod": "8436020415845", "mar": "FIXE", "des": "Fixe Bola de Magnesio Recargable 60g", "uni": 1, "dto": 0.0, "tot": 14001.0}, {"f": "2026-05-11", "cod": "8435654702635", "mar": "FIXE", "des": "Fixe Multi Chain 60cm", "uni": 1, "dto": 20.0, "tot": 72785.0}, {"f": "2026-05-11", "cod": "6927595754283", "mar": "NATUREHIKE", "des": "Naturehike Cape Carpa Autom\u00e1tica 6 personas", "uni": 1, "dto": 20.0, "tot": 704618.0}, {"f": "2026-05-11", "cod": "9972", "mar": "OTRAS", "des": "VAP Correo Argentino", "uni": 1, "dto": 0.0, "tot": 1.0}, {"f": "2026-05-11", "cod": "500113-180-02", "mar": "EPIC", "des": "Epic G2 Campera Hoody Polarvent Mujer [TALLE S | BORDO]", "uni": 1, "dto": 0.0, "tot": 103154.0}, {"f": "2026-05-11", "cod": "6924442444359", "mar": "AONIJIE", "des": "Aonijie Bastones De Trail Running 3 Secciones E4201 [VIOLETA | 110 CM]", "uni": 1, "dto": 0.0, "tot": 128424.0}, {"f": "2026-05-11", "cod": "6976023923364", "mar": "NATUREHIKE", "des": "Naturehike D01 Colchoneta AutoInflable 3 cm con almohada [VERDE]", "uni": 1, "dto": 0.0, "tot": 62192.0}, {"f": "2026-05-11", "cod": "3436500412864", "mar": "TSL", "des": "TSL Rando 226 Raquetas de nieve [BLACK]", "uni": 1, "dto": 20.0, "tot": 248513.0}, {"f": "2026-05-11", "cod": "6924442440702", "mar": "AONIJIE", "des": "Aonijie Botella Pl\u00e1stica 250ml SD06", "uni": 1, "dto": 25.0, "tot": 5840.0}, {"f": "2026-05-11", "cod": "3660576188525", "mar": "JULBO", "des": "Julbo Spark Mujer Categor\u00eda 3 Polarizado [MARR\u00f3N / NEGRO]", "uni": 1, "dto": 0.0, "tot": 284751.0}, {"f": "2026-05-11", "cod": "8058428052554", "mar": "LA SPORTIVA", "des": "La Sportiva Mutant [43 | CHERRY TOMATO/SANGRIA]", "uni": 1, "dto": 25.0, "tot": 264842.0}, {"f": "2026-05-11", "cod": "4052285310783", "mar": "EDELRID", "des": "Edelrid Apus Pro Dry 7,9mm 60m [VERDE]", "uni": 1, "dto": 20.0, "tot": 424080.0}, {"f": "2026-05-11", "cod": "8020647107322", "mar": "LA SPORTIVA", "des": "La Sportiva G-Tech [43.5 EU]", "uni": 1, "dto": 0.0, "tot": 1577360.0}, {"f": "2026-05-11", "cod": "4028545134833", "mar": "EDELRID", "des": "Edelrid Moe 3 [TALLE S]", "uni": 1, "dto": 20.0, "tot": 129694.0}, {"f": "2026-05-11", "cod": "L551200025NEGRO", "mar": "SOX", "des": "Sox Iconsox Calza Con Badana Ciclismo [L | NEGRO]", "uni": 1, "dto": 0.0, "tot": 57233.0}, {"f": "2026-05-11", "cod": "8435654703670", "mar": "FIXE", "des": "Fixe Cordin 6mm Aramida Alta resistencia X metro", "uni": 5, "dto": 0.0, "tot": 34980.0}, {"f": "2026-05-11", "cod": "9972", "mar": "OTRAS", "des": "VAP Correo Argentino", "uni": 2, "dto": 0.0, "tot": 2.0}, {"f": "2026-05-11", "cod": "8020647942725", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Goretex [42 | BLACK/CLAY]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-11", "cod": "7794370093849", "mar": "SAUCONY", "des": "Saucony Rested Anorak [L | VERDE CLARO]", "uni": 1, "dto": 0.0, "tot": 44043.0}, {"f": "2026-05-11", "cod": "8020647941490", "mar": "LA SPORTIVA", "des": "La Sportiva Boulder X [45 | CLAY/SAFFRON]", "uni": 1, "dto": 20.0, "tot": 250456.0}, {"f": "2026-05-11", "cod": "200300-011-04", "mar": "EPIC", "des": "Epic Kibo Cooldry Camiseta t\u00e9rmica Hombre [TALLE L | GRIS ACERO]", "uni": 2, "dto": 30.0, "tot": 33918.0}, {"f": "2026-05-11", "cod": "6927595722169", "mar": "NATUREHIKE", "des": "Naturehike Hamaca [AZUL]", "uni": 1, "dto": 30.0, "tot": 35399.0}, {"f": "2026-05-11", "cod": "8020647153619", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 [43 | CARBON/HAWAIIAN SUN]", "uni": 1, "dto": 20.0, "tot": 264395.0}, {"f": "2026-05-11", "cod": "8421650144357", "mar": "ALTUS", "des": "Altus Cirque Mochila 20L [ROJO]", "uni": 1, "dto": 20.0, "tot": 92959.2}, {"f": "2026-05-11", "cod": "6924442467211", "mar": "AONIJIE", "des": "Aonijie Funda Porta Bastones E4433 [NEGRO]", "uni": 1, "dto": 0.0, "tot": 25863.0}, {"f": "2026-05-11", "cod": "8436020415845", "mar": "FIXE", "des": "Fixe Bola de Magnesio Recargable 60g", "uni": 1, "dto": 0.0, "tot": 14001.0}, {"f": "2026-05-11", "cod": "3700288012029", "mar": "EDELWEISS", "des": "Edelweiss Top Leva recta maciza", "uni": 3, "dto": 25.0, "tot": 68681.2}, {"f": "2026-05-11", "cod": "L703300594VE28T", "mar": "SOX", "des": "Sox Bipack Trekking TE100A + VE28C [TALLE M (38-40)]", "uni": 1, "dto": 0.0, "tot": 20322.0}, {"f": "2026-05-11", "cod": "6927595750469", "mar": "NATUREHIKE", "des": "Naturehike GL05 Guante softshell [TALLE M | BLACK]", "uni": 1, "dto": 0.0, "tot": 30532.0}, {"f": "2026-05-11", "cod": "8020647983261", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula JR [36 | YELLOW/BLACK]", "uni": 1, "dto": 0.0, "tot": 152194.0}, {"f": "2026-05-11", "cod": "8020647237999", "mar": "LA SPORTIVA", "des": "La Sportiva Mutant [43 | BLACK/YELLOW]", "uni": 1, "dto": 25.0, "tot": 264842.0}, {"f": "2026-05-11", "cod": "8436020414015", "mar": "FIXE", "des": "Fixe Manso Cabo Din\u00e1mico con Regulaci\u00f3n", "uni": 1, "dto": 15.0, "tot": 143197.0}, {"f": "2026-05-11", "cod": "7799025097371", "mar": "WATERDOG", "des": "Waterdog Silbato de Emergencia", "uni": 1, "dto": 0.0, "tot": 3466.0}, {"f": "2026-05-11", "cod": "8020647226047", "mar": "LA SPORTIVA", "des": "La Sportiva Katana Mujer [37 | WHITE / STORM BLUE]", "uni": 1, "dto": 15.0, "tot": 305075.0}, {"f": "2026-05-11", "cod": "100900003704", "mar": "EPIC", "des": "Epic Sierra Pantal\u00f3n de Escalada [TALLE L | ADOBE]", "uni": 1, "dto": 0.0, "tot": 68375.0}, {"f": "2026-05-11", "cod": "L703320593PETRO", "mar": "SOX", "des": "Sox Chamonix medias doble capa TE59A [TALLE S (35-37) | PETROLEO]", "uni": 1, "dto": 0.0, "tot": 18952.0}, {"f": "2026-05-11", "cod": "6927595793220", "mar": "NATUREHIKE", "des": "Naturehike Silla Plegable de Aluminio [WALNUT]", "uni": 1, "dto": 0.0, "tot": 136928.0}, {"f": "2026-05-11", "cod": "8421650144173", "mar": "ALTUS", "des": "Altus Pirineos J30 Mochila 30L [AZUL]", "uni": 1, "dto": 20.0, "tot": 192559.0}, {"f": "2026-05-11", "cod": "8421650144289", "mar": "ALTUS", "des": "Altus Mochila 30 L Musala J30", "uni": 1, "dto": 20.0, "tot": 184001.0}, {"f": "2026-05-11", "cod": "3700288017116", "mar": "EDELWEISS", "des": "Edelweiss Guru Alpin Asegurador", "uni": 1, "dto": 20.0, "tot": 54582.4}, {"f": "2026-05-11", "cod": "9450010821149", "mar": "HI-TEC", "des": "Hi-Tec Short Mujer SH011B [L | NEGRO]", "uni": 1, "dto": 20.0, "tot": 32616.0}, {"f": "2026-05-11", "cod": "8436020422836", "mar": "FIXE", "des": "Fixe Polea Mini Simple para Cuerda", "uni": 1, "dto": 0.0, "tot": 55130.0}, {"f": "2026-05-11", "cod": "3700288011947", "mar": "EDELWEISS", "des": "Edelweiss Link", "uni": 1, "dto": 25.0, "tot": 28236.0}, {"f": "2026-05-11", "cod": "100600-003-04", "mar": "EPIC", "des": "Epic Zen Pantal\u00f3n para escalada y yoga jean elastizado [TALLE L]", "uni": 1, "dto": 40.0, "tot": 39196.8}, {"f": "2026-05-11", "cod": "8020647942732", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Goretex [42.5 | BLACK/CLAY]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-11", "cod": "500101000004", "mar": "EPIC", "des": "Epic Micropolar Buzo Mountain Hoody con Capucha Hombre [TALLE L | NEGRO]", "uni": 1, "dto": 20.0, "tot": 43624.0}, {"f": "2026-05-11", "cod": "8421650109523", "mar": "ALTUS", "des": "Altus Magnesiera Riglos", "uni": 1, "dto": 0.0, "tot": 45465.0}, {"f": "2026-05-11", "cod": "3436500419429", "mar": "TSL", "des": "TSL 325 Initial [BRICK]", "uni": 1, "dto": 20.0, "tot": 352267.0}, {"f": "2026-05-12", "cod": "8436020410895", "mar": "FIXE", "des": "Fixe Lotus Mosqueton HMS con Seguro Autom\u00e1tico de Dos Movimientos", "uni": 2, "dto": 0.0, "tot": 89334.0}, {"f": "2026-05-12", "cod": "6927595750483", "mar": "NATUREHIKE", "des": "Naturehike GL05 Guante softshell [TALLE XL | BLACK]", "uni": 2, "dto": 0.0, "tot": 61064.0}, {"f": "2026-05-12", "cod": "8435654703670", "mar": "FIXE", "des": "Fixe Cordin 6mm Aramida Alta resistencia X metro", "uni": 3, "dto": 0.0, "tot": 20988.0}, {"f": "2026-05-12", "cod": "8436020417443", "mar": "FIXE", "des": "Fixe Swivel Giro", "uni": 1, "dto": 0.0, "tot": 87443.0}, {"f": "2026-05-12", "cod": "8809000508408", "mar": "KOVEA", "des": "Kovea Solo 2 Marmita", "uni": 1, "dto": 15.0, "tot": 120361.0}, {"f": "2026-05-12", "cod": "810015069240", "mar": "ARCADE", "des": "Arcade Cintur\u00f3n Ironwood", "uni": 1, "dto": 0.0, "tot": 72315.0}, {"f": "2026-05-12", "cod": "200300-011-03", "mar": "EPIC", "des": "Epic Kibo Cooldry Camiseta t\u00e9rmica Hombre [TALLE M | GRIS ACERO]", "uni": 1, "dto": 30.0, "tot": 16958.9}, {"f": "2026-05-12", "cod": "6927595787908", "mar": "NATUREHIKE", "des": "Naturehike Mochila Trekking 55+5L [VERDE]", "uni": 1, "dto": 0.0, "tot": 284476.0}, {"f": "2026-05-12", "cod": "8436020415845", "mar": "FIXE", "des": "Fixe Bola de Magnesio Recargable 60g", "uni": 1, "dto": 0.0, "tot": 14001.0}, {"f": "2026-05-12", "cod": "L101100014GRIS0", "mar": "SOX", "des": "Sox Net Spirit Media sin Ca\u00f1a de Algod\u00f3n DE01C [TALLE M (38-40) | GRIS]", "uni": 4, "dto": 0.0, "tot": 20800.0}, {"f": "2026-05-12", "cod": "9972", "mar": "OTRAS", "des": "VAP Correo Argentino", "uni": 2, "dto": 0.0, "tot": 2.0}, {"f": "2026-05-12", "cod": "8595033347106", "mar": "SINGING ROCK", "des": "Singing Rock Profi Worker 3D Standard [S | NEGRO]", "uni": 1, "dto": 0.0, "tot": 431024.0}, {"f": "2026-05-12", "cod": "9327868158423", "mar": "SEA TO SUMMIT", "des": "Liner Sea To Summit Reactor Pro Liner", "uni": 1, "dto": 0.0, "tot": 110334.0}, {"f": "2026-05-12", "cod": "8020647106516", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder [42 | METAL/SUNSET]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-12", "cod": "550057335204", "mar": "EPIC", "des": "Epic Cordillera Remera de Algod\u00f3n [L | NARANJA]", "uni": 1, "dto": 20.0, "tot": 27812.0}, {"f": "2026-05-12", "cod": "6975755967455", "mar": "FLEXTAIL", "des": "Flextail Tiny Bike Pump Pro Inflador Port\u00e1til Bicicleta", "uni": 1, "dto": 20.0, "tot": 140805.0}, {"f": "2026-05-12", "cod": "8020647841684", "mar": "LA SPORTIVA", "des": "La Sportiva Skwama [40.5 | BLACK/POPPY]", "uni": 1, "dto": 0.0, "tot": 384928.0}, {"f": "2026-05-12", "cod": "4028545036588", "mar": "EDELRID", "des": "Edelrid Arn\u00e9s Jay 3 [TALLE L | INKBLUE]", "uni": 1, "dto": 25.0, "tot": 132515.0}, {"f": "2026-05-12", "cod": "NNLR-30", "mar": "NOTCH", "des": "Notch Nylon Loop Runner 30 pulgadas (76cm)", "uni": 2, "dto": 0.0, "tot": 71844.0}, {"f": "2026-05-12", "cod": "9972", "mar": "OTRAS", "des": "VAP Correo Argentino", "uni": 1, "dto": 0.0, "tot": 1.0}, {"f": "2026-05-12", "cod": "3342540840089", "mar": "PETZL", "des": "Petzl Aria 2R Linterna Frontal", "uni": 1, "dto": 0.0, "tot": 179225.0}, {"f": "2026-05-12", "cod": "8020647783250", "mar": "LA SPORTIVA", "des": "La Sportiva Nepal Extreme [38]", "uni": 1, "dto": 0.0, "tot": 1070470.0}, {"f": "2026-05-12", "cod": "8058428217090", "mar": "LA SPORTIVA", "des": "La Sportiva Trango TRK GTX [45 | Space Blue - Maple]", "uni": 1, "dto": 0.0, "tot": 478588.0}, {"f": "2026-05-12", "cod": "8020647983247", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula JR [34 | YELLOW/BLACK]", "uni": 1, "dto": 0.0, "tot": 152194.0}, {"f": "2026-05-12", "cod": "8020647942497", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Goretex [42.5 | BLACK/GOJI]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-12", "cod": "8020647961245", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Mujer [38.5 | RED PLUM]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-12", "cod": "152138   03 893", "mar": "ANSILTA", "des": "Ansilta Campera Primo Polartec\u00ae Thermal Pro\u00ae [TALLE M | GRAFITO / NEGRO]", "uni": 1, "dto": 0.0, "tot": 147500.0}, {"f": "2026-05-12", "cod": "8020647885565", "mar": "LA SPORTIVA", "des": "La Sportiva Aragon [40.5 | NEPTUNE/CITRUS]", "uni": 1, "dto": 15.0, "tot": 225106.0}, {"f": "2026-05-12", "cod": "9972", "mar": "OTRAS", "des": "VAP Correo Argentino", "uni": 1, "dto": 0.0, "tot": 1.0}, {"f": "2026-05-12", "cod": "8020647106479", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder [40 | METAL/SUNSET]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-12", "cod": "8421650144289", "mar": "ALTUS", "des": "Altus Mochila 30 L Musala J30", "uni": 1, "dto": 20.0, "tot": 184001.0}, {"f": "2026-05-12", "cod": "6924442480517", "mar": "AONIJIE", "des": "Aonijie Ri\u00f1onera de Hidrataci\u00f3n W8141 [M | NEGRO]", "uni": 1, "dto": 15.0, "tot": 68983.0}, {"f": "2026-05-12", "cod": "8436020003981", "mar": "FIXE", "des": "Fixe Miku kit Descensor Doble Light + HMS", "uni": 1, "dto": 20.0, "tot": 92024.0}, {"f": "2026-05-12", "cod": "8020647106530", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder [43 | METAL/SUNSET]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-12", "cod": "8023577031170", "mar": "KONG", "des": "Kong Ghost Tuquesa", "uni": 3, "dto": 25.0, "tot": 187908.0}, {"f": "2026-05-12", "cod": "8058428087082", "mar": "LA SPORTIVA", "des": "La Sportiva Prodigio [43 | BLACK/TANGO RED]", "uni": 1, "dto": 10.0, "tot": 268322.0}, {"f": "2026-05-12", "cod": "7378", "mar": "EDELWEISS", "des": "Edelweiss Guard Oval Negro", "uni": 1, "dto": 20.0, "tot": 34188.0}, {"f": "2026-05-12", "cod": "8020647961801", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantulace [42.5 | BLACK POPPY]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-12", "cod": "6924442474493", "mar": "AONIJIE", "des": "Aonijie Gorro Lana Merino M-39 [AZUL]", "uni": 1, "dto": 0.0, "tot": 32106.0}, {"f": "2026-05-12", "cod": "8020647946273", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 [41.5 | BLACK/NEON]", "uni": 1, "dto": 20.0, "tot": 264395.0}, {"f": "2026-05-12", "cod": "8436020416071", "mar": "FIXE", "des": "Fixe Mosqueton Symmetric Adur Oval de acero con Seguro a Rosca", "uni": 3, "dto": 0.0, "tot": 48042.0}, {"f": "2026-05-12", "cod": "8020647699926", "mar": "LA SPORTIVA", "des": "La Sportiva Trango Tower Extreme GTX [44 | BLACK/YELLOW]", "uni": 1, "dto": 0.0, "tot": 1003780.0}, {"f": "2026-05-12", "cod": "3700288011947", "mar": "EDELWEISS", "des": "Edelweiss Link", "uni": 1, "dto": 25.0, "tot": 28236.0}, {"f": "2026-05-12", "cod": "500110002303", "mar": "EPIC", "des": "Epic Eiger Lite 2 Half Zip Mujer [TALLE M | CORAL]", "uni": 1, "dto": 20.0, "tot": 47114.0}, {"f": "2026-05-12", "cod": "500108559003", "mar": "EPIC", "des": "Epic Centinela Half Zip Hoody [M | BORRAVINO]", "uni": 1, "dto": 20.0, "tot": 56257.0}, {"f": "2026-05-12", "cod": "196924011793", "mar": "PATAGONIA", "des": "Patagonia Black Hole Pack 32L [NEGRO]", "uni": 1, "dto": 0.0, "tot": 369900.0}, {"f": "2026-05-12", "cod": "9789872411787", "mar": "PIXMAP", "des": "Mapa Pixmap Bariloche y Angostura", "uni": 1, "dto": 0.0, "tot": 13000.0}, {"f": "2026-05-12", "cod": "8436020415869", "mar": "FIXE", "des": "Fixe Magnesio Crunch 250g", "uni": 1, "dto": 0.0, "tot": 24312.0}, {"f": "2026-05-12", "cod": "3436500814149", "mar": "TSL", "des": "TSL Trail Carbon 4 Cork Cross Short [125CM]", "uni": 1, "dto": 20.0, "tot": 352281.0}, {"f": "2026-05-13", "cod": "8595033331938", "mar": "SINGING ROCK", "des": "Singing Rock Cinta Poli\u00e9ster 16mm 60cm Negro", "uni": 1, "dto": 0.0, "tot": 10625.0}, {"f": "2026-05-13", "cod": "152204   04 200", "mar": "ANSILTA", "des": "Ansilta Buzo Azteca 2 [TALLE L | NEGRO]", "uni": 1, "dto": 0.0, "tot": 118700.0}, {"f": "2026-05-13", "cod": "8436020004018", "mar": "FIXE", "des": "Fixe Cinta Nylon 16mm x 80cm", "uni": 1, "dto": 15.0, "tot": 18110.9}, {"f": "2026-05-13", "cod": "8436020008375", "mar": "FIXE", "des": "Fixe Cinta Nylon 16mm x 65cm", "uni": 1, "dto": 15.0, "tot": 16081.2}, {"f": "2026-05-13", "cod": "889833359468", "mar": "PATAGONIA", "des": "Patagonia Brodeo Beanie [NEGRO]", "uni": 1, "dto": 0.0, "tot": 119900.0}, {"f": "2026-05-13", "cod": "8058428107865", "mar": "LA SPORTIVA", "des": "La Sportiva Pantal\u00f3n Escalada Pueblo [M | NIGHT SKY / CHALK]", "uni": 1, "dto": 0.0, "tot": 217640.0}, {"f": "2026-05-13", "cod": "8023577034119", "mar": "KONG", "des": "Kong Trapper Screw", "uni": 2, "dto": 20.0, "tot": 73328.0}, {"f": "2026-05-13", "cod": "7378", "mar": "EDELWEISS", "des": "Edelweiss Guard Oval Negro", "uni": 2, "dto": 20.0, "tot": 68376.0}, {"f": "2026-05-13", "cod": "701000305001", "mar": "LIBO", "des": "Libo Snap Magnesiera [VERDE OLIVA]", "uni": 1, "dto": 0.0, "tot": 30940.0}, {"f": "2026-05-13", "cod": "6975641889786", "mar": "NATUREHIKE", "des": "Naturehike Snow Leopard Polainas Unisex [S | NEGRO]", "uni": 1, "dto": 0.0, "tot": 54094.0}, {"f": "2026-05-13", "cod": "888392407870", "mar": "OAKLEY", "des": "Oakley Gascan Polarizado Categor\u00eda 3", "uni": 1, "dto": 5.0, "tot": 350324.0}, {"f": "2026-05-13", "cod": "8058428100422", "mar": "LA SPORTIVA", "des": "La Sportiva Kubo Mujer [35 | ROYAL - LOVE POTION]", "uni": 1, "dto": 15.0, "tot": 284215.0}, {"f": "2026-05-13", "cod": "6975641886006", "mar": "NATUREHIKE", "des": "Naturehike Linterna Frontal 300 lumens pilas AAA [VERDE MUSGO]", "uni": 1, "dto": 0.0, "tot": 62192.0}, {"f": "2026-05-13", "cod": "9972", "mar": "OTRAS", "des": "VAP Correo Argentino", "uni": 1, "dto": 0.0, "tot": 1.0}, {"f": "2026-05-13", "cod": "6924442465408", "mar": "AONIJIE", "des": "Aonijie M-58 Guantes Deportivos Softshell [XL | GRIS]", "uni": 1, "dto": 0.0, "tot": 29431.0}, {"f": "2026-05-13", "cod": "8436020008375", "mar": "FIXE", "des": "Fixe Cinta Nylon 16mm x 65cm", "uni": 2, "dto": 15.0, "tot": 32162.0}, {"f": "2026-05-13", "cod": "8058428057870", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder Mujer [39 | CARBON/SPRINGTIME]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-13", "cod": "8595033342590", "mar": "SINGING ROCK", "des": "Singing Rock Top Arn\u00e9s Universal Acolchado", "uni": 7, "dto": 0.0, "tot": 474739.0}, {"f": "2026-05-13", "cod": "8436020415869", "mar": "FIXE", "des": "Fixe Magnesio Crunch 250g", "uni": 1, "dto": 0.0, "tot": 24312.0}, {"f": "2026-05-13", "cod": "6927595794029", "mar": "NATUREHIKE", "des": "Naturehike P-Plus Carpa para 3-4 Personas [VERDE]", "uni": 1, "dto": 0.0, "tot": 362398.0}, {"f": "2026-05-13", "cod": "3436500813913", "mar": "TSL", "des": "TSL Hiking Carbono Cross 3", "uni": 1, "dto": 20.0, "tot": 186385.0}, {"f": "2026-05-13", "cod": "6927595763421", "mar": "NATUREHIKE", "des": "Naturehike Mesa Liviana Plegable de Aluminio Large [NEGRO]", "uni": 1, "dto": 0.0, "tot": 84294.0}, {"f": "2026-05-13", "cod": "9788498294415", "mar": "DESNIVEL", "des": "La monta\u00f1a desnuda", "uni": 1, "dto": 10.0, "tot": 36420.3}, {"f": "2026-05-13", "cod": "8421650109523", "mar": "ALTUS", "des": "Altus Magnesiera Riglos", "uni": 1, "dto": 0.0, "tot": 45465.0}, {"f": "2026-05-13", "cod": "8428927330062", "mar": "BUFF", "des": "Buff Merino Wool Solid Grey (Lana Merino)", "uni": 1, "dto": 0.0, "tot": 52000.0}, {"f": "2026-05-13", "cod": "6927595743737", "mar": "NATUREHIKE", "des": "Naturehike Bolsa Compresora L", "uni": 1, "dto": 0.0, "tot": 13142.0}, {"f": "2026-05-13", "cod": "6975641885627", "mar": "NATUREHIKE", "des": "Naturehike ST01 Aluminio 3 secciones [NEGRO]", "uni": 1, "dto": 0.0, "tot": 61063.0}, {"f": "2026-05-13", "cod": "8058428097678", "mar": "LA SPORTIVA", "des": "La Sportiva Solution [38 EU | WHITE - YELLOW]", "uni": 1, "dto": 15.0, "tot": 336365.0}, {"f": "2026-05-13", "cod": "8020647961207", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Mujer [36.5 | RED PLUM]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-13", "cod": "6975755962115", "mar": "FLEXTAIL", "des": "Flextail Max Shower Ducha El\u00e9ctrica Port\u00e1til", "uni": 1, "dto": 15.0, "tot": 150930.0}, {"f": "2026-05-13", "cod": "8058428215263", "mar": "LA SPORTIVA", "des": "La Sportiva Boulder X Mid Goretex [42 | CARBON - FLAME]", "uni": 1, "dto": 0.0, "tot": 416190.0}, {"f": "2026-05-13", "cod": "100200017902", "mar": "EPIC", "des": "Epic Flow Pantal\u00f3n de Escalada Unisex [S | CAMEL]", "uni": 1, "dto": 15.0, "tot": 63750.0}, {"f": "2026-05-13", "cod": "4028545116464", "mar": "EDELRID", "des": "Edelrid Cord\u00edn 6mm [RED]", "uni": 1, "dto": 0.0, "tot": 2854.0}, {"f": "2026-05-13", "cod": "DE19026870", "mar": "NEXXT", "des": "Nexxt Casco Blaze [TALLE M (55-58CM) | MATTE BLACK]", "uni": 1, "dto": 0.0, "tot": 157501.0}, {"f": "2026-05-13", "cod": "6927595763421", "mar": "NATUREHIKE", "des": "Naturehike Mesa Liviana Plegable de Aluminio Large [NEGRO]", "uni": 1, "dto": 0.0, "tot": 84294.0}, {"f": "2026-05-13", "cod": "6924442449651", "mar": "AONIJIE", "des": "Aonijie Media 5 Dedos E4819 [L | VERDE]", "uni": 1, "dto": 10.0, "tot": 19922.0}, {"f": "2026-05-13", "cod": "500101000505", "mar": "EPIC", "des": "Epic Micropolar Buzo Mountain Hoody con Capucha Hombre [TALLE XL | GRIS OSCURO]", "uni": 1, "dto": 20.0, "tot": 43624.0}, {"f": "2026-05-13", "cod": "8595033336681", "mar": "SINGING ROCK", "des": "Singing Rock Magnum Ball Twins x2", "uni": 1, "dto": 0.0, "tot": 16865.0}, {"f": "2026-05-13", "cod": "8421650144173", "mar": "ALTUS", "des": "Altus Pirineos J30 Mochila 30L [AZUL]", "uni": 1, "dto": 20.0, "tot": 192559.0}, {"f": "2026-05-13", "cod": "6927595718674", "mar": "NATUREHIKE", "des": "Naturehike Mochila Plegable Ultraliviana 18L [NEGRO]", "uni": 1, "dto": 0.0, "tot": 43209.0}, {"f": "2026-05-13", "cod": "222002-606-03", "mar": "EPIC", "des": "Epic Paran\u00e1 Camiseta Lycra UV 50 [TALLE M | ROSA]", "uni": 1, "dto": 35.0, "tot": 36325.0}, {"f": "2026-05-13", "cod": "3660576299603", "mar": "JULBO", "des": "Julbo Explorer 2.0 Categor\u00eda 4 [NEGRO/GRIS]", "uni": 1, "dto": 0.0, "tot": 284751.0}, {"f": "2026-05-13", "cod": "6975641886006", "mar": "NATUREHIKE", "des": "Naturehike Linterna Frontal 300 lumens pilas AAA [VERDE MUSGO]", "uni": 1, "dto": 0.0, "tot": 62192.0}, {"f": "2026-05-13", "cod": "8020647942718", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Goretex [41.5 | BLACK/CLAY]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-13", "cod": "DROWTUNARGR", "mar": "DROW", "des": "Drow Magnesiera Tubular Duo [GRIS/NARANJA]", "uni": 1, "dto": 0.0, "tot": 31053.0}, {"f": "2026-05-13", "cod": "100700-003-02", "mar": "EPIC", "des": "Epic Mantra Pantal\u00f3n de Escalada Mujer [TALLE S]", "uni": 1, "dto": 40.0, "tot": 39197.0}, {"f": "2026-05-13", "cod": "8020647945818", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 [42.5 | SPACE BLUE/BLAZE]", "uni": 1, "dto": 20.0, "tot": 264395.0}, {"f": "2026-05-13", "cod": "310026   03 204", "mar": "ANSILTA", "des": "Ansilta Chaleco Nova 4 [TALLE M | NEGRO/ROJO]", "uni": 1, "dto": 0.0, "tot": 249500.0}, {"f": "2026-05-13", "cod": "8023577024295", "mar": "KONG", "des": "Kong Guide Screw", "uni": 1, "dto": 20.0, "tot": 41935.2}, {"f": "2026-05-13", "cod": "8058428052585", "mar": "LA SPORTIVA", "des": "La Sportiva Mutant [44.5 | CHERRY TOMATO/SANGRIA]", "uni": 1, "dto": 25.0, "tot": 264842.0}, {"f": "2026-05-13", "cod": "9788498294415", "mar": "DESNIVEL", "des": "La monta\u00f1a desnuda", "uni": 1, "dto": 10.0, "tot": 36420.3}, {"f": "2026-05-13", "cod": "8436020415869", "mar": "FIXE", "des": "Fixe Magnesio Crunch 250g", "uni": 1, "dto": 0.0, "tot": 24312.0}, {"f": "2026-05-13", "cod": "550056099903", "mar": "EPIC", "des": "Epic Meliquina Remera de Algod\u00f3n [M | GRIS]", "uni": 1, "dto": 20.0, "tot": 27812.0}, {"f": "2026-05-13", "cod": "8020647651634", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Mujer Cordones [36]", "uni": 1, "dto": 20.0, "tot": 288234.0}, {"f": "2026-05-13", "cod": "8058428239580", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Mujer Goretex [37.5 | CARBON / ICEBERG]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-13", "cod": "8058428057818", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder Mujer [36 | CARBON/SPRINGTIME]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-13", "cod": "8023577010601", "mar": "KONG", "des": "Kong Aro Sling Dyneema 80cm", "uni": 1, "dto": 20.0, "tot": 23890.0}, {"f": "2026-05-13", "cod": "3700288014610", "mar": "EDELWEISS", "des": "Edelweiss Jet", "uni": 1, "dto": 25.0, "tot": 27473.0}, {"f": "2026-05-13", "cod": "8436020030673", "mar": "FIXE", "des": "Fixe Mosqueton SYMMETRIC M-A de Acero con Seguro Autom\u00e1tico", "uni": 8, "dto": 15.0, "tot": 195352.0}, {"f": "2026-05-13", "cod": "500108559005", "mar": "EPIC", "des": "Epic Centinela Half Zip Hoody [XL | BORRAVINO]", "uni": 1, "dto": 20.0, "tot": 56257.0}, {"f": "2026-05-13", "cod": "8020647651474", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Cordones [41.5 | LIMA]", "uni": 1, "dto": 20.0, "tot": 288234.0}, {"f": "2026-05-13", "cod": "8436020415869", "mar": "FIXE", "des": "Fixe Magnesio Crunch 250g", "uni": 1, "dto": 0.0, "tot": 24312.0}, {"f": "2026-05-13", "cod": "8421650144173", "mar": "ALTUS", "des": "Altus Pirineos J30 Mochila 30L [AZUL]", "uni": 1, "dto": 20.0, "tot": 192559.0}, {"f": "2026-05-13", "cod": "6927595738276", "mar": "NATUREHIKE", "des": "Naturehike Cacerola de campamento colgable 10 Litros", "uni": 1, "dto": 30.0, "tot": 79500.0}, {"f": "2026-05-13", "cod": "500101000405", "mar": "EPIC", "des": "Epic Micropolar Buzo Mountain Hoody con Capucha Hombre [TALLE XL | ROJO]", "uni": 1, "dto": 20.0, "tot": 43624.0}, {"f": "2026-05-13", "cod": "500100000502", "mar": "EPIC", "des": "Epic Micropolar Buzo Mountain Half Zip para Hombre [TALLE S | GRIS OSCURO]", "uni": 1, "dto": 20.0, "tot": 43192.0}, {"f": "2026-05-13", "cod": "8020647216352", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantulace [39.5 | CARBON/LIME PUNCH]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-13", "cod": "100200017903", "mar": "EPIC", "des": "Epic Flow Pantal\u00f3n de Escalada Unisex [M | CAMEL]", "uni": 1, "dto": 15.0, "tot": 63750.0}, {"f": "2026-05-13", "cod": "200300-011-04", "mar": "EPIC", "des": "Epic Kibo Cooldry Camiseta t\u00e9rmica Hombre [TALLE L | GRIS ACERO]", "uni": 2, "dto": 30.0, "tot": 33918.0}, {"f": "2026-05-13", "cod": "500101000504", "mar": "EPIC", "des": "Epic Micropolar Buzo Mountain Hoody con Capucha Hombre [TALLE L | GRIS OSCURO]", "uni": 1, "dto": 20.0, "tot": 43624.0}, {"f": "2026-05-13", "cod": "8058428057658", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Mujer [37.5 | ZEST/EVERGLADE]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-13", "cod": "8023577007144", "mar": "KONG", "des": "Kong Cinta Tubular de Nylon 120cm", "uni": 1, "dto": 20.0, "tot": 39781.0}, {"f": "2026-05-13", "cod": "100700-003-02", "mar": "EPIC", "des": "Epic Mantra Pantal\u00f3n de Escalada Mujer [TALLE S]", "uni": 1, "dto": 40.0, "tot": 39196.8}, {"f": "2026-05-13", "cod": "8058428097951", "mar": "LA SPORTIVA", "des": "La Sportiva Solution Mujer [38.5 EU | WHITE - LILY ORANGE]", "uni": 1, "dto": 15.0, "tot": 336365.0}, {"f": "2026-05-13", "cod": "8058428215256", "mar": "LA SPORTIVA", "des": "La Sportiva Boulder X Mid Goretex [41.5 | CARBON - FLAME]", "uni": 1, "dto": 0.0, "tot": 416190.0}, {"f": "2026-05-13", "cod": "6927595750810", "mar": "NATUREHIKE", "des": "Naturehike Hamaca Venus con Mosquitero y Toldo Integrado", "uni": 1, "dto": 20.0, "tot": 265212.0}, {"f": "2026-05-13", "cod": "8421650144289", "mar": "ALTUS", "des": "Altus Mochila 30 L Musala J30", "uni": 1, "dto": 20.0, "tot": 184001.0}, {"f": "2026-05-13", "cod": "7378", "mar": "EDELWEISS", "des": "Edelweiss Guard Oval Negro", "uni": 2, "dto": 20.0, "tot": 68376.0}, {"f": "2026-05-13", "cod": "8595033359963", "mar": "SINGING ROCK", "des": "Singing Rock Loop Chain 100 cm", "uni": 1, "dto": 0.0, "tot": 93716.0}, {"f": "2026-05-13", "cod": "8058428251124", "mar": "LA SPORTIVA", "des": "La Sportiva TX5 EVO MID GTX [48.5 | CARBON/YELLOW]", "uni": 1, "dto": 0.0, "tot": 494936.0}, {"f": "2026-05-13", "cod": "500104-003-02", "mar": "EPIC", "des": "Epic Buzo Madsen Plus Termofleece para Hombre [TALLE S | AZUL]", "uni": 1, "dto": 20.0, "tot": 43506.0}, {"f": "2026-05-13", "cod": "6927595748596", "mar": "NATUREHIKE", "des": "Naturehike ST06  Carbono y Aluminio 3 secciones [BLACK]", "uni": 1, "dto": 0.0, "tot": 164340.0}, {"f": "2026-05-13", "cod": "8020647962310", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantulace Mujer [36 | TOPAZ/RED PLUM]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-13", "cod": "3436500418651", "mar": "TSL", "des": "TSL 325 Elevation", "uni": 1, "dto": 20.0, "tot": 310642.0}, {"f": "2026-05-13", "cod": "4028545204710", "mar": "EDELRID", "des": "Edelrid Pinch", "uni": 1, "dto": 10.0, "tot": 236483.0}, {"f": "2026-05-13", "cod": "7790001435132", "mar": "BEWOLK", "des": "Bewolk Bolso impermeable 35L [VERDE MILITAR]", "uni": 1, "dto": 15.0, "tot": 66439.0}, {"f": "2026-05-13", "cod": "8020647886111", "mar": "LA SPORTIVA", "des": "La Sportiva Aragon Mujer [38 | CLAY/HIBISCUS]", "uni": 1, "dto": 15.0, "tot": 225106.0}, {"f": "2026-05-13", "cod": "8020647651399", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Cordones [37.5 | LIMA]", "uni": 1, "dto": 20.0, "tot": 288234.0}, {"f": "2026-05-13", "cod": "8020647962594", "mar": "LA SPORTIVA", "des": "La Sportiva Tarentula velcro [41.5 | CARBON/RED]", "uni": 1, "dto": 0.0, "tot": 176660.0}, {"f": "2026-05-13", "cod": "3436502000946", "mar": "TSL", "des": "TSL Hiking Alu 5 Cross", "uni": 2, "dto": 20.0, "tot": 289492.0}, {"f": "2026-05-13", "cod": "8020647106509", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder [41.5 | METAL/SUNSET]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-14", "cod": "9788498290059", "mar": "DESNIVEL", "des": "Manejo b\u00e1sico de piolet y crampones", "uni": 1, "dto": 0.0, "tot": 22988.0}, {"f": "2026-05-14", "cod": "8592638678253", "mar": "PINGUIN", "des": "Pinguin Micro Towel L Toalla Secado R\u00e1pido [AZUL]", "uni": 1, "dto": 0.0, "tot": 34912.0}, {"f": "2026-05-14", "cod": "6924442443369", "mar": "AONIJIE", "des": "Aonijie Faja Multiuso con Cierre W8122 [M | NEGRO]", "uni": 1, "dto": 30.0, "tot": 41203.0}, {"f": "2026-05-14", "cod": "8020647962594", "mar": "LA SPORTIVA", "des": "La Sportiva Tarentula velcro [41.5 | CARBON/RED]", "uni": 1, "dto": 0.0, "tot": 176660.0}, {"f": "2026-05-14", "cod": "8020647887125", "mar": "LA SPORTIVA", "des": "La Sportiva G2 Evo [40.5]", "uni": 1, "dto": 0.0, "tot": 2144280.0}, {"f": "2026-05-14", "cod": "8421650286828", "mar": "ALTUS", "des": "Altus Tibet 1800 K30 (L\u00edmite -11\u00b0) [CIERRE DERECHO | NARANJA]", "uni": 1, "dto": 0.0, "tot": 405978.0}, {"f": "2026-05-14", "cod": "8428927334619", "mar": "BUFF", "des": "Buff Original EcoStretch Embers Black", "uni": 1, "dto": 0.0, "tot": 37000.0}, {"f": "2026-05-14", "cod": "8058428239580", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Mujer Goretex [37.5 | CARBON / ICEBERG]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-14", "cod": "4052285295356", "mar": "EDELRID", "des": "Edelrid SM Clip - Portamaterial", "uni": 1, "dto": 15.0, "tot": 13769.2}, {"f": "2026-05-14", "cod": "8058428239603", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Mujer Goretex [38.5 | CARBON / ICEBERG]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-14", "cod": "9450010821156", "mar": "HI-TEC", "des": "Hi-Tec Short Mujer SH011B [M | NEGRO]", "uni": 1, "dto": 20.0, "tot": 32616.0}, {"f": "2026-05-14", "cod": "6927595784914", "mar": "NATUREHIKE", "des": "Naturehike Cubrepantal\u00f3n Impermeable Ultraliviano [XL]", "uni": 1, "dto": 0.0, "tot": 73741.0}, {"f": "2026-05-14", "cod": "8421650144166", "mar": "ALTUS", "des": "Altus Mochila 45 L Fitz Roy J30", "uni": 1, "dto": 0.0, "tot": 331629.0}, {"f": "2026-05-14", "cod": "KIT233", "mar": "NOTCH", "des": "Notch Throw Kit Cord\u00edn 1.75mm y Plomada 340g (12oz)", "uni": 1, "dto": 0.0, "tot": 146231.0}, {"f": "2026-05-14", "cod": "100600-003-05", "mar": "EPIC", "des": "Epic Zen Pantal\u00f3n para escalada y yoga jean elastizado [TALLE XL]", "uni": 1, "dto": 40.0, "tot": 39197.0}, {"f": "2026-05-14", "cod": "6927595749968", "mar": "NATUREHIKE", "des": "Naturehike GL10 Guante primera piel con palma antideslizante [TALLE XL | GREEN]", "uni": 1, "dto": 0.0, "tot": 25288.0}, {"f": "2026-05-14", "cod": "8058428055357", "mar": "LA SPORTIVA", "des": "La Sportiva Bushido 3 [42.5 | DEEP SEA / CHERRY TOMATO]", "uni": 1, "dto": 20.0, "tot": 293493.0}, {"f": "2026-05-14", "cod": "8020647208609", "mar": "LA SPORTIVA", "des": "La Sportiva Mutant [42.5 | BLACK/YELLOW]", "uni": 1, "dto": 25.0, "tot": 264842.0}, {"f": "2026-05-14", "cod": "4028545036878", "mar": "EDELRID", "des": "Edelrid Sirana [TALLE S]", "uni": 1, "dto": 25.0, "tot": 169908.0}, {"f": "2026-05-14", "cod": "222002-606-02", "mar": "EPIC", "des": "Epic Paran\u00e1 Camiseta Lycra UV 50 [TALLE S | ROSA]", "uni": 1, "dto": 35.0, "tot": 36325.0}, {"f": "2026-05-14", "cod": "9972", "mar": "OTRAS", "des": "VAP Correo Argentino", "uni": 5, "dto": 0.0, "tot": 5.0}, {"f": "2026-05-14", "cod": "500100000402", "mar": "EPIC", "des": "Epic Micropolar Buzo Mountain Half Zip para Hombre [TALLE S | ROJO]", "uni": 1, "dto": 20.0, "tot": 43192.0}, {"f": "2026-05-14", "cod": "9788498291216", "mar": "DESNIVEL", "des": "Monta\u00f1ismo, tecnicas y material para alcanzar la cumbre", "uni": 1, "dto": 0.0, "tot": 62548.0}, {"f": "2026-05-14", "cod": "198605192937", "mar": "HOKA", "des": "Hoka Mafate 5 Zapatillas Trail Running [41.5 | BLACK/GOLD BKGD]", "uni": 1, "dto": 0.0, "tot": 338000.0}, {"f": "2026-05-14", "cod": "701000000001", "mar": "LIBO", "des": "Libo Snap Magnesiera [NEGRO]", "uni": 1, "dto": 0.0, "tot": 30940.0}, {"f": "2026-05-14", "cod": "6924442467211", "mar": "AONIJIE", "des": "Aonijie Funda Porta Bastones E4433 [NEGRO]", "uni": 1, "dto": 0.0, "tot": 25863.0}, {"f": "2026-05-14", "cod": "606000000001", "mar": "LIBO", "des": "Libo Funda Porta Grampones [NEGRO]", "uni": 1, "dto": 0.0, "tot": 17850.0}, {"f": "2026-05-14", "cod": "8020647845989", "mar": "LA SPORTIVA", "des": "La Sportiva Lycan 2 [42 | BLACK/YELLOW]", "uni": 1, "dto": 25.0, "tot": 214511.0}, {"f": "2026-05-14", "cod": "6975641887485", "mar": "NATUREHIKE", "des": "Naturehike Discovery 70+5L NEW [NEGRO]", "uni": 1, "dto": 0.0, "tot": 289719.0}, {"f": "2026-05-14", "cod": "6927595744710", "mar": "NATUREHIKE", "des": "Naturehike Arxtic Duvet 1Kg relleno 850FP (L\u00edmite -22\u00b0)", "uni": 2, "dto": 20.0, "tot": 2515470.0}, {"f": "2026-05-14", "cod": "500101000504", "mar": "EPIC", "des": "Epic Micropolar Buzo Mountain Hoody con Capucha Hombre [TALLE L | GRIS OSCURO]", "uni": 1, "dto": 20.0, "tot": 43624.0}, {"f": "2026-05-14", "cod": "3436502006368", "mar": "TSL", "des": "TSL 305 Elevation [SPICY]", "uni": 1, "dto": 20.0, "tot": 310642.0}, {"f": "2026-05-14", "cod": "4028545036892", "mar": "EDELRID", "des": "Edelrid Sirana [TALLE L]", "uni": 1, "dto": 25.0, "tot": 169908.0}, {"f": "2026-05-14", "cod": "6976507663977", "mar": "NATUREHIKE", "des": "Naturehike Bolsa de Dormir con Capucha MJ600 (L\u00edmite -12\u00b0) [AZUL]", "uni": 2, "dto": 0.0, "tot": 181198.0}, {"f": "2026-05-14", "cod": "8020647106448", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder [38.5 | METAL/SUNSET]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-14", "cod": "6924442465361", "mar": "AONIJIE", "des": "Aonijie M-58 Guantes Deportivos Softshell [L | NEGRO]", "uni": 1, "dto": 0.0, "tot": 29431.0}, {"f": "2026-05-14", "cod": "8058428097173", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Cordones [44.5 | LIME]", "uni": 1, "dto": 20.0, "tot": 288234.0}, {"f": "2026-05-14", "cod": "8058428057856", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Boulder Mujer [38 | CARBON/SPRINGTIME]", "uni": 1, "dto": 10.0, "tot": 178503.0}, {"f": "2026-05-14", "cod": "8058428220021", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Leather GTX [44.5 | BLACK - CEDAR]", "uni": 1, "dto": 20.0, "tot": 415622.0}, {"f": "2026-05-14", "cod": "115302   03 200", "mar": "ANSILTA", "des": "Ansilta Dandelion Chaleco [TALLE M | NEGRO]", "uni": 1, "dto": 0.0, "tot": 79600.0}, {"f": "2026-05-14", "cod": "7799025090143", "mar": "WATERDOG", "des": "Waterdog Botella Tapa Bot\u00f3n BPA Free 800ml [GREEN]", "uni": 1, "dto": 0.0, "tot": 34356.0}, {"f": "2026-05-14", "cod": "8020647961054", "mar": "LA SPORTIVA", "des": "La Sportiva Tarantula Mujer [38.5 | TOPAZ]", "uni": 1, "dto": 0.0, "tot": 177162.0}, {"f": "2026-05-14", "cod": "505002000001", "mar": "LIBO", "des": "Libo Straps de Amarre 1mt x 2 unidades [NEGRO]", "uni": 2, "dto": 0.0, "tot": 21848.0}, {"f": "2026-05-14", "cod": "6975641882701", "mar": "NATUREHIKE", "des": "Naturehike Linterna Frontal 300 lumens pilas AAA [NEGRO]", "uni": 1, "dto": 0.0, "tot": 62192.0}, {"f": "2026-05-14", "cod": "9450010821156", "mar": "HI-TEC", "des": "Hi-Tec Short Mujer SH011B [M | NEGRO]", "uni": 1, "dto": 20.0, "tot": 32616.0}, {"f": "2026-05-14", "cod": "8020647942497", "mar": "LA SPORTIVA", "des": "La Sportiva Ultra Raptor 2 Mid Goretex [42.5 | BLACK/GOJI]", "uni": 1, "dto": 20.0, "tot": 301218.0}, {"f": "2026-05-14", "cod": "310011   03 204", "mar": "ANSILTA", "des": "Ansilta Pantal\u00f3n Raptor 4 [TALLE M | NEGRO/ROJO]", "uni": 1, "dto": 0.0, "tot": 360100.0}, {"f": "2026-05-14", "cod": "8058428177073", "mar": "LA SPORTIVA", "des": "La Sportiva Alpine Guide Hoody Primaloft [L | SAVANA]", "uni": 1, "dto": 15.0, "tot": 487449.0}, {"f": "2026-05-14", "cod": "8436020030673", "mar": "FIXE", "des": "Fixe Mosqueton SYMMETRIC M-A de Acero con Seguro Autom\u00e1tico", "uni": 2, "dto": 15.0, "tot": 48838.0}, {"f": "2026-05-14", "cod": "8020647651429", "mar": "LA SPORTIVA", "des": "La Sportiva Miura Cordones [39 | LIMA]", "uni": 1, "dto": 20.0, "tot": 288234.0}, {"f": "2026-05-14", "cod": "100510-000-04", "mar": "EPIC", "des": "Epic Medano Bermuda Boulder [L | NEGRO]", "uni": 1, "dto": 0.0, "tot": 42886.0}, {"f": "2026-05-14", "cod": "888663612149", "mar": "MOUNTAIN HARDWEAR", "des": "Mountain Hardwear Buzo Micropolar Polartec Mujer [TALLE L | VINSON BLUE]", "uni": 1, "dto": 20.0, "tot": 67838.0}, {"f": "2026-05-14", "cod": "3342540847026", "mar": "PETZL", "des": "Petzl Tikka Core 450 lumens [GRIS CLARO]", "uni": 1, "dto": 0.0, "tot": 147361.0}, {"f": "2026-05-14", "cod": "L653300295NEGRO", "mar": "SOX", "des": "Sox Lana Merino TE29A [TALLE L (41-43) | GRIS]", "uni": 4, "dto": 0.0, "tot": 102176.0}, {"f": "2026-05-07", "cod": "6924442447664", "mar": "AONIJIE", "des": "Aonijie Soft Flask 500ml SD71", "uni": 1, "dto": 0.0, "tot": 18166.0}, {"f": "2026-05-08", "cod": "6924442462537", "mar": "AONIJIE", "des": "Aonijie Bastones De Trail Running Carbono 4 Secciones E4204 [Negro | 110 CM]", "uni": 1, "dto": 0.0, "tot": 247930.0}, {"f": "2026-05-09", "cod": "6924442471638", "mar": "AONIJIE", "des": "Aonijie MB Chaleco Hidrataci\u00f3n 4L + 2 Soft Flask MB-4L [XXL | Verde]", "uni": 1, "dto": 0.0, "tot": 179297.0}, {"f": "2026-05-09", "cod": "6924442430802", "mar": "AONIJIE", "des": "Aonijie Polainas Trail Running E941 [Violeta]", "uni": 1, "dto": 0.0, "tot": 36565.0}, {"f": "2026-05-09", "cod": "6924442438945", "mar": "AONIJIE", "des": "Aonijie Bastones De Trail Running 3 Secciones E4201 [Multicolor | 110 CM]", "uni": 1, "dto": 0.0, "tot": 128424.0}, {"f": "2026-05-10", "cod": "6924442446841", "mar": "AONIJIE", "des": "Aonijie Chaleco de Hidrataci\u00f3n 2.5 L C932 [M/L | Azul]", "uni": 1, "dto": 0.0, "tot": 73576.0}, {"f": "2026-05-11", "cod": "6924442469284", "mar": "AONIJIE", "des": "Aonijie Visera Runner E4113 [Black]", "uni": 1, "dto": 0.0, "tot": 28985.0}, {"f": "2026-05-11", "cod": "6924442465514", "mar": "AONIJIE", "des": "Aonijie Soft Flask 500ml SD31", "uni": 2, "dto": 0.0, "tot": 35376.0}, {"f": "2026-05-11", "cod": "6924442447688", "mar": "AONIJIE", "des": "Aonijie Reservorio de hidrataci\u00f3n TPU 2L SD62", "uni": 2, "dto": 0.0, "tot": 70590.0}, {"f": "2026-05-12", "cod": "6924442440139", "mar": "AONIJIE", "des": "Aonijie Ri\u00f1onera Elastizada Ultraliviana W8101 [M/L | Negro]", "uni": 1, "dto": 0.0, "tot": 37903.0}, {"f": "2026-05-12", "cod": "6924442461455", "mar": "AONIJIE", "des": "Aonijie Media Corta 5 Dedos Pack x3 E4839 [L]", "uni": 1, "dto": 0.0, "tot": 48159.0}, {"f": "2026-05-12", "cod": "6924442447565", "mar": "AONIJIE", "des": "Aonijie Bastones De Trail Running 3 Secciones E4201 [Multicolor | 105 CM]", "uni": 1, "dto": 0.0, "tot": 128424.0}, {"f": "2026-05-12", "cod": "6924442434053", "mar": "AONIJIE", "des": "Aonijie Bastones Carbono 4 Secciones E4218 [Naranja | 125 CM]", "uni": 1, "dto": 0.0, "tot": 350045.0}, {"f": "2026-05-12", "cod": "6924442446049", "mar": "AONIJIE", "des": "Aonijie Chaleco de Hidrataci\u00f3n 18 L C9104S [S/M | Rosa]", "uni": 1, "dto": 0.0, "tot": 158490.0}, {"f": "2026-05-12", "cod": "6924442462513", "mar": "AONIJIE", "des": "Aonijie Bastones De Trail Running 4 Secciones Carbono y Aluminio E4210 [Azul | 110 CM]", "uni": 1, "dto": 0.0, "tot": 181934.0}, {"f": "2026-05-13", "cod": "6924442466139", "mar": "AONIJIE", "des": "Aonijie Media 5 Dedos E4846 [S | Rojo]", "uni": 1, "dto": 0.0, "tot": 24525.0}, {"f": "2026-05-13", "cod": "6924442435715", "mar": "AONIJIE", "des": "Aonijie Bastones De Trail Running 4 Secciones E4216 [Naranja | 115 CM]", "uni": 1, "dto": 0.0, "tot": 127452.0}, {"f": "2026-05-13", "cod": "6924442464418", "mar": "AONIJIE", "des": "Aonijie Cintur\u00f3n Porta Bastones Running W8116 [M | Verde claro]", "uni": 1, "dto": 0.0, "tot": 27647.0}, {"f": "2026-05-14", "cod": "6924442443260", "mar": "AONIJIE", "des": "Aonijie Faja Multifuncional Running W8121 [S | Blanco]", "uni": 1, "dto": 0.0, "tot": 46821.0}, {"f": "2026-05-07", "cod": "6976023923081", "mar": "NATUREHIKE", "des": "Naturehike Bolsa de Dormir con Capucha MJ300 (L\u00edmite -1\u00b0) [Azul]", "uni": 1, "dto": 0.0, "tot": 57944.0}, {"f": "2026-05-12", "cod": "6977465866042", "mar": "NATUREHIKE", "des": "Naturehike Colchoneta AutoInflable 6cm R4.6 [Verde]", "uni": 2, "dto": 0.0, "tot": 210668.0}, {"f": "2026-05-13", "cod": "6977465868206", "mar": "NATUREHIKE", "des": "Naturehike Aislante Plegable Troues R3 [Army Green]", "uni": 1, "dto": 0.0, "tot": 95843.0}, {"f": "2026-05-13", "cod": "6927595796696", "mar": "NATUREHIKE", "des": "Naturehike Bid\u00f3n de Agua Plegable 10L [Azul]", "uni": 1, "dto": 0.0, "tot": 9808.0}, {"f": "2026-05-14", "cod": "6977465868329", "mar": "NATUREHIKE", "des": "Naturehike Bolsa Impermeable 4 L [Amarillo]", "uni": 2, "dto": 0.0, "tot": 52700.0}];
+
+// ─── PALETTE ────────────────────────────────────────────────────────────────
+const PAL = [
+  '#E8520A','#1A6BB5','#2E9E6B','#C9920A','#7B4FD6',
+  '#D94F91','#3B8C8C','#A05C2A','#5A7BA6','#6B9E3A',
+  '#E05D5D','#4BC5DF','#8B5CF6','#F59E0B'
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let DATA = [];
+let dayFilter = 'ALL';
+let evolChartInst, provChartInst, envioChartInst, pagoChartInst, dtoChartInst;
+
+// Producto table state
+let prodQuery   = '';
+let prodSortCol = 'tot';
+let prodSortDir = -1;   // -1 = desc, 1 = asc
+let prodPage    = 1;
+const PROD_PAGE_SIZE = 50;
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+const fmt  = n => '$ ' + Math.round(n).toLocaleString('es-AR');
+const fmtN = n => n.toLocaleString('es-AR');
+
+function groupBy(arr, key) {
+  const m = {};
+  arr.forEach(r => { const k = r[key]; if (!m[k]) m[k] = []; m[k].push(r); });
+  return m;
+}
+
+function filteredData() {
+  return dayFilter === 'ALL' ? DATA : DATA.filter(r => r.f === dayFilter);
+}
+
+function formatDay(d) {
+  const [, mo, di] = d.split('-');
+  return di + '/' + mo;
+}
+function formatDayLong(d) {
+  const [y, mo, di] = d.split('-');
+  return di + '/' + mo + '/' + y;
+}
+function toTitle(s) {
+  return s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function deltaTag(curr, prev) {
+  if (prev === null) return '<span class="delta-na">—</span>';
+  if (prev === 0)    return '<span class="delta-na">—</span>';
+  const pct = (curr - prev) / prev * 100;
+  const sign = pct >= 0 ? '+' : '';
+  const cls  = pct >= 0 ? 'delta-up' : 'delta-dn';
+  const arrow = pct >= 0 ? '▲' : '▼';
+  return `<span class="${cls}">${arrow} ${sign}${pct.toFixed(1)}%</span>`;
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+function init(rows) {
+  DATA = rows;
+  buildDayFilter();
+  render();
+}
+
+function buildDayFilter() {
+  const days = [...new Set(DATA.map(r => r.f))].sort();
+  const bar  = document.getElementById('dayfilterBar');
+  // keep label, rebuild chips
+  bar.innerHTML = '<span class="dayfilter-label">Filtrar dia</span>';
+  const all = daychip('Todos', 'ALL', true);
+  all.onclick = () => setDayFilter('ALL');
+  bar.appendChild(all);
+  days.forEach(d => {
+    const b = daychip(formatDay(d), d, false);
+    b.onclick = () => setDayFilter(d);
+    bar.appendChild(b);
+  });
+}
+
+function daychip(label, val, active) {
+  const b = document.createElement('button');
+  b.className = 'daychip' + (active ? ' active' : '');
+  b.textContent = label; b.dataset.d = val;
+  return b;
+}
+
+function setDayFilter(val) {
+  dayFilter = val;
+  document.querySelectorAll('#dayfilterBar .daychip').forEach(b => b.classList.toggle('active', b.dataset.d === val));
+  render();
+}
+
+function render() {
+  const fd = filteredData();
+  renderKPIs(fd);
+  renderEvol();
+  renderProv(fd);
+  renderTabla();
+  renderEnvio(fd);
+  renderPago(fd);
+  prodPage = 1;
+  renderProdTable();
+  renderDtoChart(fd);
+}
+
+// ─── KPIs ────────────────────────────────────────────────────────────────────
+function renderKPIs(fd) {
+  const fact = fd.reduce((s, r) => s + r.m, 0);
+  const ped  = fd.length;
+  const dias = [...new Set(fd.map(r => r.f))].length;
+
+  // Items por carrito: total unidades de ITEMS filtrados / pedidos
+  const filtDates = new Set(fd.map(r => r.f));
+  const filtItems = ITEMS.filter(r => dayFilter === 'ALL' || filtDates.has(r.f));
+  const totalUni  = filtItems.reduce((s, r) => s + r.uni, 0);
+  const ipc       = ped ? (totalUni / ped) : 0;
+
+  document.getElementById('kpiFacturacion').textContent    = fmt(fact);
+  document.getElementById('kpiFacturacionSub').textContent = fmtN(ped) + ' pedidos' + (dayFilter === 'ALL' ? ' totales' : '');
+  document.getElementById('kpiPedidos').textContent        = fmtN(ped);
+  document.getElementById('kpiPedidosSub').textContent     = dayFilter === 'ALL'
+    ? dias + ' dia' + (dias !== 1 ? 's' : '') + ' de venta'
+    : formatDayLong(dayFilter);
+  document.getElementById('kpiTicket').textContent         = ped ? fmt(fact / ped) : '-';
+  document.getElementById('kpiIPC').textContent            = ipc ? ipc.toFixed(1) : '-';
+}
+
+// ─── EVOL ─────────────────────────────────────────────────────────────────────
+function renderEvol() {
+  const allDays  = [...new Set(DATA.map(r => r.f))].sort();
+  const filtDays = dayFilter === 'ALL' ? allDays : [dayFilter];
+  const labels   = filtDays.map(formatDay);
+  const pedidos  = filtDays.map(d => DATA.filter(r => r.f === d).length);
+  const factura  = filtDays.map(d => DATA.filter(r => r.f === d).reduce((s, r) => s + r.m, 0));
+
+  const ctx = document.getElementById('evolChart').getContext('2d');
+  if (evolChartInst) evolChartInst.destroy();
+  evolChartInst = new Chart(ctx, {
+    data: {
+      labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Facturacion',
+          data: factura,
+          backgroundColor: 'rgba(232,82,10,0.78)',
+          borderColor: '#E8520A',
+          borderWidth: 1.5,
+          borderRadius: 5,
+          yAxisID: 'yFact',
+          order: 2,
+          datalabels: {
+            display: true,
+            anchor: 'end',
+            align: 'end',
+            offset: 2,
+            color: '#E8520A',
+            font: { size: 10, weight: '700' },
+            formatter: v => '$' + (v / 1000000).toFixed(2) + 'M'
+          }
+        },
+        {
+          type: 'line',
+          label: 'Pedidos',
+          data: pedidos,
+          borderColor: '#1A6BB5',
+          backgroundColor: 'rgba(26,107,181,0.08)',
+          borderWidth: 2.5,
+          pointRadius: 5,
+          pointBackgroundColor: '#1A6BB5',
+          tension: 0.3,
+          yAxisID: 'yPed',
+          order: 1,
+          fill: true,
+          datalabels: {
+            display: true,
+            anchor: 'end',
+            align: 'top',
+            offset: 4,
+            color: '#1A6BB5',
+            font: { size: 11, weight: '700' },
+            formatter: v => fmtN(v)
+          }
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 32, right: 8 } },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { size: 11, weight: '600' }, padding: 16, usePointStyle: true, pointStyleWidth: 10 }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.dataset.label === 'Facturacion'
+              ? ' ' + fmt(ctx.raw)
+              : ' ' + fmtN(ctx.raw) + ' pedidos'
+          }
+        }
+      },
+      scales: {
+        x:     { grid: { display: false }, ticks: { font: { size: 12 } } },
+        yFact: { position: 'left',  grid: { color: '#F3F4F6' }, ticks: { callback: v => '$' + (v / 1000000).toFixed(1) + 'M', font: { size: 10 } } },
+        yPed:  { position: 'right', grid: { display: false },   ticks: { callback: v => v + ' ped', font: { size: 10 } } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+// ─── PROV ─────────────────────────────────────────────────────────────────────
+function renderProv(fd) {
+  const byProv = groupBy(fd, 'p');
+  let sorted   = Object.entries(byProv).map(([k, v]) => ({ name: k, cnt: v.length })).sort((a, b) => b.cnt - a.cnt);
+  const top    = sorted.slice(0, 9);
+  const otros  = sorted.slice(9).reduce((s, x) => s + x.cnt, 0);
+  if (otros > 0) top.push({ name: 'Otras', cnt: otros });
+  const total  = fd.length;
+  const colors = top.map((_, i) => PAL[i % PAL.length]);
+
+  const ctx = document.getElementById('provChart').getContext('2d');
+  if (provChartInst) provChartInst.destroy();
+  provChartInst = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: top.map(x => toTitle(x.name)),
+      datasets: [{ data: top.map(x => x.cnt), backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          color: '#fff', font: { size: 9, weight: '700' },
+          formatter: v => total > 0 && (v / total * 100) >= 5 ? (v / total * 100).toFixed(0) + '%' : ''
+        },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.raw + ' ped (' + (total > 0 ? (ctx.raw / total * 100).toFixed(1) : 0) + '%)' } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+
+  document.getElementById('provRows').innerHTML = top.map((x, i) => {
+    const pct = total > 0 ? (x.cnt / total * 100).toFixed(1) : '0.0';
+    return `<div class="prov-row">
+      <span class="pdot" style="background:${colors[i]}"></span>
+      <span class="pname">${toTitle(x.name)}</span>
+      <div class="pbar-track"><div class="pbar-fill" style="width:${pct}%;background:${colors[i]}"></div></div>
+      <span class="ppct">${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── TABLA (siempre todos los dias, con vs anterior) ──────────────────────────
+function renderTabla() {
+  const days  = [...new Set(DATA.map(r => r.f))].sort();
+  let tPed = 0, tFact = 0;
+  let prevPed = null, prevFact = null, prevTicket = null;
+
+  const tbody = document.getElementById('tablaDia');
+  tbody.innerHTML = days.map((d, idx) => {
+    const rs     = DATA.filter(r => r.f === d);
+    const ped    = rs.length;
+    const fact   = rs.reduce((s, r) => s + r.m, 0);
+    const ticket = ped ? fact / ped : 0;
+    tPed += ped; tFact += fact;
+
+    const dPed    = deltaTag(ped, prevPed);
+    const dFact   = deltaTag(fact, prevFact);
+    const dTicket = deltaTag(ticket, prevTicket);
+
+    prevPed = ped; prevFact = fact; prevTicket = ticket;
+
+    return `<tr>
+      <td><span class="tag-fecha">${formatDayLong(d)}</span></td>
+      <td class="r">${fmtN(ped)}</td>
+      <td class="delta">${dPed}</td>
+      <td class="r">${fmt(fact)}</td>
+      <td class="delta">${dFact}</td>
+      <td class="r">${fmt(ticket)}</td>
+      <td class="delta">${dTicket}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tablaFoot').innerHTML = `<tr>
+    <td style="font-size:.7rem;color:#6B7280;text-transform:uppercase;letter-spacing:.4px">TOTAL</td>
+    <td class="r">${fmtN(tPed)}</td>
+    <td class="delta"></td>
+    <td class="r">${fmt(tFact)}</td>
+    <td class="delta"></td>
+    <td class="r">${fmt(tPed ? tFact / tPed : 0)}</td>
+    <td class="delta"></td>
+  </tr>`;
+}
+
+// ─── ENVIO ────────────────────────────────────────────────────────────────────
+function renderEnvio(fd) {
+  const byE    = groupBy(fd, 'e');
+  const sorted = Object.entries(byE).map(([k, v]) => ({ name: k, cnt: v.length })).sort((a, b) => b.cnt - a.cnt);
+  const total  = fd.length;
+  const colors = sorted.map((_, i) => PAL[i % PAL.length]);
+
+  const ctx = document.getElementById('envioChart').getContext('2d');
+  if (envioChartInst) envioChartInst.destroy();
+  envioChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: sorted.map(x => x.name),
+      datasets: [{ data: sorted.map(x => x.cnt), backgroundColor: colors, borderRadius: 5, borderWidth: 0 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { right: 80 } },
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          anchor: 'end', align: 'end', color: '#374151',
+          font: { size: 11, weight: '700' },
+          formatter: (v) => {
+            const pct = total > 0 ? (v / total * 100).toFixed(1) : '0.0';
+            return fmtN(v) + '  (' + pct + '%)';
+          }
+        },
+        tooltip: { callbacks: { label: ctx => ' ' + fmtN(ctx.raw) + ' pedidos (' + (total > 0 ? (ctx.raw / total * 100).toFixed(1) : 0) + '%)' } }
+      },
+      scales: {
+        x: { grid: { color: '#F3F4F6' }, ticks: { font: { size: 10 } } },
+        y: { grid: { display: false },   ticks: { font: { size: 11 } } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+// ─── PAGO ─────────────────────────────────────────────────────────────────────
+function renderPago(fd) {
+  const byFP   = groupBy(fd, 'fp');
+  const sorted = Object.entries(byFP).map(([k, v]) => ({ name: k, cnt: v.length })).sort((a, b) => b.cnt - a.cnt);
+  const total  = fd.length;
+  const MAP_COLOR = { 'TARJETA': '#1A6BB5', 'EFECTIVO': '#2E9E6B' };
+  const colors = sorted.map(x => MAP_COLOR[x.name] || PAL[0]);
+
+  const ctx = document.getElementById('pagoChart').getContext('2d');
+  if (pagoChartInst) pagoChartInst.destroy();
+  pagoChartInst = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: sorted.map(x => x.name),
+      datasets: [{ data: sorted.map(x => x.cnt), backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '55%',
+      plugins: {
+        legend: { display: false },
+        datalabels: { color: '#fff', font: { size: 13, weight: '800' }, formatter: v => total > 0 ? (v / total * 100).toFixed(0) + '%' : '' },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + ctx.raw + ' ped (' + (total > 0 ? (ctx.raw / total * 100).toFixed(1) : 0) + '%)' } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+
+  document.getElementById('pagoLegend').innerHTML = sorted.map((x, i) =>
+    `<div class="leg-item">
+       <span class="leg-dot" style="background:${colors[i]}"></span>
+       ${x.name} &mdash; ${x.cnt} ped (${total > 0 ? (x.cnt / total * 100).toFixed(1) : 0}%)
+     </div>`
+  ).join('');
+}
+
+// ─── DTO DISTRIBUTION CHART ──────────────────────────────────────────────────
+function renderDtoChart(fd) {
+  const itemsFd = dayFilter === 'ALL' ? ITEMS : ITEMS.filter(r => r.f === dayFilter);
+  // bucket items by dto %
+  const buckets = {};
+  itemsFd.forEach(r => {
+    const k = r.dto === 0 ? 'Sin dto.' : r.dto.toFixed(0) + '%';
+    buckets[k] = (buckets[k] || 0) + 1;
+  });
+  // define order: sin descuento primero, luego ascendente
+  const order = ['Sin dto.', '10%', '15%', '20%', '25%', '30%', '40%'];
+  const labels = order.filter(k => buckets[k]);
+  const data   = labels.map(k => buckets[k]);
+  const total  = data.reduce((s, v) => s + v, 0);
+  const colors = labels.map(k => k === 'Sin dto.' ? '#9CA3AF' : '#E8520A');
+  const alphas = labels.map((k, i) => {
+    if (k === 'Sin dto.') return 'rgba(156,163,175,0.75)';
+    // gradient darker for higher dto
+    const pct = parseInt(k) / 40;
+    return `rgba(232,${Math.round(82 - pct * 40)},10,${0.55 + pct * 0.4})`;
+  });
+
+  const ctx = document.getElementById('dtoChart').getContext('2d');
+  if (dtoChartInst) dtoChartInst.destroy();
+  dtoChartInst = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: alphas,
+        borderColor: alphas.map(c => c.replace(/[\d.]+\)$/, '1)')),
+        borderWidth: 1.5,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 28 } },
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          anchor: 'end', align: 'top', offset: 2,
+          color: '#374151', font: { size: 11, weight: '700' },
+          formatter: (v) => {
+            const pct = total > 0 ? (v / total * 100).toFixed(0) : 0;
+            return v + '\n(' + pct + '%)';
+          }
+        },
+        tooltip: { callbacks: { label: ctx => ' ' + ctx.raw + ' items (' + (total > 0 ? (ctx.raw / total * 100).toFixed(1) : 0) + '%)' } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 12, weight: '600' } } },
+        y: { grid: { color: '#F3F4F6' }, ticks: { font: { size: 10 }, stepSize: 1 }, beginAtZero: true }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+// ─── PRODUCT TABLE ────────────────────────────────────────────────────────────
+function filteredItems() {
+  const q   = prodQuery.toLowerCase().trim();
+  const fd  = dayFilter === 'ALL' ? ITEMS : ITEMS.filter(r => r.f === dayFilter);
+  if (!q) return fd;
+  return fd.filter(r =>
+    r.des.toLowerCase().includes(q) ||
+    r.mar.toLowerCase().includes(q) ||
+    r.cod.toLowerCase().includes(q)
+  );
+}
+
+function sortedItems() {
+  const items = filteredItems();
+  const col   = prodSortCol;
+  return [...items].sort((a, b) => {
+    const va = typeof a[col] === 'string' ? a[col].toLowerCase() : a[col];
+    const vb = typeof b[col] === 'string' ? b[col].toLowerCase() : b[col];
+    return va < vb ? -prodSortDir : va > vb ? prodSortDir : 0;
+  });
+}
+
+function renderProdTable() {
+  const items  = sortedItems();
+  const total  = items.length;
+  const pages  = Math.max(1, Math.ceil(total / PROD_PAGE_SIZE));
+  prodPage     = Math.min(prodPage, pages);
+  const start  = (prodPage - 1) * PROD_PAGE_SIZE;
+  const slice  = items.slice(start, start + PROD_PAGE_SIZE);
+
+  // Count & header info
+  const sumTot = items.reduce((s, r) => s + r.tot, 0);
+  const sumUni = items.reduce((s, r) => s + r.uni, 0);
+  document.getElementById('prodCount').textContent =
+    fmtN(total) + ' item' + (total !== 1 ? 's' : '') +
+    ' · ' + fmtN(sumUni) + ' unidades · ' + fmt(sumTot) + ' facturado';
+
+  // Table body
+  const tbody = document.getElementById('prodBody');
+  tbody.innerHTML = slice.map(r => {
+    const dtoHtml = r.dto > 0
+      ? `<span class="dto-badge">${r.dto.toFixed(0)}%</span>`
+      : `<span class="dto-zero">—</span>`;
+    return `<tr>
+      <td class="des-cell" title="${escHtml(r.des)}">${escHtml(r.des)}</td>
+      <td>${escHtml(r.mar)}</td>
+      <td class="r" style="font-family:monospace;font-size:.78rem;color:#6B7280">${escHtml(r.cod)}</td>
+      <td class="r">${fmtN(r.uni)}</td>
+      <td class="r">${dtoHtml}</td>
+      <td class="r">${fmt(r.tot)}</td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="6" style="text-align:center;color:#9CA3AF;padding:36px">Sin resultados para la busqueda</td></tr>`;
+
+  // Totals footer (all items, not just current page)
+  const allItems = sortedItems();
+  const totUni  = allItems.reduce((s, r) => s + r.uni, 0);
+  const totFact = allItems.reduce((s, r) => s + r.tot, 0);
+  document.getElementById('prodFoot').innerHTML = `<tr>
+    <td colspan="3" style="font-weight:700;font-size:.82rem">TOTAL (${fmtN(allItems.length)} items)</td>
+    <td class="r" style="font-weight:700;font-size:.82rem">${fmtN(totUni)}</td>
+    <td></td>
+    <td class="r" style="font-weight:700;font-size:.82rem">${fmt(totFact)}</td>
+  </tr>`;
+
+  // Sort indicators on headers
+  document.querySelectorAll('.prod-th.sortable').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (th.dataset.col === prodSortCol) {
+      th.classList.add(prodSortDir === 1 ? 'sort-asc' : 'sort-desc');
+    }
+  });
+
+  // Pagination
+  renderProdPag(total, pages);
+}
+
+function renderProdPag(total, pages) {
+  const pag = document.getElementById('prodPag');
+  if (pages <= 1) { pag.innerHTML = ''; return; }
+
+  const start = (prodPage - 1) * PROD_PAGE_SIZE + 1;
+  const end   = Math.min(prodPage * PROD_PAGE_SIZE, total);
+
+  let btns = '';
+  // always show first, last, current±1, with ellipsis
+  const show = new Set([1, pages, prodPage, prodPage - 1, prodPage + 1].filter(p => p >= 1 && p <= pages));
+  const sorted = [...show].sort((a, b) => a - b);
+  let prev = 0;
+  sorted.forEach(p => {
+    if (prev && p - prev > 1) btns += `<span class="pag-ellipsis">…</span>`;
+    btns += `<button class="pag-btn${p === prodPage ? ' active' : ''}" onclick="goPage(${p})">${p}</button>`;
+    prev = p;
+  });
+
+  pag.innerHTML = `
+    <span class="prod-pag-info">Mostrando ${fmtN(start)}–${fmtN(end)} de ${fmtN(total)}</span>
+    <div class="prod-pag-btns">
+      <button class="pag-btn" onclick="goPage(${prodPage - 1})" ${prodPage === 1 ? 'disabled' : ''}>&#8249;</button>
+      ${btns}
+      <button class="pag-btn" onclick="goPage(${prodPage + 1})" ${prodPage === pages ? 'disabled' : ''}>&#8250;</button>
+    </div>`;
+}
+
+function goPage(p) {
+  prodPage = p;
+  renderProdTable();
+  document.getElementById('prodTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function clearProdSearch() {
+  document.getElementById('prodSearch').value = '';
+  prodQuery = ''; prodPage = 1;
+  renderProdTable();
+}
+
+// Sort header click
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.prod-th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.col;
+      if (prodSortCol === col) {
+        prodSortDir *= -1;
+      } else {
+        prodSortCol = col;
+        prodSortDir = col === 'des' || col === 'mar' || col === 'cod' ? 1 : -1;
+      }
+      prodPage = 1;
+      renderProdTable();
+    });
+  });
+
+  document.getElementById('prodSearch').addEventListener('input', function() {
+    prodQuery = this.value;
+    prodPage  = 1;
+    renderProdTable();
+  });
+});
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function toggleExport(e) {
+  e.stopPropagation();
+  document.getElementById('exportMenu').classList.toggle('open');
+}
+document.addEventListener('click', () => document.getElementById('exportMenu').classList.remove('open'));
+
+function tableRows() {
+  const days = [...new Set(DATA.map(r => r.f))].sort();
+  let prevPed = null, prevFact = null, prevTicket = null;
+  const rows = days.map(d => {
+    const rs   = DATA.filter(r => r.f === d);
+    const ped  = rs.length;
+    const fact = rs.reduce((s, r) => s + r.m, 0);
+    const tick = ped ? Math.round(fact / ped) : 0;
+    const dP   = prevPed   !== null && prevPed   > 0 ? ((ped  - prevPed)   / prevPed   * 100).toFixed(1) + '%' : '—';
+    const dF   = prevFact  !== null && prevFact  > 0 ? ((fact - prevFact)  / prevFact  * 100).toFixed(1) + '%' : '—';
+    const dT   = prevTicket !== null && prevTicket > 0 ? ((tick - prevTicket) / prevTicket * 100).toFixed(1) + '%' : '—';
+    prevPed = ped; prevFact = fact; prevTicket = tick;
+    return { Dia: d, Pedidos: ped, 'Δ Ped': dP, Facturacion: Math.round(fact), 'Δ Fact': dF, Ticket_Medio: tick, 'Δ Ticket': dT };
+  });
+  const tPed = rows.reduce((s,r) => s + r.Pedidos, 0);
+  const tFact = rows.reduce((s,r) => s + r.Facturacion, 0);
+  rows.push({ Dia: 'TOTAL', Pedidos: tPed, 'Δ Ped': '', Facturacion: tFact, 'Δ Fact': '', Ticket_Medio: tPed ? Math.round(tFact / tPed) : 0, 'Δ Ticket': '' });
+  return rows;
+}
+
+function doExport(type) {
+  const rows = tableRows();
+  if (type === 'xlsx') {
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Naka Sale');
+    XLSX.writeFile(wb, 'naka_sale_resumen.xlsx');
+  } else {
+    const h = Object.keys(rows[0]);
+    const lines = [h.join(','), ...rows.map(r => h.map(k => r[k]).join(','))];
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'naka_sale_resumen.csv'; a.click();
+  }
+  document.getElementById('exportMenu').classList.remove('open');
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openModal() { document.getElementById('overlay').classList.add('open'); }
+function closeOverlay(e) { if (e.target === document.getElementById('overlay')) document.getElementById('overlay').classList.remove('open'); }
+
+function switchModalTab(tab) {
+  document.getElementById('tabFolder').classList.toggle('active', tab === 'folder');
+  document.getElementById('tabFiles').classList.toggle('active', tab === 'files');
+  document.getElementById('panelFolder').style.display = tab === 'folder' ? '' : 'none';
+  document.getElementById('panelFiles').style.display  = tab === 'files'  ? '' : 'none';
+}
+
+// Drag-drop on folder zone
+const dzFolder = document.getElementById('dropFolder');
+dzFolder.addEventListener('dragover', e => { e.preventDefault(); dzFolder.classList.add('over'); });
+dzFolder.addEventListener('dragleave', () => dzFolder.classList.remove('over'));
+dzFolder.addEventListener('drop', e => { e.preventDefault(); dzFolder.classList.remove('over'); handleFolder(e.dataTransfer.files); });
+
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); handleFile(e.dataTransfer.files[0]); });
+
+const dzItems = document.getElementById('dropItems');
+dzItems.addEventListener('dragover', e => { e.preventDefault(); dzItems.classList.add('over'); });
+dzItems.addEventListener('dragleave', () => dzItems.classList.remove('over'));
+dzItems.addEventListener('drop', e => { e.preventDefault(); dzItems.classList.remove('over'); handleItemsFile(e.dataTransfer.files[0]); });
+
+// ── FOLDER HANDLER: auto-detect the two xlsx files ───────────────────────────
+async function handleFolder(files) {
+  const msg    = document.getElementById('folderMsg');
+  const xlsxFiles = Array.from(files).filter(f => f.name.endsWith('.xlsx'));
+  if (!xlsxFiles.length) {
+    msg.className = 'upload-msg err'; msg.textContent = 'No se encontraron archivos .xlsx en la carpeta';
+    return;
+  }
+  msg.className = 'upload-msg'; msg.textContent = 'Procesando ' + xlsxFiles.length + ' archivo(s)...'; msg.style.display = 'block';
+
+  let ordersData = null, itemsData = null;
+
+  for (const file of xlsxFiles) {
+    try {
+      const buf  = await file.arrayBuffer();
+      const wb   = XLSX.read(buf, { type: 'array', cellDates: true });
+      const ws   = wb.Sheets[wb.SheetNames[0]];
+      const raw  = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
+
+      // Find header row
+      let hRow = -1;
+      for (let i = 0; i < Math.min(raw.length, 10); i++) {
+        if (raw[i] && raw[i].some(c => String(c || '').toUpperCase().trim() === 'FECHA')) { hRow = i; break; }
+      }
+      if (hRow < 0) continue;
+      const hdr = raw[hRow].map(h => String(h || '').trim().toUpperCase());
+
+      if (hdr.includes('PROVINCIA') && hdr.includes('MONTO')) {
+        // ─── Orders file ───
+        const iF  = hdr.indexOf('FECHA');
+        const iP  = hdr.indexOf('PROVINCIA');
+        const iE  = hdr.indexOf('METODO ENVIO');
+        const iM  = hdr.indexOf('MONTO');
+        const iFP = hdr.indexOf('FORMA PAGO');
+        const iEs = hdr.indexOf('ESTADO');
+        const rows = [];
+        for (let i = hRow + 1; i < raw.length; i++) {
+          const r = raw[i]; if (!r || !r[iF]) continue;
+          if (String(r[iEs]||'').trim().toUpperCase() === 'CANCELADO') continue;
+          const m = parseFloat(String(r[iM] || '0').replace(/[^0-9.\-]/g, '')) || 0;
+          rows.push({ f: String(r[iF]||'').trim().substring(0,10), p: String(r[iP]||'Sin datos').trim(), e: normEnvio(String(r[iE]||'Sin datos').trim()), m, fp: String(r[iFP]||'Sin datos').trim() });
+        }
+        if (rows.length) ordersData = rows;
+
+      } else if (hdr.includes('MARCA') && hdr.includes('DESCRIPCION')) {
+        // ─── Items file ───
+        const iF  = hdr.indexOf('FECHA');
+        const iCo = hdr.indexOf('CODIGO');
+        const iMa = hdr.indexOf('MARCA');
+        const iDe = hdr.indexOf('DESCRIPCION');
+        const iUn = hdr.findIndex(h => h.includes('UNIDAD'));
+        const iDt = hdr.indexOf('% DTO');
+        const iTo = hdr.indexOf('TOTAL');
+        const iEsI = hdr.indexOf('ESTADO');
+        const rows = [];
+        for (let i = hRow + 1; i < raw.length; i++) {
+          const r = raw[i]; if (!r || !r[iF]) continue;
+          if (String(r[iEsI]||'').trim().toUpperCase() === 'CANCELADO') continue;
+          const dto = parseFloat(String(r[iDt]||'0').replace(/[^0-9.\-]/g,'')) || 0;
+          rows.push({ f: String(r[iF]||'').trim().substring(0,10), cod: String(r[iCo]||'').trim(), mar: String(r[iMa]||'').trim(), des: String(r[iDe]||'').trim(), uni: Math.round(parseFloat(String(r[iUn]||'0'))||0), dto: Math.round(dto * 100 * 10) / 10, tot: parseFloat(String(r[iTo]||'0').replace(/[^0-9.\-]/g,''))||0 });
+        }
+        if (rows.length) itemsData = rows;
+      }
+    } catch(e) { /* skip unreadable file */ }
+  }
+
+  const loaded = [];
+  if (ordersData) { DATA = ordersData; loaded.push(ordersData.length + ' pedidos'); }
+  if (itemsData)  { ITEMS = itemsData; loaded.push(itemsData.length + ' items'); }
+
+  if (!loaded.length) {
+    msg.className = 'upload-msg err'; msg.textContent = 'No se reconocio ninguno de los archivos. Verificar estructura.';
+    return;
+  }
+
+  msg.className = 'upload-msg ok'; msg.textContent = 'Cargado: ' + loaded.join(' · ');
+  setTimeout(() => {
+    document.getElementById('overlay').classList.remove('open');
+    dayFilter = 'ALL';
+    init(DATA);
+  }, 1000);
+}
+
+// ── ITEMS-ONLY FILE HANDLER ──────────────────────────────────────────────────
+function handleItemsFile(file) {
+  if (!file) return;
+  const msg = document.getElementById('uploadMsg');
+  msg.className = 'upload-msg'; msg.textContent = 'Procesando items...'; msg.style.display = 'block';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb  = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+      const ws  = wb.Sheets[wb.SheetNames[0]];
+      const raw = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
+      let hRow  = -1;
+      for (let i = 0; i < Math.min(raw.length, 10); i++) {
+        if (raw[i] && raw[i].some(c => String(c || '').toUpperCase().trim() === 'FECHA')) { hRow = i; break; }
+      }
+      if (hRow < 0) throw new Error('No se encontro encabezado FECHA');
+      const hdr = raw[hRow].map(h => String(h||'').trim().toUpperCase());
+      const iF  = hdr.indexOf('FECHA');
+      const iEs2= hdr.indexOf('ESTADO');
+      const iCo = hdr.indexOf('CODIGO');
+      const iMa = hdr.indexOf('MARCA');
+      const iDe = hdr.indexOf('DESCRIPCION');
+      const iUn = hdr.findIndex(h => h.includes('UNIDAD'));
+      const iDt = hdr.indexOf('% DTO');
+      const iTo = hdr.indexOf('TOTAL');
+      const rows = [];
+      for (let i = hRow + 1; i < raw.length; i++) {
+        const r = raw[i]; if (!r || !r[iF]) continue;
+        if (String(r[iEs2]||'').trim().toUpperCase() === 'CANCELADO') continue;
+        const dto = parseFloat(String(r[iDt]||'0').replace(/[^0-9.\-]/g,'')) || 0;
+        rows.push({ f: String(r[iF]||'').trim().substring(0,10), cod: String(r[iCo]||'').trim(), mar: String(r[iMa]||'').trim(), des: String(r[iDe]||'').trim(), uni: Math.round(parseFloat(String(r[iUn]||'0'))||0), dto: Math.round(dto * 100 * 10) / 10, tot: parseFloat(String(r[iTo]||'0').replace(/[^0-9.\-]/g,''))||0 });
+      }
+      if (!rows.length) throw new Error('Sin datos validos');
+      ITEMS = rows;
+      msg.className = 'upload-msg ok'; msg.textContent = rows.length + ' items cargados';
+      renderDtoChart(filteredData());
+      prodPage = 1; renderProdTable();
+    } catch(err) {
+      msg.className = 'upload-msg err'; msg.textContent = 'Error: ' + err.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function normEnvio(s) {
+  const su = s.toUpperCase();
+  if (su.includes('SUCURSAL DE CORREO')) return 'Suc. Correo';
+  if (su.includes('DOMICILIO') && !su.includes('SAME') && !su.includes('NEXT')) return 'Domicilio';
+  if (su.includes('RETIRO') || su.includes('LOCAL')) return 'Retiro Local';
+  if (su.includes('SAME') || su.includes('HOY')) return 'Same Day';
+  if (su.includes('NEXT')) return 'Next Day';
+  if (su.includes('ENCOMIENDA')) return 'Encomienda';
+  if (su.includes('CONVENIR')) return 'A Convenir';
+  return s;
+}
+
+function handleFile(file) {
+  if (!file) return;
+  const msg = document.getElementById('uploadMsg');
+  msg.className = 'upload-msg'; msg.textContent = 'Procesando...'; msg.style.display = 'block';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb  = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+      const ws  = wb.Sheets[wb.SheetNames[0]];
+      const raw = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
+      let hRow  = -1;
+      for (let i = 0; i < Math.min(raw.length, 10); i++) {
+        if (raw[i] && raw[i].some(c => String(c || '').toUpperCase().trim() === 'FECHA')) { hRow = i; break; }
+      }
+      if (hRow < 0) throw new Error('No se encontro la fila de encabezados (FECHA)');
+      const hdr = raw[hRow].map(h => String(h || '').trim().toUpperCase());
+      const iF  = hdr.indexOf('FECHA');
+      const iEsO= hdr.indexOf('ESTADO');
+      const iP  = hdr.indexOf('PROVINCIA');
+      const iE  = hdr.indexOf('METODO ENVIO');
+      const iM  = hdr.indexOf('MONTO');
+      const iFP = hdr.indexOf('FORMA PAGO');
+      const rows = [];
+      for (let i = hRow + 1; i < raw.length; i++) {
+        const r = raw[i];
+        if (!r || !r[iF]) continue;
+        if (String(r[iEsO]||'').trim().toUpperCase() === 'CANCELADO') continue;
+        const m = parseFloat(String(r[iM] || '0').replace(/[^0-9.\-]/g, '')) || 0;
+        rows.push({
+          f:  String(r[iF] || '').trim().substring(0, 10),
+          p:  String(r[iP] || 'Sin datos').trim(),
+          e:  normEnvio(String(r[iE] || 'Sin datos').trim()),
+          m,
+          fp: String(r[iFP] || 'Sin datos').trim()
+        });
+      }
+      if (!rows.length) throw new Error('Sin datos validos');
+      msg.className = 'upload-msg ok';
+      msg.textContent = 'Cargado: ' + rows.length + ' pedidos';
+      setTimeout(() => {
+        document.getElementById('overlay').classList.remove('open');
+        dayFilter = 'ALL';
+        init(rows);
+      }, 900);
+    } catch (err) {
+      msg.className = 'upload-msg err'; msg.textContent = 'Error: ' + err.message;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+init(EMBEDDED);
+</script>
+</body>
+</html>
