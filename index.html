@@ -21,9 +21,9 @@ body{font-family:'Inter',sans-serif;background:#F2F4F7;color:#111827;min-height:
 
 /* GLOBAL DAY FILTER BAR */
 .dayfilter-bar{background:#111111;border-bottom:1px solid rgba(255,255,255,.08);padding:0 28px;display:flex;align-items:center;gap:10px;position:sticky;top:60px;z-index:190;height:48px;flex-wrap:wrap}
-.dayfilter-label{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap}
-.daychip{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:500;cursor:pointer;border:1.5px solid rgba(255,255,255,.18);background:transparent;color:rgba(255,255,255,.55);transition:.12s;user-select:none;font-family:inherit;line-height:1.5;white-space:nowrap}
-.daychip:hover{border-color:rgba(255,255,255,.45);color:rgba(255,255,255,.85)}
+.dayfilter-label{font-size:.65rem;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap}
+.daychip{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:500;cursor:pointer;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:#fff;transition:.12s;user-select:none;font-family:inherit;line-height:1.5;white-space:nowrap}
+.daychip:hover{border-color:#fff;background:rgba(255,255,255,.12)}
 .daychip.active{background:#E8520A;border-color:#E8520A;color:#fff;font-weight:700}
 
 /* BUTTONS */
@@ -358,14 +358,13 @@ td.dto-cell{font-weight:600}
 
 <!-- LOCAL VIEW -->
 <div id="localView" style="display:none">
-<main class="main" id="localMain">
-
-  <!-- DAY FILTER LOCAL -->
-  <div class="dayfilter-bar" id="lDayfilterBar" style="position:sticky;top:60px;z-index:190">
+  <!-- DAY FILTER LOCAL — sticky just below header, outside main -->
+  <div class="dayfilter-bar" id="lDayfilterBar">
     <span class="dayfilter-label">Filtrar dia</span>
     <button class="daychip active" onclick="setLDay('ALL')">Todos</button>
     <!-- chips generados por JS -->
   </div>
+<main class="main" id="localMain">
 
   <!-- KPIs LOCAL -->
   <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)">
@@ -407,7 +406,9 @@ td.dto-cell{font-weight:600}
   </div>
 
   <!-- COMPARATIVA PEDIDOS Y FACTURACION -->
-  <div class="sec-title" style="margin-top:8px">Comparativa con 2025 — Pedidos y Facturacion</div>
+  <div class="sec-title" style="margin-top:8px">Comparativa con 2025 — Pedidos y Facturacion
+    <span style="display:block;font-size:.7rem;font-weight:400;color:#9CA3AF;text-transform:none;letter-spacing:0;margin-top:3px">2025: periodo comprendido entre el 8 y 17 de Mayo</span>
+  </div>
   <div class="card">
     <div class="table-wrap">
       <table>
@@ -423,7 +424,9 @@ td.dto-cell{font-weight:600}
   </div>
 
   <!-- COMPARATIVA TICKET Y ARTICULOS -->
-  <div class="sec-title" style="margin-top:8px">Comparativa con 2025 — Ticket y Articulos</div>
+  <div class="sec-title" style="margin-top:8px">Comparativa con 2025 — Ticket y Articulos
+    <span style="display:block;font-size:.7rem;font-weight:400;color:#9CA3AF;text-transform:none;letter-spacing:0;margin-top:3px">2025: periodo comprendido entre el 8 y 17 de Mayo</span>
+  </div>
   <div class="card">
     <div class="table-wrap">
       <table>
@@ -501,7 +504,7 @@ td.dto-cell{font-weight:600}
   <!-- DESCUENTOS -->
   <div class="sec-title" style="margin-top:8px">Distribucion de Descuentos</div>
   <div class="card">
-    <div class="card-head"><div class="card-title">ARTÍCULOS VENDIDOS POR % DE DESCUENTO</div></div>
+    <div class="card-head"><div class="card-title">PEDIDOS POR % DE DESCUENTO — TOTAL EVENTO</div></div>
     <div class="chart-box" style="height:280px"><canvas id="lDtoChart"></canvas></div>
   </div>
 
@@ -1432,7 +1435,6 @@ function setLDay(f) {
   lProdPage = 1;
   renderLocalData();
   renderLMarcas();
-  renderLDtoChart();
   renderLProdTable();
 }
 
@@ -1643,17 +1645,8 @@ function renderLMarcas() {
 }
 
 function renderLDtoChart() {
-  // compute dto distribution from filtered itemsRaw
-  const raw = lDayFilter === 'ALL' ? (LOCAL.itemsRaw || LOCAL.items || []) : (LOCAL.itemsRaw || LOCAL.items || []).filter(r => r.f === lDayFilter);
-  const byDto = {};
-  raw.forEach(r => {
-    const bucket = r.dto;
-    if (!byDto[bucket]) byDto[bucket] = {dto: bucket, uni: 0, tot: 0};
-    byDto[bucket].uni += r.uni;
-    byDto[bucket].tot += r.tot;
-  });
-  const data = Object.values(byDto).filter(d => d.dto > 0).sort((a,b) => a.dto - b.dto);
-
+  // Usa dtoDistrib del RESUMEN 2026 (tiene conteo de pedidos reales)
+  const data = (LOCAL.dtoDistrib || []).sort((a, b) => a.dto - b.dto);
   const ctx = document.getElementById('lDtoChart').getContext('2d');
   if (lDtoInst) lDtoInst.destroy();
   lDtoInst = new Chart(ctx, {
@@ -1661,8 +1654,8 @@ function renderLDtoChart() {
     data: {
       labels: data.map(r => r.dto + '%'),
       datasets: [{
-        label: 'Artículos',
-        data: data.map(r => r.uni),
+        label: 'Pedidos',
+        data: data.map(r => r.ped),
         backgroundColor: '#E8520A',
         borderRadius: 4,
         datalabels: { anchor: 'end', align: 'end', formatter: v => v, font:{size:10,weight:'700'}, color:'#374151' }
@@ -1674,7 +1667,7 @@ function renderLDtoChart() {
       plugins: { legend: { display: false }, datalabels: {},
         tooltip: { callbacks: { label: ctx => {
           const d = data[ctx.dataIndex];
-          return [`Artículos: ${d.uni}`, `Facturacion: $${(d.tot/1e3).toFixed(0)}k`];
+          return [`Pedidos: ${d.ped}`, `Artículos: ${d.art}`, `Facturacion: $${(d.fact/1e3).toFixed(0)}k`];
         }}}
       },
       scales: {
