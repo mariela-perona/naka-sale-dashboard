@@ -174,6 +174,11 @@ td.dto-cell{font-weight:600}
     <span class="header-badge">SALE</span>
   </div>
   <div class="header-right">
+    <!-- WEB / LOCAL TOGGLE -->
+    <div style="display:flex;background:rgba(255,255,255,.1);border-radius:6px;padding:3px;gap:2px">
+      <button id="btnWeb" class="btn" style="padding:5px 14px;font-size:.75rem;background:#E8520A;color:#fff;border-radius:4px" onclick="setView('web')">WEB</button>
+      <button id="btnLocal" class="btn" style="padding:5px 14px;font-size:.75rem;background:transparent;color:rgba(255,255,255,.6);border-radius:4px" onclick="setView('local')">LOCAL</button>
+    </div>
     <button class="btn btn-ghost" onclick="openModal()">
       <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
       Actualizar datos
@@ -205,6 +210,7 @@ td.dto-cell{font-weight:600}
   <!-- chips generados por JS -->
 </div>
 
+<div id="webView">
 <main class="main">
 
   <!-- KPIs -->
@@ -348,6 +354,119 @@ td.dto-cell{font-weight:600}
   </div>
 
 </main>
+</div><!-- /webView -->
+
+<!-- LOCAL VIEW -->
+<div id="localView" style="display:none">
+<main class="main" id="localMain">
+
+  <!-- KPIs LOCAL -->
+  <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)">
+    <div class="kpi-card" style="--accent:#E8520A">
+      <div class="kpi-label">Facturacion Local</div>
+      <div class="kpi-value" id="lKpiFact">-</div>
+      <div class="kpi-sub" id="lKpiFactSub"></div>
+    </div>
+    <div class="kpi-card" style="--accent:#1A1A1A">
+      <div class="kpi-label">Pedidos</div>
+      <div class="kpi-value" id="lKpiPed">-</div>
+      <div class="kpi-sub" id="lKpiPedSub"></div>
+    </div>
+    <div class="kpi-card" style="--accent:#6B7280">
+      <div class="kpi-label">Ticket Medio</div>
+      <div class="kpi-value" id="lKpiTP">-</div>
+      <div class="kpi-sub">facturacion / pedidos</div>
+    </div>
+    <div class="kpi-card" style="--accent:#3B82F6">
+      <div class="kpi-label">UPT</div>
+      <div class="kpi-value" id="lKpiUPT">-</div>
+      <div class="kpi-sub">unidades por ticket</div>
+    </div>
+    <div class="kpi-card" style="--accent:#10B981">
+      <div class="kpi-label">Conversion</div>
+      <div class="kpi-value" id="lKpiConv">-</div>
+      <div class="kpi-sub">pedidos / ingresos</div>
+    </div>
+  </div>
+
+  <!-- EVOL LOCAL -->
+  <div class="sec-title">Evolucion por Dia — Local 2026</div>
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title">PEDIDOS Y FACTURACION POR DIA</div>
+      <div class="card-sub">Barras = Facturacion &nbsp;|&nbsp; Linea = Pedidos</div>
+    </div>
+    <div class="chart-box" style="height:280px"><canvas id="lEvolChart"></canvas></div>
+  </div>
+
+  <!-- COMPARATIVA PEDIDOS Y FACTURACION -->
+  <div class="sec-title" style="margin-top:8px">Comparativa con 2025 — Pedidos y Facturacion</div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Dia</th>
+          <th>Fecha 2025</th><th>Fecha 2026</th>
+          <th class="r">Pedidos 2025</th><th class="r">Pedidos 2026</th><th class="r delta">Var.</th>
+          <th class="r">Facturacion 2025</th><th class="r">Facturacion 2026</th><th class="r delta">Var.</th>
+        </tr></thead>
+        <tbody id="lCompPedBody"></tbody>
+        <tfoot id="lCompPedFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- COMPARATIVA TICKET Y ARTICULOS -->
+  <div class="sec-title" style="margin-top:8px">Comparativa con 2025 — Ticket y Articulos</div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Dia</th>
+          <th>Fecha 2025</th><th>Fecha 2026</th>
+          <th class="r">Ticket 2025</th><th class="r">Ticket 2026</th><th class="r delta">Var.</th>
+          <th class="r">Articulos 2025</th><th class="r">Articulos 2026</th><th class="r delta">Var.</th>
+        </tr></thead>
+        <tbody id="lCompTkBody"></tbody>
+        <tfoot id="lCompTkFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- CONVERSION -->
+  <div class="sec-title" style="margin-top:8px">Conversion — Resumen 2026</div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Dia</th><th>Fecha</th>
+          <th class="r">Ing. Personas</th>
+          <th class="r">Pedidos</th>
+          <th class="r">Conversion</th>
+          <th class="r">Ticket Medio</th>
+          <th class="r">UPT</th>
+        </tr></thead>
+        <tbody id="lConvBody"></tbody>
+        <tfoot id="lConvFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- MARCAS -->
+  <div class="sec-title" style="margin-top:8px">Analisis de Marcas</div>
+  <div class="charts-row col2">
+    <div class="card">
+      <div class="card-head"><div class="card-title">TOP 10 MARCAS POR FACTURACION</div></div>
+      <div class="chart-box" style="height:300px"><canvas id="lMarcasFactChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">TOP 10 MARCAS POR ARTICULOS VENDIDOS</div></div>
+      <div class="chart-box" style="height:300px"><canvas id="lMarcasUniChart"></canvas></div>
+    </div>
+  </div>
+
+</main>
+</div><!-- /localView -->
 
 <!-- MODAL -->
 <div class="overlay" id="overlay" onclick="closeOverlay(event)">
@@ -1238,6 +1357,192 @@ function handleFile(file) {
     }
   };
   reader.readAsArrayBuffer(file);
+}
+
+// ─── LOCAL DATA ───────────────────────────────────────────────────────────────
+const LOCAL = {"evol": [{"dia": "Dias", "f": "Etiquetas ", "fact": 0.0, "ped": 0, "art": 0, "tp": 0.0, "upt": 0.0, "ing": 0, "conv": 0.0}, {"dia": "Jueves I", "f": "2026-05-07", "fact": 6706278.46, "ped": 38, "art": 91, "tp": 176481.01, "upt": 2.39, "ing": 37, "conv": 83.8}, {"dia": "Viernes", "f": "2026-05-08", "fact": 8572748.8, "ped": 50, "art": 181, "tp": 171454.98, "upt": 3.62, "ing": 42, "conv": 95.2}, {"dia": "Sabado", "f": "2026-05-09", "fact": 22802271.88, "ped": 104, "art": 250, "tp": 219252.61, "upt": 2.4, "ing": 124, "conv": 71.0}, {"dia": "Lunes", "f": "2026-05-11", "fact": 4469532.05, "ped": 30, "art": 72, "tp": 148984.4, "upt": 2.4, "ing": 27, "conv": 74.1}, {"dia": "Martes", "f": "2026-05-12", "fact": 11925697.95, "ped": 46, "art": 183, "tp": 259254.3, "upt": 3.98, "ing": 42, "conv": 95.2}, {"dia": "Miercoles", "f": "2026-05-13", "fact": 5007077.29, "ped": 42, "art": 36, "tp": 119216.13, "upt": 0.86, "ing": 52, "conv": 59.6}, {"dia": "Jueves II", "f": "2026-05-14", "fact": 11034264.4, "ped": 40, "art": 105, "tp": 275856.61, "upt": 2.62, "ing": 53, "conv": 56.6}, {"dia": "Marca", "f": "Facturacio", "fact": 0.0, "ped": 0, "art": 0, "tp": 0.0, "upt": 0.0, "ing": 0, "conv": 0.0}, {"dia": "Bonificacion", "f": "Facturacio", "fact": 0.0, "ped": 0, "art": 0, "tp": 0.0, "upt": 0.0, "ing": 0, "conv": 0.0}], "comparativa": [{"dc": "D\u00eda 1", "dia": "Jueves I", "f25": "2025-05-08", "f26": "2026-05-07", "ped25": 44, "ped26": 38, "varPed": -13.6, "fact25": 8884130.0, "fact26": 6706278.0, "varFact": -24.5, "tp25": 201912.0, "tp26": 176481.0, "varTP": -12.6, "art25": 115, "art26": 91, "varArt": -20.9}, {"dc": "D\u00eda 2", "dia": "Viernes", "f25": "2025-05-09", "f26": "2026-05-08", "ped25": 31, "ped26": 50, "varPed": 61.3, "fact25": 4415386.0, "fact26": 8572749.0, "varFact": 94.2, "tp25": 142432.0, "tp26": 171455.0, "varTP": 20.4, "art25": 80, "art26": 181, "varArt": 126.3}, {"dc": "D\u00eda 3", "dia": "S\u00e1bado", "f25": "2025-05-10", "f26": "2026-05-09", "ped25": 75, "ped26": 104, "varPed": 38.7, "fact25": 13837972.0, "fact26": 22802272.0, "varFact": 64.8, "tp25": 184506.0, "tp26": 219253.0, "varTP": 18.8, "art25": 175, "art26": 250, "varArt": 42.9}, {"dc": "D\u00eda 4", "dia": "Domingo", "f25": "2025-05-12", "f26": "2026-05-11", "ped25": 27, "ped26": 30, "varPed": 11.1, "fact25": 7582171.0, "fact26": 4469532.0, "varFact": -41.1, "tp25": 280821.0, "tp26": 148984.0, "varTP": -46.9, "art25": 80, "art26": 72, "varArt": -10.0}, {"dc": "D\u00eda 5", "dia": "Lunes", "f25": "2025-05-13", "f26": "2026-05-12", "ped25": 48, "ped26": 46, "varPed": -4.2, "fact25": 10713290.0, "fact26": 11925698.0, "varFact": 11.3, "tp25": 223194.0, "tp26": 259254.0, "varTP": 16.2, "art25": 125, "art26": 183, "varArt": 46.4}, {"dc": "D\u00eda 6", "dia": "Martes", "f25": "2025-05-14", "f26": "2026-05-13", "ped25": 48, "ped26": 42, "varPed": -12.5, "fact25": 6965403.0, "fact26": 5007077.0, "varFact": -28.1, "tp25": 145113.0, "tp26": 119216.0, "varTP": -17.8, "art25": 124, "art26": 36, "varArt": -71.0}, {"dc": "D\u00eda 7", "dia": "Mi\u00e9rcoles", "f25": "2025-05-15", "f26": "2026-05-14", "ped25": 36, "ped26": 40, "varPed": 11.1, "fact25": 6730780.0, "fact26": 11034264.0, "varFact": 63.9, "tp25": 186966.0, "tp26": 275857.0, "varTP": 47.5, "art25": 73, "art26": 105, "varArt": 43.8}, {"dc": "D\u00eda 8", "dia": "Jueves II", "f25": "2025-05-16", "f26": "", "ped25": 31, "ped26": null, "varPed": null, "fact25": 4255026.0, "fact26": null, "varFact": null, "tp25": 137259.0, "tp26": null, "varTP": null, "art25": 72, "art26": null, "varArt": null}, {"dc": "D\u00eda 9", "dia": "Viernes", "f25": "2025-05-17", "f26": "", "ped25": 78, "ped26": null, "varPed": null, "fact25": 13525431.0, "fact26": null, "varFact": null, "tp25": 173403.0, "tp26": null, "varTP": null, "art25": 198, "art26": null, "varArt": null}], "conversion": [{"dia": "Dias", "f": "Etiquetas ", "fact": 0.0, "ped": 0, "art": 0, "tp": 0.0, "upt": 0.0, "ing": 0, "conv": 0.0}, {"dia": "Jueves I", "f": "2026-05-07", "fact": 6706278.46, "ped": 38, "art": 91, "tp": 176481.01, "upt": 2.39, "ing": 37, "conv": 83.8}, {"dia": "Viernes", "f": "2026-05-08", "fact": 8572748.8, "ped": 50, "art": 181, "tp": 171454.98, "upt": 3.62, "ing": 42, "conv": 95.2}, {"dia": "Sabado", "f": "2026-05-09", "fact": 22802271.88, "ped": 104, "art": 250, "tp": 219252.61, "upt": 2.4, "ing": 124, "conv": 71.0}, {"dia": "Lunes", "f": "2026-05-11", "fact": 4469532.05, "ped": 30, "art": 72, "tp": 148984.4, "upt": 2.4, "ing": 27, "conv": 74.1}, {"dia": "Martes", "f": "2026-05-12", "fact": 11925697.95, "ped": 46, "art": 183, "tp": 259254.3, "upt": 3.98, "ing": 42, "conv": 95.2}, {"dia": "Miercoles", "f": "2026-05-13", "fact": 5007077.29, "ped": 42, "art": 36, "tp": 119216.13, "upt": 0.86, "ing": 52, "conv": 59.6}, {"dia": "Jueves II", "f": "2026-05-14", "fact": 11034264.4, "ped": 40, "art": 105, "tp": 275856.61, "upt": 2.62, "ing": 53, "conv": 56.6}, {"dia": "Marca", "f": "Facturacio", "fact": 0.0, "ped": 0, "art": 0, "tp": 0.0, "upt": 0.0, "ing": 0, "conv": 0.0}, {"dia": "Bonificacion", "f": "Facturacio", "fact": 0.0, "ped": 0, "art": 0, "tp": 0.0, "upt": 0.0, "ing": 0, "conv": 0.0}], "marcasFact": [{"mar": "LA SPORTIVA", "tot": 20410590.0, "uni": 69}, {"mar": "ANSILTA", "tot": 7507687.0, "uni": 43}, {"mar": "PATAGONIA", "tot": 5266559.0, "uni": 16}, {"mar": "NATUREHIKE", "tot": 4447811.0, "uni": 61}, {"mar": "SINGING ROCK", "tot": 3659034.0, "uni": 69}, {"mar": "RAB", "tot": 3420015.0, "uni": 1}, {"mar": "EDELRID", "tot": 3292758.0, "uni": 144}, {"mar": "AONIJIE", "tot": 2841683.0, "uni": 53}, {"mar": "EPIC", "tot": 2514870.0, "uni": 51}, {"mar": "DEUTER", "tot": 2309461.0, "uni": 4}], "marcasUni": [{"mar": "EDELRID", "tot": 3292758.0, "uni": 144}, {"mar": "FIXE", "tot": 901042.0, "uni": 105}, {"mar": "SOX", "tot": 1122966.0, "uni": 73}, {"mar": "LA SPORTIVA", "tot": 20410590.0, "uni": 69}, {"mar": "SINGING ROCK", "tot": 3659034.0, "uni": 69}, {"mar": "NATUREHIKE", "tot": 4447811.0, "uni": 61}, {"mar": "AONIJIE", "tot": 2841683.0, "uni": 53}, {"mar": "EPIC", "tot": 2514870.0, "uni": 51}, {"mar": "ANSILTA", "tot": 7507687.0, "uni": 43}, {"mar": "EDELWEISS", "tot": 694772.0, "uni": 21}]};
+
+// ─── VIEW TOGGLE ──────────────────────────────────────────────────────────────
+let currentView = 'web';
+function setView(v) {
+  currentView = v;
+  document.getElementById('webView').style.display   = v === 'web'   ? '' : 'none';
+  document.getElementById('localView').style.display = v === 'local' ? '' : 'none';
+  document.getElementById('dayfilterBar').style.display = v === 'web' ? '' : 'none';
+  const btnW = document.getElementById('btnWeb');
+  const btnL = document.getElementById('btnLocal');
+  btnW.style.background = v === 'web'   ? '#E8520A' : 'transparent';
+  btnW.style.color      = v === 'web'   ? '#fff'    : 'rgba(255,255,255,.6)';
+  btnL.style.background = v === 'local' ? '#E8520A' : 'transparent';
+  btnL.style.color      = v === 'local' ? '#fff'    : 'rgba(255,255,255,.6)';
+  if (v === 'local') renderLocal();
+}
+
+// ─── LOCAL RENDER ─────────────────────────────────────────────────────────────
+let lEvolInst, lMFInst, lMUInst;
+
+function renderLocal() {
+  const evol = LOCAL.evol || [];
+  const comp = LOCAL.comparativa || [];
+  const mf   = LOCAL.marcasFact || [];
+  const mu   = LOCAL.marcasUni  || [];
+
+  // ── KPIs ──
+  const totFact = evol.reduce((s, r) => s + r.fact, 0);
+  const totPed  = evol.reduce((s, r) => s + r.ped, 0);
+  const totIng  = evol.reduce((s, r) => s + r.ing, 0);
+  const avgTP   = totPed ? totFact / totPed : 0;
+  const avgUPT  = totPed ? evol.reduce((s, r) => s + r.upt * r.ped, 0) / totPed : 0;
+  const avgConv = totIng ? (totPed / totIng) * 100 : 0;
+  document.getElementById('lKpiFact').textContent    = fmt(totFact);
+  document.getElementById('lKpiFactSub').textContent = fmtN(totPed) + ' pedidos totales';
+  document.getElementById('lKpiPed').textContent     = fmtN(totPed);
+  document.getElementById('lKpiPedSub').textContent  = evol.length + ' dias de venta';
+  document.getElementById('lKpiTP').textContent      = fmt(avgTP);
+  document.getElementById('lKpiUPT').textContent     = avgUPT.toFixed(1);
+  document.getElementById('lKpiConv').textContent    = avgConv.toFixed(1) + '%';
+
+  // ── EVOL CHART ──
+  const ctx = document.getElementById('lEvolChart').getContext('2d');
+  if (lEvolInst) lEvolInst.destroy();
+  lEvolInst = new Chart(ctx, {
+    data: {
+      labels: evol.map(r => r.dia),
+      datasets: [
+        { type: 'bar', label: 'Facturacion', data: evol.map(r => r.fact),
+          backgroundColor: 'rgba(232,82,10,.75)', yAxisID: 'yFact',
+          datalabels: { anchor: 'end', align: 'end', formatter: v => '$' + (v/1e6).toFixed(1) + 'M', font: { size: 10, weight: '700' }, color: '#E8520A' } },
+        { type: 'line', label: 'Pedidos', data: evol.map(r => r.ped),
+          borderColor: '#1A1A1A', backgroundColor: '#1A1A1A', pointRadius: 4, tension: .35, yAxisID: 'yPed',
+          datalabels: { anchor: 'end', align: 'top', formatter: v => v, font: { size: 10, weight: '700' }, color: '#1A1A1A' } }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 32 } },
+      plugins: { legend: { position: 'bottom' }, datalabels: {} },
+      scales: {
+        yFact: { position: 'left', grid: { color: 'rgba(0,0,0,.05)' }, ticks: { callback: v => '$' + (v/1e6).toFixed(0) + 'M', font: { size: 11 } } },
+        yPed:  { position: 'right', grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+
+  // ── COMPARATIVA — pedidos y facturacion ──
+  const varTag = (v) => {
+    if (v === null || v === undefined) return '<span style="color:#9CA3AF">—</span>';
+    const pos = v >= 0;
+    return `<span style="color:${pos ? '#10B981' : '#EF4444'};font-weight:700">${pos ? '▲' : '▼'} ${Math.abs(v).toFixed(1)}%</span>`;
+  };
+  const fmtN2 = v => v !== null && v !== undefined ? fmtN(v) : '<span style="color:#9CA3AF">—</span>';
+  const fmt2  = v => v !== null && v !== undefined ? fmt(v)  : '<span style="color:#9CA3AF">—</span>';
+
+  document.getElementById('lCompPedBody').innerHTML = comp.map(r => `<tr>
+    <td style="font-weight:600">${r.dia}</td>
+    <td style="color:#9CA3AF;font-size:.78rem">${r.f25 ? r.f25.slice(5).replace('-','/') : '—'}</td>
+    <td style="color:#374151;font-size:.78rem">${r.f26 ? r.f26.slice(5).replace('-','/') : '—'}</td>
+    <td class="r">${fmtN2(r.ped25)}</td>
+    <td class="r" style="font-weight:600">${fmtN2(r.ped26)}</td>
+    <td class="r delta">${varTag(r.varPed)}</td>
+    <td class="r">${fmt2(r.fact25)}</td>
+    <td class="r" style="font-weight:600">${fmt2(r.fact26)}</td>
+    <td class="r delta">${varTag(r.varFact)}</td>
+  </tr>`).join('');
+
+  // totals comparativa ped
+  const c2025ped = comp.reduce((s,r)=>s+r.ped25,0);
+  const c2026ped = comp.filter(r=>r.ped26!=null).reduce((s,r)=>s+r.ped26,0);
+  const c2025fct = comp.reduce((s,r)=>s+r.fact25,0);
+  const c2026fct = comp.filter(r=>r.fact26!=null).reduce((s,r)=>s+r.fact26,0);
+  const varPedTot  = c2025ped  ? ((c2026ped -c2025ped) /c2025ped )*100 : null;
+  const varFactTot = c2025fct  ? ((c2026fct-c2025fct)/c2025fct)*100 : null;
+  document.getElementById('lCompPedFoot').innerHTML = `<tr>
+    <td colspan="3" style="font-weight:700">TOTAL</td>
+    <td class="r" style="font-weight:700">${fmtN(c2025ped)}</td>
+    <td class="r" style="font-weight:700">${fmtN(c2026ped)}</td>
+    <td class="r delta">${varTag(varPedTot)}</td>
+    <td class="r" style="font-weight:700">${fmt(c2025fct)}</td>
+    <td class="r" style="font-weight:700">${fmt(c2026fct)}</td>
+    <td class="r delta">${varTag(varFactTot)}</td>
+  </tr>`;
+
+  // ── COMPARATIVA — ticket y articulos ──
+  document.getElementById('lCompTkBody').innerHTML = comp.map(r => `<tr>
+    <td style="font-weight:600">${r.dia}</td>
+    <td style="color:#9CA3AF;font-size:.78rem">${r.f25 ? r.f25.slice(5).replace('-','/') : '—'}</td>
+    <td style="color:#374151;font-size:.78rem">${r.f26 ? r.f26.slice(5).replace('-','/') : '—'}</td>
+    <td class="r">${fmt2(r.tp25)}</td>
+    <td class="r" style="font-weight:600">${fmt2(r.tp26)}</td>
+    <td class="r delta">${varTag(r.varTP)}</td>
+    <td class="r">${fmtN2(r.art25)}</td>
+    <td class="r" style="font-weight:600">${fmtN2(r.art26)}</td>
+    <td class="r delta">${varTag(r.varArt)}</td>
+  </tr>`).join('');
+
+  const c2025tp  = c2025ped ? comp.reduce((s,r)=>s+r.tp25*r.ped25,0)/c2025ped : 0;
+  const c2026tp  = c2026ped ? comp.filter(r=>r.tp26!=null).reduce((s,r)=>s+r.tp26*r.ped26,0)/c2026ped : 0;
+  const c2025art = comp.reduce((s,r)=>s+r.art25,0);
+  const c2026art = comp.filter(r=>r.art26!=null).reduce((s,r)=>s+r.art26,0);
+  const varTPTot  = c2025tp  ? ((c2026tp -c2025tp) /c2025tp )*100 : null;
+  const varArtTot = c2025art ? ((c2026art-c2025art)/c2025art)*100 : null;
+  document.getElementById('lCompTkFoot').innerHTML = `<tr>
+    <td colspan="3" style="font-weight:700">TOTAL</td>
+    <td class="r" style="font-weight:700">${fmt(c2025tp)}</td>
+    <td class="r" style="font-weight:700">${fmt(c2026tp)}</td>
+    <td class="r delta">${varTag(varTPTot)}</td>
+    <td class="r" style="font-weight:700">${fmtN(c2025art)}</td>
+    <td class="r" style="font-weight:700">${fmtN(c2026art)}</td>
+    <td class="r delta">${varTag(varArtTot)}</td>
+  </tr>`;
+
+  // ── CONVERSION TABLE ──
+  document.getElementById('lConvBody').innerHTML = evol.map(r => `<tr>
+    <td style="font-weight:600">${r.dia}</td>
+    <td style="color:#6B7280;font-size:.78rem">${r.f.slice(5).replace('-','/')}</td>
+    <td class="r">${fmtN(r.ing)}</td>
+    <td class="r" style="font-weight:600">${fmtN(r.ped)}</td>
+    <td class="r"><span style="font-weight:700;color:${r.conv>=70?'#10B981':r.conv>=50?'#F59E0B':'#EF4444'}">${r.conv.toFixed(1)}%</span></td>
+    <td class="r">${fmt(r.tp)}</td>
+    <td class="r">${r.upt.toFixed(1)}</td>
+  </tr>`).join('');
+  document.getElementById('lConvFoot').innerHTML = `<tr>
+    <td colspan="2" style="font-weight:700">TOTAL</td>
+    <td class="r" style="font-weight:700">${fmtN(totIng)}</td>
+    <td class="r" style="font-weight:700">${fmtN(totPed)}</td>
+    <td class="r"><span style="font-weight:700;color:#10B981">${avgConv.toFixed(1)}%</span></td>
+    <td class="r" style="font-weight:700">${fmt(avgTP)}</td>
+    <td class="r" style="font-weight:700">${avgUPT.toFixed(1)}</td>
+  </tr>`;
+
+  // ── MARCAS CHARTS ──
+  const COLORS = ['#E8520A','#1A1A1A','#3B82F6','#10B981','#F59E0B','#8B5CF6','#EF4444','#06B6D4','#84CC16','#F97316'];
+
+  const ctxMF = document.getElementById('lMarcasFactChart').getContext('2d');
+  if (lMFInst) lMFInst.destroy();
+  lMFInst = new Chart(ctxMF, {
+    type: 'bar',
+    data: { labels: mf.map(r => r.mar), datasets: [{ data: mf.map(r => r.tot), backgroundColor: COLORS, borderRadius: 4,
+      datalabels: { anchor: 'end', align: 'end', formatter: v => '$'+(v/1e6).toFixed(1)+'M', font:{size:9,weight:'700'}, color:'#374151' } }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      layout: { padding: { right: 48 } },
+      plugins: { legend: { display: false }, datalabels: {} },
+      scales: { x: { ticks: { callback: v => '$'+(v/1e6).toFixed(0)+'M', font:{size:10} }, grid:{color:'rgba(0,0,0,.05)'} }, y: { ticks:{font:{size:10}} } } },
+    plugins: [ChartDataLabels]
+  });
+
+  const ctxMU = document.getElementById('lMarcasUniChart').getContext('2d');
+  if (lMUInst) lMUInst.destroy();
+  lMUInst = new Chart(ctxMU, {
+    type: 'bar',
+    data: { labels: mu.map(r => r.mar), datasets: [{ data: mu.map(r => r.uni), backgroundColor: COLORS, borderRadius: 4,
+      datalabels: { anchor: 'end', align: 'end', formatter: v => v+' u.', font:{size:9,weight:'700'}, color:'#374151' } }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      layout: { padding: { right: 48 } },
+      plugins: { legend: { display: false }, datalabels: {} },
+      scales: { x: { ticks:{font:{size:10}}, grid:{color:'rgba(0,0,0,.05)'} }, y: { ticks:{font:{size:10}} } } },
+    plugins: [ChartDataLabels]
+  });
 }
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
