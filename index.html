@@ -858,13 +858,33 @@ function renderTabla() {
     </tr>`;
   }).join('');
 
+  const ped25 = 398;
+  const varPed  = ((tPed / ped25) - 1) * 100;
+  const varPedSign = varPed >= 0 ? '+' : '';
+  const varPedCol  = varPed >= 0 ? '#10B981' : '#EF4444';
   document.getElementById('tablaFoot').innerHTML = `<tr>
-    <td style="font-size:.7rem;color:#6B7280;text-transform:uppercase;letter-spacing:.4px">TOTAL</td>
-    <td class="r">${fmtN(tPed)}</td>
+    <td style="font-size:.7rem;color:#6B7280;text-transform:uppercase;letter-spacing:.4px">TOTAL 2026</td>
+    <td class="r" style="font-weight:700">${fmtN(tPed)}</td>
     <td class="delta"></td>
-    <td class="r">${fmt(tFact)}</td>
+    <td class="r" style="font-weight:700">${fmt(tFact)}</td>
     <td class="delta"></td>
-    <td class="r">${fmt(tPed ? tFact / tPed : 0)}</td>
+    <td class="r" style="font-weight:700">${fmt(tPed ? tFact / tPed : 0)}</td>
+    <td class="delta"></td>
+  </tr><tr style="border-top:1px dashed #E5E7EB">
+    <td style="font-size:.7rem;color:#6B7280;text-transform:uppercase;letter-spacing:.4px">TOTAL 2025</td>
+    <td class="r" style="color:#6B7280">${fmtN(ped25)}</td>
+    <td class="delta"></td>
+    <td class="r" style="color:#6B7280">—</td>
+    <td class="delta"></td>
+    <td class="r" style="color:#6B7280">—</td>
+    <td class="delta"></td>
+  </tr><tr style="background:#F9FAFB">
+    <td style="font-size:.7rem;color:#6B7280;text-transform:uppercase;letter-spacing:.4px">VAR vs 2025</td>
+    <td class="r" style="font-weight:700;color:${varPedCol}">${varPedSign}${varPed.toFixed(1)}%</td>
+    <td class="delta"></td>
+    <td class="r" style="color:#9CA3AF;font-size:.75rem">sin dato</td>
+    <td class="delta"></td>
+    <td class="r" style="color:#9CA3AF;font-size:.75rem">sin dato</td>
     <td class="delta"></td>
   </tr>`;
 }
