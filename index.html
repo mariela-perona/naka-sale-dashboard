@@ -1488,13 +1488,10 @@ function setView(v) {
   document.getElementById('dayfilterBar').style.display   = v === 'web' ? '' : 'none';
   const btnW = document.getElementById('btnWeb');
   const btnL = document.getElementById('btnLocal');
-  const btnC = document.getElementById('btnComercial');
-  btnW.style.background = v === 'web'       ? '#E8520A' : 'transparent';
-  btnW.style.color      = v === 'web'       ? '#fff'    : 'rgba(255,255,255,.6)';
-  btnL.style.background = v === 'local'     ? '#E8520A' : 'transparent';
-  btnL.style.color      = v === 'local'     ? '#fff'    : 'rgba(255,255,255,.6)';
-  btnC.style.background = v === 'comercial' ? '#E8520A' : 'transparent';
-  btnC.style.color      = v === 'comercial' ? '#fff'    : 'rgba(255,255,255,.6)';
+  btnW.style.background = v === 'web'   ? '#E8520A' : 'transparent';
+  btnW.style.color      = v === 'web'   ? '#fff'    : 'rgba(255,255,255,.6)';
+  btnL.style.background = v === 'local' ? '#E8520A' : 'transparent';
+  btnL.style.color      = v === 'local' ? '#fff'    : 'rgba(255,255,255,.6)';
   if (v === 'local')     renderLocal();
   if (v === 'comercial') renderComercial();
 }
