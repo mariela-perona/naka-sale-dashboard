@@ -319,8 +319,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 clamp(12px,3vw,32px) 36px;font-s
           </div>
           <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap">
             <div style="text-align:right"><div class="f-label">Usuarios</div><div style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums" id="t-users">—</div></div>
-            <div style="text-align:right"><div class="f-label">Usuarios nuevos</div><div style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--clay)" id="t-newusers">—</div></div>
-            <div style="text-align:right"><div class="f-label">Add to cart</div><div style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--sky)" id="t-atc">—</div><div class="s" style="font-size:10.5px;color:var(--ink-soft)" id="t-atc-s"></div></div>
+            <div style="text-align:right"><div class="f-label">Usuarios nuevos</div><div style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--clay)" id="t-newusers">—</div><div class="stat-s" id="t-newusers-s"></div></div>
             <div class="seg" id="seg-gran">
               <button data-g="day">Día</button>
               <button data-g="week" class="on">Semana</button>
@@ -600,12 +599,11 @@ function render(){
   barCount('ch-envio', Object.entries(env).sort((a,b)=>b[1]-a[1]).slice(0,6), '#7DA87B');
 
   // ---- tráfico GA4 ----
-  const atc = traffic.reduce((a,r)=>a+r[5],0);
   const tUsers = traffic.reduce((a,r)=>a+r[3],0);
+  const tNew = traffic.reduce((a,r)=>a+r[4],0);
   $('t-users').textContent = fmtN(tUsers);
-  $('t-newusers').textContent = fmtN(traffic.reduce((a,r)=>a+r[4],0));
-  $('t-atc').textContent = tUsers ? (atc/tUsers*100).toFixed(1) + '%' : '—';
-  $('t-atc-s').textContent = fmtN(atc) + ' add to cart / ' + fmtN(tUsers) + ' usuarios';
+  $('t-newusers').textContent = fmtN(tNew);
+  $('t-newusers-s').textContent = tUsers ? (tNew/tUsers*100).toFixed(1) + '% del total de usuarios' : '';
   const GRAN_TXT = {day:'día', week:'semana', month:'mes'};
   $('tr-sub').textContent = 'Sesiones por canal de adquisición · agrupado por ' + GRAN_TXT[state.gran];
   const gKey = ds => state.gran === 'day' ? ds : state.gran === 'month' ? ds.slice(0,7) : 'S' + String(dateToWeek(parseD(ds))).padStart(2,'0');
