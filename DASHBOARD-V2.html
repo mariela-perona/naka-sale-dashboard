@@ -813,8 +813,8 @@ function genInsights(){
       const cDelta = Object.keys({...cur.byChan, ...prev.byChan}).map(c => [c, (cur.byChan[c]||0)-(prev.byChan[c]||0)]).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))[0];
       add('🌐', `El tráfico web ${dS>=0?'creció':'cayó'}: sesiones ${sp(dS)} y usuarios ${sp(dU)}.` +
         (cDelta && Math.abs(cDelta[1]) > cur.ses*0.02 ? ` El canal que más movió fue <b>${cDelta[0]}</b> (${cDelta[1]>0?'+':''}${fmtN(cDelta[1])} sesiones).` : ''));
-      const dAtc = cur.atcRate - prev.atcRate, dConv = cur.conv - prev.conv;
-      add('🛒', `La tasa de add to cart pasó de ${prev.atcRate.toFixed(1)}% a <b>${cur.atcRate.toFixed(1)}%</b> y la conversión web de ${prev.conv.toFixed(2)}% a <b>${cur.conv.toFixed(2)}%</b>` +
+      const dConv = cur.conv - prev.conv;
+      add('🎯', `La conversión web pasó de ${prev.conv.toFixed(2)}% a <b>${cur.conv.toFixed(2)}%</b>` +
         (dConv < -0.1 && cur.ses > prev.ses ? ' — entró más tráfico pero convirtió menos: visitas menos calificadas o fricción en el checkout.' :
          dConv > 0.1 ? ' — el sitio convirtió mejor que en el período previo.' : '.'));
     }
