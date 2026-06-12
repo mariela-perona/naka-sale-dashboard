@@ -180,6 +180,10 @@ th .arrow{display:inline-block;width:12px;font-size:9px;margin-left:3px}
   background:#FBF1EE;border-left:3px solid var(--danger);border-radius:0 10px 10px 0;
   padding:12px 16px;margin-top:14px;font-size:12.5px;color:#6B4A42;line-height:1.5;
 }
+.no-data-note{
+  margin-top:22px;background:#FDF6E3;border:1.5px solid #E3D5A8;border-radius:var(--radius);
+  padding:14px 18px;font-size:13px;color:#7A6A35;line-height:1.5;
+}
 /* ---------- insights ---------- */
 .ins-card{border:1.5px solid #E3D5A8;background:linear-gradient(135deg,#FFFDF6,#FFF9E9)}
 .ins-btn{
@@ -264,6 +268,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 clamp(12px,3vw,32px) 36px;font-s
 
   <!-- CONTENIDO -->
   <div id="content">
+    <div class="no-data-note hide" id="no-data-note"></div>
     <!-- KPIs -->
     <div class="kpis fade" id="kpis">
       <div class="kpi"><h3>Facturación</h3><div class="v" id="k-rev">—</div><div class="s" id="k-rev-s"></div></div>
@@ -501,6 +506,18 @@ function render(){
   const items  = D.items.filter(i => i[0] >= f && i[0] <= t && state.stores.has(i[1]));
   const valid  = orders.filter(o => o[3] === 1);
   const traffic = D.traffic.filter(r => r[1] >= f && r[1] <= t);
+
+  // aviso si el rango no tiene ventas (p.ej. dias posteriores al ultimo export)
+  const maxVentas = D.orders.reduce((a,o)=>o[0]>a?o[0]:a,'');
+  if (!orders.length){
+    $('no-data-note').classList.remove('hide');
+    $('no-data-note').innerHTML = '⚠️ <b>No hay ventas registradas en el período elegido.</b> ' +
+      (f > maxVentas
+        ? 'Los datos de ventas llegan hasta el <b>' + parseD(maxVentas).toLocaleDateString('es-AR') + '</b> — para ver días más recientes, actualizá los archivos y tocá «⟳ Actualizar».'
+        : 'Probá con otro rango de fechas u otras tiendas.');
+  } else {
+    $('no-data-note').classList.add('hide');
+  }
 
   const days = Math.round((parseD(t) - parseD(f))/864e5) + 1;
   const byWeek = days > 62;
