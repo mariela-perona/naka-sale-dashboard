@@ -866,8 +866,10 @@ function applyData(d){
   D = d;
   const allDates = D.orders.map(o => o[0]).concat(D.traffic.map(r => r[1]));
   MIN = allDates.reduce((a,b)=>a<b?a:b); MAX = allDates.reduce((a,b)=>a>b?a:b);
-  state.from = MIN; state.to = MAX;
-  $('d-from').value = MIN; $('d-to').value = MAX;
+  // por defecto: mes en curso (día 1 del mes del dato más reciente, hasta el último dato)
+  const monthStart = MAX.slice(0,8) + '01';
+  state.from = monthStart < MIN ? MIN : monthStart; state.to = MAX;
+  $('d-from').value = state.from; $('d-to').value = state.to;
   $('d-from').min = MIN; $('d-from').max = MAX; $('d-to').min = MIN; $('d-to').max = MAX;
   firstBuy = {};
   D.orders.forEach(o => {
