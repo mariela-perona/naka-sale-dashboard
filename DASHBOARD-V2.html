@@ -452,6 +452,9 @@ const Y0 = new Date('2026-01-01T00:00:00');
 const weekStart = w => { const d = new Date(Y0); d.setDate(d.getDate() + (w-1)*7); return d; };
 const dateToWeek = d => Math.floor((d - Y0) / 864e5 / 7) + 1;
 const weekLabel = w => { const d = weekStart(w); return d.toLocaleDateString('es-AR',{day:'2-digit',month:'short'}); };
+const weekRange = w => { const a = weekStart(w), b = new Date(a); b.setDate(b.getDate()+6);
+  const o = {day:'2-digit',month:'short'};
+  return 'Semana del ' + a.toLocaleDateString('es-AR',o) + ' al ' + b.toLocaleDateString('es-AR',o); };
 
 // ---- estado ----
 const state = { canal:'web', stores:new Set([0,1,2]), from:null, to:null, gran:'week', canc:false };
@@ -543,14 +546,16 @@ function render(){
   valid.forEach(o => { const k = key(o); (evo[k] = evo[k] || {r:0,n:0}); evo[k].r += o[2]; evo[k].n++; });
   const evoKeys = Object.keys(evo).sort();
   const evoLbl = evoKeys.map(k => byWeek ? weekLabel(+k.slice(1)) : parseD(k).toLocaleDateString('es-AR',{day:'2-digit',month:'short'}));
-  $('evo-sub').textContent = 'Facturación de pedidos confirmados · agrupado por ' + (byWeek ? 'semana' : 'día');
+  $('evo-sub').textContent = 'Facturación de pedidos confirmados · ' + (byWeek ? 'cada punto es una semana (la fecha es el día de inicio)' : 'agrupado por día');
   mkChart('ch-evo', {type:'line',
     data:{labels:evoLbl, datasets:[
       {label:'Facturación', data:evoKeys.map(k=>evo[k].r), borderColor:css('--pine'), backgroundColor:'rgba(30,77,56,.10)', fill:true, tension:.35, pointRadius:evoKeys.length>40?0:3, pointBackgroundColor:css('--pine'), borderWidth:2.5, yAxisID:'y'},
       {label:'Pedidos', data:evoKeys.map(k=>evo[k].n), borderColor:css('--clay'), borderDash:[5,4], tension:.35, pointRadius:0, borderWidth:1.8, yAxisID:'y2'}
     ]},
     options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
-      plugins:{tooltip:{callbacks:{label: c => c.dataset.label + ': ' + (c.datasetIndex===0 ? fmtARS(c.parsed.y) : fmtN(c.parsed.y))}}},
+      plugins:{tooltip:{callbacks:{
+        title: items => byWeek ? weekRange(+evoKeys[items[0].dataIndex].slice(1)) : items[0].label,
+        label: c => c.dataset.label + ': ' + (c.datasetIndex===0 ? fmtARS(c.parsed.y) : fmtN(c.parsed.y))}}},
       scales:{y:{...gridOpts, ticks:moneyTicks}, y2:{position:'right', grid:{display:false}, border:{display:false}}, x:{grid:{display:false}, ticks:{maxTicksLimit:14}}}}
   });
 
@@ -562,7 +567,9 @@ function render(){
     data:{labels:wks.map(weekLabel), datasets:[...state.stores].sort().map(s => (
       {label:STORE_NAMES[s], data:wks.map(w=>wk[w][s]), backgroundColor:STORE_COLORS[s], stack:'v', borderRadius:3, maxBarThickness:26}))},
     options:{responsive:true, maintainAspectRatio:false,
-      plugins:{tooltip:{callbacks:{label: c => c.dataset.label + ': ' + fmtARS(c.parsed.y)}}},
+      plugins:{tooltip:{callbacks:{
+        title: items => weekRange(wks[items[0].dataIndex]),
+        label: c => c.dataset.label + ': ' + fmtARS(c.parsed.y)}}},
       scales:{y:{...gridOpts, stacked:true, ticks:moneyTicks}, x:{stacked:true, grid:{display:false}, ticks:{maxTicksLimit:12}}}}
   });
 
