@@ -281,14 +281,23 @@ footer{max-width:1280px;margin:0 auto;padding:0 clamp(12px,3vw,32px) 36px;font-s
 
     <div class="grid fade">
       <div class="card span12">
-        <h2>Evolución de ventas</h2>
-        <div class="sub" id="evo-sub">Facturación de pedidos confirmados</div>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;justify-content:space-between">
+          <div>
+            <h2>Evolución de ventas</h2>
+            <div class="sub" id="evo-sub">Facturación de pedidos confirmados</div>
+          </div>
+          <div class="seg" id="seg-sgran">
+            <button data-g="day">Día</button>
+            <button data-g="week">Semana</button>
+            <button data-g="month">Mes</button>
+          </div>
+        </div>
         <div class="ch"><canvas id="ch-evo"></canvas></div>
       </div>
 
       <div class="card span7">
         <h2>Ventas por tienda</h2>
-        <div class="sub">Facturación por semana</div>
+        <div class="sub" id="stores-sub">Facturación por semana</div>
         <div class="ch"><canvas id="ch-stores"></canvas></div>
       </div>
 
@@ -455,9 +464,20 @@ const weekLabel = w => { const d = weekStart(w); return d.toLocaleDateString('es
 const weekRange = w => { const a = weekStart(w), b = new Date(a); b.setDate(b.getDate()+6);
   const o = {day:'2-digit',month:'short'};
   return 'Semana del ' + a.toLocaleDateString('es-AR',o) + ' al ' + b.toLocaleDateString('es-AR',o); };
+// agrupación temporal reutilizable (día / semana / mes)
+const GRAN_TXT = {day:'día', week:'semana', month:'mes'};
+const grKey = (ds, g) => g === 'day' ? ds : g === 'month' ? ds.slice(0,7) : 'S' + String(dateToWeek(parseD(ds))).padStart(2,'0');
+const grLabel = (k, g) => g === 'day' ? parseD(k).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})
+  : g === 'month' ? new Date(k + '-01T00:00:00').toLocaleDateString('es-AR',{month:'long'})
+  : weekLabel(+k.slice(1));
+const grTitle = (k, g) => g === 'week' ? weekRange(+k.slice(1))
+  : g === 'month' ? new Date(k + '-01T00:00:00').toLocaleDateString('es-AR',{month:'long', year:'numeric'})
+  : parseD(k).toLocaleDateString('es-AR',{weekday:'long', day:'2-digit', month:'short'});
+// granularidad de ventas: 'auto' elige según el rango; el usuario puede fijarla
+const autoGran = days => days > 92 ? 'week' : 'day';
 
 // ---- estado ----
-const state = { canal:'web', stores:new Set([0,1,2]), from:null, to:null, gran:'week', canc:false };
+const state = { canal:'web', stores:new Set([0,1,2]), from:null, to:null, gran:'week', sgran:'auto', canc:false };
 const $ = id => document.getElementById(id);
 
 // ---- filtros UI ----
@@ -479,6 +499,9 @@ $('chip-all').onclick = () => { state.stores = new Set([0,1,2]); syncChips(); re
 document.querySelectorAll('#seg-gran button').forEach(b => b.onclick = () => {
   document.querySelectorAll('#seg-gran button').forEach(x=>x.classList.remove('on'));
   b.classList.add('on'); state.gran = b.dataset.g; render();
+});
+document.querySelectorAll('#seg-sgran button').forEach(b => b.onclick = () => {
+  state.sgran = b.dataset.g; render(); // el botón activo lo marca render() según la granularidad efectiva
 });
 $('d-from').onchange = e => { state.from = e.target.value || MIN; render(); };
 $('d-to').onchange = e => { state.to = e.target.value || MAX; render(); };
@@ -540,35 +563,41 @@ function render(){
   $('k-conv').textContent = ses ? (valid.length/ses*100).toFixed(2) + '%' : '—';
   $('k-conv-s').textContent = 'pedidos sobre sesiones del período';
 
+  // ---- granularidad de la serie de ventas (auto o fijada por el usuario) ----
+  const sg = state.sgran === 'auto' ? autoGran(days) : state.sgran;
+  // reflejar qué botón está activo
+  document.querySelectorAll('#seg-sgran button').forEach(b => b.classList.toggle('on', b.dataset.g === sg));
+  const sgTxt = sg === 'week' ? 'cada punto es una semana (la fecha es el día de inicio)'
+    : sg === 'month' ? 'cada punto es un mes' : 'agrupado por día';
+
   // ---- evolución ----
-  const key = o => byWeek ? 'S' + String(dateToWeek(parseD(o[0]))).padStart(2,'0') : o[0];
   const evo = {};
-  valid.forEach(o => { const k = key(o); (evo[k] = evo[k] || {r:0,n:0}); evo[k].r += o[2]; evo[k].n++; });
+  valid.forEach(o => { const k = grKey(o[0], sg); (evo[k] = evo[k] || {r:0,n:0}); evo[k].r += o[2]; evo[k].n++; });
   const evoKeys = Object.keys(evo).sort();
-  const evoLbl = evoKeys.map(k => byWeek ? weekLabel(+k.slice(1)) : parseD(k).toLocaleDateString('es-AR',{day:'2-digit',month:'short'}));
-  $('evo-sub').textContent = 'Facturación de pedidos confirmados · ' + (byWeek ? 'cada punto es una semana (la fecha es el día de inicio)' : 'agrupado por día');
+  $('evo-sub').textContent = 'Facturación de pedidos confirmados · ' + sgTxt;
   mkChart('ch-evo', {type:'line',
-    data:{labels:evoLbl, datasets:[
+    data:{labels:evoKeys.map(k=>grLabel(k, sg)), datasets:[
       {label:'Facturación', data:evoKeys.map(k=>evo[k].r), borderColor:css('--pine'), backgroundColor:'rgba(30,77,56,.10)', fill:true, tension:.35, pointRadius:evoKeys.length>40?0:3, pointBackgroundColor:css('--pine'), borderWidth:2.5, yAxisID:'y'},
       {label:'Pedidos', data:evoKeys.map(k=>evo[k].n), borderColor:css('--clay'), borderDash:[5,4], tension:.35, pointRadius:0, borderWidth:1.8, yAxisID:'y2'}
     ]},
     options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
       plugins:{tooltip:{callbacks:{
-        title: items => byWeek ? weekRange(+evoKeys[items[0].dataIndex].slice(1)) : items[0].label,
+        title: items => grTitle(evoKeys[items[0].dataIndex], sg),
         label: c => c.dataset.label + ': ' + (c.datasetIndex===0 ? fmtARS(c.parsed.y) : fmtN(c.parsed.y))}}},
       scales:{y:{...gridOpts, ticks:moneyTicks}, y2:{position:'right', grid:{display:false}, border:{display:false}}, x:{grid:{display:false}, ticks:{maxTicksLimit:14}}}}
   });
 
-  // ---- por tienda (barras semanales apiladas) ----
-  const wk = {};
-  valid.forEach(o => { const w = dateToWeek(parseD(o[0])); (wk[w] = wk[w] || [0,0,0])[o[1]] += o[2]; });
-  const wks = Object.keys(wk).map(Number).sort((a,b)=>a-b);
+  // ---- por tienda (barras apiladas, misma granularidad) ----
+  $('stores-sub').textContent = 'Facturación por ' + GRAN_TXT[sg];
+  const stk = {};
+  valid.forEach(o => { const k = grKey(o[0], sg); (stk[k] = stk[k] || [0,0,0])[o[1]] += o[2]; });
+  const stkKeys = Object.keys(stk).sort();
   mkChart('ch-stores', {type:'bar',
-    data:{labels:wks.map(weekLabel), datasets:[...state.stores].sort().map(s => (
-      {label:STORE_NAMES[s], data:wks.map(w=>wk[w][s]), backgroundColor:STORE_COLORS[s], stack:'v', borderRadius:3, maxBarThickness:26}))},
+    data:{labels:stkKeys.map(k=>grLabel(k, sg)), datasets:[...state.stores].sort().map(s => (
+      {label:STORE_NAMES[s], data:stkKeys.map(k=>stk[k][s]), backgroundColor:STORE_COLORS[s], stack:'v', borderRadius:3, maxBarThickness:26}))},
     options:{responsive:true, maintainAspectRatio:false,
       plugins:{tooltip:{callbacks:{
-        title: items => weekRange(wks[items[0].dataIndex]),
+        title: items => grTitle(stkKeys[items[0].dataIndex], sg),
         label: c => c.dataset.label + ': ' + fmtARS(c.parsed.y)}}},
       scales:{y:{...gridOpts, stacked:true, ticks:moneyTicks}, x:{stacked:true, grid:{display:false}, ticks:{maxTicksLimit:12}}}}
   });
@@ -628,19 +657,14 @@ function render(){
   $('t-users').textContent = fmtN(tUsers);
   $('t-newusers').textContent = fmtN(tNew);
   $('t-newusers-s').textContent = tUsers ? (tNew/tUsers*100).toFixed(1) + '% del total de usuarios' : '';
-  const GRAN_TXT = {day:'día', week:'semana', month:'mes'};
   $('tr-sub').textContent = 'Sesiones por canal de adquisición · agrupado por ' + GRAN_TXT[state.gran];
-  const gKey = ds => state.gran === 'day' ? ds : state.gran === 'month' ? ds.slice(0,7) : 'S' + String(dateToWeek(parseD(ds))).padStart(2,'0');
-  const gLabel = k => state.gran === 'day' ? parseD(k).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})
-    : state.gran === 'month' ? new Date(k + '-01T00:00:00').toLocaleDateString('es-AR',{month:'long'})
-    : weekLabel(+k.slice(1));
   const tch = {};
-  traffic.forEach(r => { const k = gKey(r[1]); (tch[r[0]] = tch[r[0]] || {}); tch[r[0]][k] = (tch[r[0]][k]||0) + r[2]; });
-  const tkeys = [...new Set(traffic.map(r=>gKey(r[1])))].sort();
+  traffic.forEach(r => { const k = grKey(r[1], state.gran); (tch[r[0]] = tch[r[0]] || {}); tch[r[0]][k] = (tch[r[0]][k]||0) + r[2]; });
+  const tkeys = [...new Set(traffic.map(r=>grKey(r[1], state.gran)))].sort();
   const chOrder = Object.entries(tch).map(([c,m])=>[c, Object.values(m).reduce((a,b)=>a+b,0)]).sort((a,b)=>b[1]-a[1]).slice(0,5).map(x=>x[0]);
   const TR_COLORS = ['#1E4D38','#D96F32','#4A7FA5','#C9A227','#7DA87B'];
   mkChart('ch-traffic', {type:'line',
-    data:{labels:tkeys.map(gLabel), datasets:
+    data:{labels:tkeys.map(k=>grLabel(k, state.gran)), datasets:
       chOrder.map((c,i)=>({label:c, data:tkeys.map(k=>(tch[c]&&tch[c][k])||0), borderColor:TR_COLORS[i], backgroundColor:TR_COLORS[i], tension:.35, pointRadius:0, borderWidth:2}))},
     options:{responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
       scales:{y:{...gridOpts, title:{display:true,text:'Sesiones',font:{size:10}}}, x:{grid:{display:false}, ticks:{maxTicksLimit:state.gran==='day'?16:14}}}}
