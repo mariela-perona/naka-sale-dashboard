@@ -584,7 +584,7 @@ function render(){
       plugins:{tooltip:{callbacks:{
         title: items => grTitle(evoKeys[items[0].dataIndex], sg),
         label: c => c.dataset.label + ': ' + (c.datasetIndex===0 ? fmtARS(c.parsed.y) : fmtN(c.parsed.y))}}},
-      scales:{y:{...gridOpts, ticks:moneyTicks}, y2:{position:'right', grid:{display:false}, border:{display:false}}, x:{grid:{display:false}, ticks:{maxTicksLimit:14}}}}
+      scales:{y:{...gridOpts, ticks:moneyTicks}, y2:{position:'right', grid:{display:false}, border:{display:false}}, x:{offset:evoKeys.length<5, grid:{display:false}, ticks:{maxTicksLimit:14}}}}
   });
 
   // ---- por tienda (barras apiladas, misma granularidad) ----
