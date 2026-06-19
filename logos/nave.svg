@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 110">
+  <g>
+    <path d="M214 6 L246 6 L226 52 L210 38 Z" fill="#f26522"/>
+    <path d="M246 6 L284 6 L240 70 L214 70 L234 30 Z" fill="#5b2be0"/>
+  </g>
+  <text x="0" y="92" font-family="'Rubik','Segoe UI',Arial,sans-serif" font-size="92" font-weight="700" fill="#5b2be0" letter-spacing="-2">Nave</text>
+</svg>
