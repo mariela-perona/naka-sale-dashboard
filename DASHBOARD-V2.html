@@ -344,7 +344,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 clamp(12px,3vw,32px) 36px;font-s
         <div class="ch"><canvas id="ch-traffic"></canvas></div>
       </div>
 
-      <div class="card span12">
+      <div class="card span12" id="card-clients">
         <h2>Clientes</h2>
         <div class="sub">Pedidos de clientes nuevos vs. recurrentes por mes · solo compras de 2026 (un "nuevo" pudo haber comprado en años anteriores)</div>
         <div class="stats-row">
@@ -535,6 +535,9 @@ function render(){
   $('kpi-conv').classList.toggle('hide', !isWeb);
   $('card-stores').classList.toggle('hide', !isWeb);   // split por tienda solo tiene sentido en web (3 tiendas)
   $('card-share').classList.toggle('hide', !isWeb);
+  $('card-clients').classList.toggle('hide', !isWeb);  // clientes nuevos/recurrentes: solo web
+  $('btn-canc').classList.toggle('hide', !isWeb);      // cancelaciones no aplican a MercadoLibre
+  if (!isWeb && state.canc){ state.canc = false; $('btn-canc').classList.remove('open'); $('canc-sec').classList.add('hide'); }
   if ($('ins-body').className === 'ins-list') resetInsights(); // los insights quedan obsoletos al cambiar filtros
 
   const f = state.from, t = state.to;
@@ -685,7 +688,8 @@ function render(){
   });
   } // fin if(isWeb) tráfico
 
-  // ---- clientes: nuevos vs recurrentes (base: compras de 2026) ----
+  // ---- clientes: nuevos vs recurrentes (solo web) ----
+  if (isWeb){
   const isRec = o => o[7] !== 0 && firstBuy[o[1] + '-' + o[7]] < o[0];
   const uniq = new Set(valid.filter(o=>o[7]!==0).map(o=>o[1]+'-'+o[7]));
   const recOrders = valid.filter(isRec);
@@ -713,6 +717,7 @@ function render(){
         tooltip:{callbacks:{label: c => ' ' + c.dataset.label + ': ' + fmtN(c.parsed.y) + ' pedidos'}}},
       scales:{y:{...gridOpts, stacked:true}, x:{stacked:true, grid:{display:false}}}}
   });
+  } // fin if(isWeb) clientes
 
   // ---- cancelaciones ----
   const canc = orders.filter(o => o[3] === 0);
