@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Promociones bancarias · Naka Outdoors</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+.np-promos{--orange:#f26522;--orange-d:#d24e12;--orange-soft:#fff4ee;--ink:#1a1a1a;--muted:#6b7280;--line:#e8e8ec;font-family:'Rubik',sans-serif;color:var(--ink);max-width:1100px;margin:0 auto;padding:0 24px 20px}
+.np-promos *{box-sizing:border-box;margin:0;padding:0}
+.np-promos .hero{text-align:center;padding:40px 24px 22px}
+.np-promos .kick{font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);font-weight:700}
+.np-promos .hero h1{font-size:clamp(2rem,5vw,2.9rem);font-weight:800;margin:12px 0 8px;letter-spacing:-.02em;color:var(--ink)}
+.np-promos .hero p{color:var(--muted);font-size:1.05rem;max-width:560px;margin:0 auto;line-height:1.55}
+.np-promos .hero-note{display:inline-block;margin:16px auto 0;background:var(--orange-soft);color:var(--orange-d);font-size:.85rem;font-weight:600;line-height:1.45;padding:10px 16px;border-radius:12px;max-width:640px}
+.np-promos .tog-wrap{display:flex;justify-content:center;padding:14px 0 36px}
+.np-promos .toggle{display:inline-flex;background:#f1f1f4;border-radius:999px;padding:5px;gap:4px}
+.np-promos .tbtn{font-family:inherit;padding:12px 28px;border-radius:999px;font-size:.95rem;font-weight:600;color:var(--muted);cursor:pointer;transition:.2s;display:flex;align-items:center;gap:8px;user-select:none}
+.np-promos .tbtn svg{width:17px;height:17px}
+.np-promos #nptab-local:checked ~ .tog-wrap .t-local,
+.np-promos #nptab-web:checked ~ .tog-wrap .t-web{background:#fff;color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.np-promos .panel{display:none}
+.np-promos #nptab-local:checked ~ .panel-local{display:block}
+.np-promos #nptab-web:checked ~ .panel-web{display:block}
+.np-promos .nptab{position:absolute;left:-9999px;opacity:0}
+.np-promos .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.np-promos .card{border:1px solid var(--line);border-radius:18px;padding:30px 26px;display:flex;flex-direction:column;min-height:300px;height:auto;max-height:none;overflow:visible;transition:.2s;background:#fff}
+.np-promos .card:hover{border-color:var(--orange);transform:translateY(-3px);box-shadow:0 18px 40px -28px rgba(242,101,34,.5)}
+.np-promos .day{display:inline-flex;align-self:flex-start;background:var(--orange-soft);color:var(--orange-d);font-size:.74rem;font-weight:700;padding:6px 13px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em}
+.np-promos .num{font-size:4.2rem;font-weight:900;line-height:.9;color:var(--orange);margin:22px 0 2px}
+.np-promos .num small{font-size:1.3rem;font-weight:700;margin-right:4px;color:var(--orange)}
+.np-promos .cuo{font-size:1.4rem;font-weight:800;letter-spacing:-.01em;line-height:1.1}
+.np-promos .cond{color:var(--muted);font-size:.92rem;margin-top:12px;line-height:1.5;display:block;overflow:visible;text-overflow:clip;-webkit-line-clamp:unset;white-space:normal}
+.np-promos .valid{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--orange-d);margin-top:14px;margin-bottom:18px}
+.np-promos .valid svg{width:15px;height:15px}
+.np-promos .foot{margin-top:auto;padding-top:20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line)}
+.np-promos .ico{width:64px;height:64px;border-radius:16px;background:var(--orange-soft);color:var(--orange);display:flex;align-items:center;justify-content:center;margin:6px 0 18px}
+.np-promos .ico svg{width:32px;height:32px}
+.np-promos .logos{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.np-promos .logos img{display:block;width:auto}
+.np-promos .l-visa{height:16px}
+.np-promos .l-mc{height:30px}
+.np-promos .l-gal{height:22px}
+.np-promos .l-mp{height:40px}
+.np-promos .l-nave{height:22px}
+.np-promos .lg{font-weight:800;letter-spacing:-.02em;font-size:1.05rem;line-height:1}
+.np-promos .visa{color:#1a1f71;font-style:italic}
+.np-promos .gal{color:#ff6a13}
+.np-promos .mp{color:#00a6e8}
+.np-promos .nave{color:#5b2be0}
+.np-promos .mc{position:relative;width:34px;height:22px;display:inline-block;flex-shrink:0}
+.np-promos .mc i{position:absolute;top:0;width:22px;height:22px;border-radius:50%}
+.np-promos .mc i:first-child{left:0;background:#eb001b}
+.np-promos .mc i:last-child{left:12px;background:#f79e1b;mix-blend-mode:multiply}
+.np-promos a.tc{font-size:.8rem;color:var(--muted);text-decoration:none;border-bottom:1px dotted #bbb;white-space:nowrap}
+.np-promos a.tc:hover{color:var(--orange);border-color:var(--orange)}
+.np-promos .legal{background:#fafafb;border:1px solid var(--line);border-radius:18px;margin-top:36px;padding:28px 28px 34px}
+.np-promos .legal h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:14px}
+.np-promos .legal .lbl{font-size:.72rem;font-weight:700;color:#6b7280;margin:16px 0 4px}
+.np-promos .legal p{font-size:.72rem;color:#9aa0aa;line-height:1.6;margin-bottom:6px}
+.np-promos .legal-block + .legal-block{margin-top:26px}
+@media(max-width:860px){.np-promos .grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="np-promos">
+
+  <input type="radio" name="nptab" id="nptab-local" class="nptab" checked>
+  <input type="radio" name="nptab" id="nptab-web" class="nptab">
+
+  <div class="hero">
+    <div class="kick">Medios de pago</div>
+    <h1>Promociones bancarias</h1>
+    <p>Financiá tu equipo outdoor en cuotas sin interés. Elegí dónde comprás y mirá los beneficios vigentes.</p>
+    <p class="hero-note">Si agregás productos con distinto tipo de cuotas (sin interés y cuotas fijas) deberás hacer pedidos separados.</p>
+  </div>
+
+  <div class="tog-wrap">
+    <div class="toggle">
+      <label class="tbtn t-local" for="nptab-local">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4"/></svg>
+        En el local
+      </label>
+      <label class="tbtn t-web" for="nptab-web">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg>
+        Comprá online
+      </label>
+    </div>
+  </div>
+
+  <section class="panel panel-local">
+    <div class="grid">
+      <article class="card">
+        <span class="day">Miércoles y viernes</span>
+        <div class="num">3</div>
+        <div class="cuo">Cuotas sin interés</div>
+        <p class="cond">Pagando con tarjetas de crédito <strong>Galicia</strong> Visa y Mastercard.</p>
+        <div class="valid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Vigente hasta el 31/07/2026</div>
+        <div class="foot">
+          <div class="logos">
+            <img class="l-gal" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/galicia.svg" alt="Banco Galicia">
+            <img class="l-visa" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/visa.svg" alt="Visa">
+            <img class="l-mc" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/mastercard.svg" alt="Mastercard">
+          </div>
+          <a class="tc" href="#np-legal">Términos</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="day">Todos los días</span>
+        <div class="num">3</div>
+        <div class="cuo">Cuotas sin interés</div>
+        <p class="cond">Con tarjetas de crédito Visa o Mastercard de cualquier banco.</p>
+        <div class="valid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Vigente hasta el 31/07/2026</div>
+        <div class="foot">
+          <div class="logos">
+            <img class="l-visa" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/visa.svg" alt="Visa">
+            <img class="l-mc" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/mastercard.svg" alt="Mastercard">
+            <img class="l-nave" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/nave.svg" alt="Nave">
+          </div>
+          <a class="tc" href="#np-legal">Términos</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="day">Todos los días</span>
+        <div class="num">6</div>
+        <div class="cuo">Cuotas sin interés</div>
+        <p class="cond">Con tarjetas de crédito Visa o Mastercard de cualquier banco.</p>
+        <div class="valid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Vigente hasta el 31/07/2026</div>
+        <div class="foot">
+          <div class="logos">
+            <img class="l-visa" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/visa.svg" alt="Visa">
+            <img class="l-mc" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/mastercard.svg" alt="Mastercard">
+            <img class="l-nave" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/nave.svg" alt="Nave">
+          </div>
+          <a class="tc" href="#np-legal">Términos</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="panel panel-web">
+    <div class="grid">
+      <article class="card">
+        <span class="day">Online</span>
+        <div class="num" style="font-size:2.6rem">3 o 6</div>
+        <div class="cuo">Cuotas sin interés</div>
+        <p class="cond">Pagá en 3 o 6 cuotas sin interés, o con tu tarjeta de débito, usando <strong>Mercado Pago</strong>.</p>
+        <div class="valid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Vigente hasta el 31/12/2026</div>
+        <div class="foot">
+          <div class="logos"><img class="l-mp" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/mercadopago.svg" alt="Mercado Pago"></div>
+          <a class="tc" href="#np-legal">Términos</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="day">Online</span>
+        <div class="num">12</div>
+        <div class="cuo">Cuotas fijas</div>
+        <p class="cond">Financiá tu compra en 12 cuotas fijas con <strong>Mercado Pago</strong>.</p>
+        <div class="valid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Vigente hasta el 31/12/2026</div>
+        <div class="foot">
+          <div class="logos"><img class="l-mp" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/mercadopago.svg" alt="Mercado Pago"></div>
+          <a class="tc" href="#np-legal">Términos</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="day">Online</span>
+        <div class="num"><small>Hasta</small>6</div>
+        <div class="cuo">Cuotas sin interés</div>
+        <p class="cond">Financiá tu compra hasta en 6 cuotas sin interés pagando con <strong>Nave</strong>.</p>
+        <div class="foot">
+          <div class="logos"><img class="l-nave" src="https://mariela-perona.github.io/naka-sale-dashboard/logos/nave.svg" alt="Nave"></div>
+          <a class="tc" href="#np-legal">Términos</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="day">Online</span>
+        <div class="ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18M3 10l9-6 9 6M5 10v9m14-9v9M9 10v9m6-9v9M3 19h18"/></svg>
+        </div>
+        <div class="cuo">Transferencia bancaria</div>
+        <p class="cond">Aboná tu compra directo desde tu banco por transferencia. Coordinamos el envío al confirmar el pago.</p>
+        <div class="foot">
+          <div class="logos"><span class="lg" style="color:var(--ink)">CBU / Alias</span></div>
+          <a class="tc" href="#np-legal">Términos</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <div class="legal" id="np-legal">
+    <div class="legal-block lb-local">
+    <h4>Términos y condiciones · Promociones en el local</h4>
+    <div class="lbl">3 cuotas sin interés · Banco Galicia (miércoles y viernes)</div>
+    <p>Cartera de Consumo y Comercial. Banco de Galicia y Buenos Aires S.A. CUIT: 30-50000173-5, Tte. J.D. Perón 430 (C1038AAI), Buenos Aires, Argentina. Costo Financiero Total Efectivo Anual (CTEA) 0%, Tasa Efectiva Anual (TEA) 0% y Tasa Nominal Anual (TNA) 0%. Válido en todo el territorio de la República Argentina, exclusivamente los miércoles y viernes hasta el 31/07/2026 inclusive. Beneficio de 3 cuotas sin interés realizando un pago utilizando medios de cobro ofrecidos por Nave (QR, link de pago, tienda online, Nave Point), exclusivo con tarjeta de crédito Visa o Mastercard emitidas por Banco de Galicia y Buenos Aires S.A. La promoción aplicará exclusivamente a los comercios adheridos a la promoción que tengan activo el programa "Plan Simple" en Nave. El comercio se compromete a completar y personalizar – en el flyer enviado para la exhibición en su comercio – las fechas de inicio y fin de la promoción acordada en la presente.</p>
+    <div class="lbl">3 y 6 cuotas sin interés · Todos los bancos (Nave)</div>
+    <p>Beneficio cuotas sin interés. Cartera comercial. Beneficio exclusivo para el destinatario de la presente comunicación. Sujeto a previo cumplimiento de requisitos comerciales y legales de Banco de Galicia y Buenos Aires S.A. (En adelante, Banco Galicia y/o Nave Negocios). Beneficio válido en todo el territorio de la República Argentina, exclusivamente para los días estipulados en la presente y/o en las condiciones acordadas al momento de contratar el beneficio con Nave Negocios, desde el 16/6/2026 al 31/07/2026 inclusive. El beneficio consiste en ofrecer 3 y 6 cuotas sin interés (*) para las compras realizadas exclusivamente con tarjetas de crédito Visa o Mastercard, mediante los medios de cobro Nave (QR, Link de pago, Tienda online, Nave Point). Tasa Nominal Anual (TNA): 39%. Tasa Efectiva Anual (TEA): 46,78%. Costo Financiero Total Efectivo Anual sin IVA (CFTEA S/IVA): 46,78%. Costo Financiero Total Efectivo Anual con IVA (CFTEA C/IVA): 56,61%. CFTEA S/IVA: 46,78%. CFTEA C/IVA: 56,61%. COMPRAS EN 3 CUOTAS: Tasa directa: 5,86%. Costo Financiero Total, en adelante CFT: 7,64%. COMPRAS EN 6 CUOTAS: Tasa directa: 10,08%. Costo Financiero Total, en adelante CFT: 13,89%.</p>
+    </div>
+    <div class="legal-block lb-web">
+    <h4>Términos y condiciones · Compras online</h4>
+    <div class="lbl">3 o 6 cuotas sin interés · Mercado Pago</div>
+    <p>Oferta exclusiva para la cartera de consumo. Promoción válida en la República Argentina desde el 23/06/26 hasta el 31/12/26 inclusive, abonando en 3 o 6 cuotas sin interés con todas las tarjetas de crédito procesadas a través de Mercado Pago operado por MercadoLibre S.R.L. (en adelante "Mercado Pago"). Beneficio no acumulable con otras promociones y/o beneficios vigentes en los comercios. CFT: 0,0% Costo Financiero Total Efectivo Anual. TNA: 0,0% Tasa Nominal Anual. TEA: 0,0% Tasa Efectiva Anual. Mercado Pago no es una entidad financiera. Los fondos en cuentas de pago no son depósitos garantizados. MercadoLibre S.R.L. CUIT 30-70308853-4, Caseros 3039, Piso 2º, CABA.</p>
+    <div class="lbl">12 cuotas fijas · Mercado Pago</div>
+    <p>Plan de 12 cuotas fijas con financiación a través de Mercado Pago, para compras en la tienda online de Naka Outdoors. El Costo Financiero Total (CFT), la Tasa Efectiva Anual (TEA) y el importe de cada cuota se informan al momento de finalizar la compra, según las condiciones vigentes de Mercado Pago. Vigente hasta el 31/12/2026 inclusive.</p>
+    <div class="lbl">Hasta 6 cuotas sin interés · Nave</div>
+    <p>Beneficio de hasta 6 cuotas sin interés abonando con Nave en la tienda online: Costo Financiero Total Efectivo Anual (CFTEA) 0%, Tasa Efectiva Anual (TEA) 0% y Tasa Nominal Anual (TNA) 0%. Sujeto a las condiciones vigentes de Nave.</p>
+    <div class="lbl">Transferencia bancaria</div>
+    <p>Aboná tu compra por transferencia bancaria. El envío se coordina una vez acreditado el pago. Solicitá los datos de CBU/Alias al finalizar tu compra. Promoción/medio de pago sujeto a confirmación de la acreditación.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
