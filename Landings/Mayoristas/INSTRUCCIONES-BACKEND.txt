@@ -1,0 +1,68 @@
+================================================================
+  BACKEND DE LEADS MAYORISTAS — GOOGLE SHEETS + APPS SCRIPT
+  (hacer una sola vez, con la cuenta de Google del área mayorista)
+================================================================
+
+PASO 1 — Crear la planilla
+--------------------------
+1. Entrar a https://sheets.google.com con la cuenta mayorista.
+2. Crear una planilla nueva y llamarla:  Leads Mayoristas Naka
+   (los encabezados de las columnas se crean solos con la primera solicitud,
+    no hace falta escribir nada).
+
+PASO 2 — Pegar el script
+------------------------
+1. En la planilla: menú  Extensiones → Apps Script.
+2. Borrar el contenido que aparece y pegar TODO el archivo
+   "mayoristas-leads.gs".
+3. En las primeras líneas, completar:
+      EMAIL_DESTINO = "la-casilla-que-recibe-las-solicitudes"
+   (opcional) ENVIAR_CONFIRMACION = true/false
+      true  = el solicitante recibe un email automático de "recibimos tu solicitud"
+      false = no se le envía nada
+4. Guardar (ícono de disquete o Ctrl+S).
+
+PASO 3 — Probar
+---------------
+1. Arriba, en el desplegable de funciones, elegir  testManual  y apretar "Ejecutar".
+2. La primera vez Google pide permisos: "Revisar permisos" → elegir la cuenta →
+   "Configuración avanzada" → "Ir a ... (no seguro)" → "Permitir".
+   (Es seguro: el script es nuestro y solo accede a esta planilla y al envío de mails.)
+3. Verificar que: (a) apareció una fila de prueba en la hoja "Leads",
+   (b) llegó el email de notificación a EMAIL_DESTINO.
+
+PASO 4 — Publicar como Web App
+------------------------------
+1. Botón azul  "Implementar" → "Nueva implementación".
+2. Ícono de engranaje → tipo:  Aplicación web.
+3. Configurar:
+      Descripción:   leads mayoristas
+      Ejecutar como: Yo
+      Acceso:        Cualquier persona
+4. "Implementar" → copiar la URL que termina en  /exec
+5. Pasar esa URL para cargarla en el formulario (constante ENDPOINT de form.html).
+
+¡Listo! Cada solicitud del formulario agrega una fila a la hoja "Leads"
+y dispara el email de notificación.
+
+----------------------------------------------------------------
+COLUMNAS DE LA PLANILLA (se crean solas)
+----------------------------------------------------------------
+Fecha | Nombre | Apellido | Email | Teléfono | Ciudad | Provincia |
+Preferencia de contacto | Local físico | Nombre de fantasía |
+Dirección local | Ciudad local | Provincia local | Google Maps |
+Rubros | Cómo comercializa | Razón social | CUIT | DNI |
+Condición IVA | Ecommerce | URL ecommerce | Mercado Libre |
+Instagram | Facebook | TikTok | Otras marcas |
+Marcas que comercializa | Antigüedad | Marcas de interés
+
+----------------------------------------------------------------
+SI ALGO CAMBIA DESPUÉS
+----------------------------------------------------------------
+- Cambiar la casilla de destino → editar EMAIL_DESTINO y guardar (no hace
+  falta re-publicar).
+- Cambiar el código del script → guardar y luego "Implementar" →
+  "Administrar implementaciones" → lápiz → Versión: "Nueva versión" →
+  "Implementar" (la URL /exec se mantiene).
+- Límite de envío de Gmail: 100 emails/día (cuenta gratuita) o 1.500/día
+  (Google Workspace). Sobra para este uso.
