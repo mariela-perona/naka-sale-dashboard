@@ -15,8 +15,8 @@
 @media(min-width:768px){.myx .wrap{padding:0 2.4rem}}
 
 /* tipografía */
-.myx .kicker{display:inline-flex;align-items:center;gap:.7rem;font-size:.7rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--rojo)!important}
-.myx .kicker::before{content:'';width:1.9rem;height:1.5px;background:var(--rojo)}
+.myx .kicker{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--rojo)!important}
+.myx .kicker::before{content:'';display:inline-block;width:1.9rem;height:1.5px;background:var(--rojo);vertical-align:middle;margin-right:.7rem}
 .myx h1.myx-d,.myx h2.myx-d,.myx h3.myx-d{color:var(--ink)!important;font-weight:800!important;letter-spacing:-.03em!important;line-height:1.02!important;font-family:'Rubik',sans-serif!important}
 .myx .lead{color:var(--muted);font-size:1.02rem;line-height:1.75}
 .myx .idx{font-size:.72rem;font-weight:600;letter-spacing:.1em;color:var(--muted)}
@@ -49,7 +49,8 @@
 .myx-logos{padding:40px 0 44px;border-bottom:1px solid var(--line)}
 .myx-logos .t{text-align:center;font-size:.68rem;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:26px}
 .myx-logos .row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px 34px}
-.myx-logos img{height:30px;width:auto;max-width:104px;object-fit:contain;filter:grayscale(1);opacity:.6;transition:filter .3s ease,opacity .3s ease}
+.myx-logos img{height:38px;width:auto;max-width:110px;object-fit:contain;filter:grayscale(1);opacity:.6;transition:filter .3s ease,opacity .3s ease}
+.myx-logos img.sm{height:20px}
 .myx-logos img:hover{filter:none;opacity:1}
 @media(max-width:640px){
   .myx-logos .row{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding-bottom:10px;-webkit-overflow-scrolling:touch}
@@ -90,8 +91,8 @@
 .myx-form .head{text-align:center;max-width:560px;margin:0 auto 34px}
 .myx-form h2{font-size:clamp(1.7rem,3.6vw,2.4rem);margin-top:18px;margin-bottom:12px}
 .myx-form .head p{color:var(--muted);font-size:.92rem;line-height:1.65}
-.myx-form iframe{display:block;width:100%;height:1500px;border:0}
-@media(max-width:640px){.myx-form iframe{height:1650px}}
+.myx-form iframe{display:block;width:100%;height:2130px;border:0}
+@media(max-width:640px){.myx-form iframe{height:2870px}}
 
 /* ============ FOOTER ============ */
 .myx-foot{padding:34px 0;border-top:1px solid var(--line);text-align:center}
@@ -146,8 +147,8 @@
         <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/09/imagen_flextail_5_imagen.webp" alt="Flextail" loading="lazy">
         <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_aonijie_1_imagen.webp" alt="Aonijie" loading="lazy">
         <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_karuen_imagen.webp" alt="Karun" loading="lazy">
-        <img src="https://mariela-perona.github.io/naka-sale-dashboard/mayoristas/logos/sealline.svg" alt="Seal Line" loading="lazy">
-        <img src="https://mariela-perona.github.io/naka-sale-dashboard/mayoristas/logos/acepac.svg" alt="Acepac" loading="lazy">
+        <img class="sm" src="https://mariela-perona.github.io/naka-sale-dashboard/mayoristas/logos/sealline.svg" alt="Seal Line" loading="lazy">
+        <img class="sm" src="https://mariela-perona.github.io/naka-sale-dashboard/mayoristas/logos/acepac.svg" alt="Acepac" loading="lazy">
       </div>
     </div>
   </section>
