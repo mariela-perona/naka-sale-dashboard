@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solicitud de cuenta mayorista — Naka Outdoors</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --paper:#ffffff; --bone:#f5f2ec; --ink:#16140f; --muted:#635c4d;
+    --line:#e7e1d5; --rojo:#e2211c; --rojo-deep:#b0140f; --ok:#1e7d32;
+  }
+  html,body{background:var(--bone)}
+  body{font-family:'Rubik',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding:10px 14px 28px}
+  .shell{max-width:720px;margin:0 auto}
+
+  /* ---------- progreso ---------- */
+  .prog{display:flex;gap:8px;margin:10px 2px 18px}
+  .prog .seg{flex:1;text-align:center}
+  .prog .bar{height:3px;border-radius:99px;background:var(--line);transition:background .4s ease}
+  .prog .lbl{display:block;margin-top:7px;font-size:.66rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);transition:color .3s ease}
+  .prog .seg.on .bar{background:var(--rojo)}
+  .prog .seg.on .lbl{color:var(--ink)}
+  .prog .seg.done .bar{background:var(--ink)}
+
+  /* ---------- tarjeta ---------- */
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:26px 22px 24px;box-shadow:0 30px 60px -48px rgba(22,20,15,.35)}
+  @media(min-width:560px){.card{padding:34px 36px 30px}}
+
+  .step-title{display:flex;align-items:center;gap:10px;font-size:1.12rem;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
+  .step-title svg{flex-shrink:0;color:var(--rojo)}
+  .step-sub{color:var(--muted);font-size:.86rem;line-height:1.55;margin-bottom:20px}
+
+  /* ---------- sub-bloques (paso 2) ---------- */
+  .blq{padding:18px 0 4px;border-top:1px solid var(--line);margin-top:14px}
+  .blq:first-of-type{border-top:none;margin-top:0;padding-top:0}
+  .blq-t{display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);margin-bottom:14px}
+  .blq-t svg{color:var(--rojo)}
+
+  /* ---------- campos ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:559px){.grid2{grid-template-columns:1fr}}
+  .campo{margin-bottom:14px}
+  .campo label{display:block;font-size:.8rem;font-weight:600;margin-bottom:6px}
+  .req::after{content:" *";color:var(--rojo)}
+  .campo input[type=text],.campo input[type=email],.campo input[type=tel],.campo input[type=url],.campo select{
+    width:100%;font:inherit;font-size:.92rem;color:var(--ink);background:var(--paper);
+    border:1px solid var(--line);border-radius:10px;padding:.72rem .9rem;outline:none;
+    transition:border-color .25s ease, box-shadow .25s ease;-webkit-appearance:none;appearance:none}
+  .campo select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23635c4d' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+  .campo input:focus,.campo select:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(22,20,15,.07)}
+  .campo .hint{font-size:.72rem;color:var(--muted);margin-top:5px}
+  .campo.error input,.campo.error select{border-color:var(--rojo);box-shadow:0 0 0 3px rgba(226,33,28,.1)}
+  .campo .err-msg{display:none;font-size:.72rem;color:var(--rojo);margin-top:5px;font-weight:500}
+  .campo.error .err-msg{display:block}
+
+  /* ---------- pills ---------- */
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pills label{display:inline-flex;align-items:center;cursor:pointer;font-size:.85rem;font-weight:500;color:var(--ink);
+    border:1px solid var(--line);border-radius:9999px;padding:.55rem 1.05rem;background:var(--paper);
+    transition:border-color .2s ease, color .2s ease, background .2s ease;user-select:none;margin:0}
+  .pills input{position:absolute;opacity:0;pointer-events:none}
+  .pills label:hover{border-color:var(--muted)}
+  .pills label.sel{border-color:var(--rojo);color:var(--rojo);background:rgba(226,33,28,.05);font-weight:600}
+  .campo.error .pills label{border-color:rgba(226,33,28,.55)}
+
+  /* ---------- avisos ---------- */
+  .aviso{display:flex;gap:10px;align-items:flex-start;background:var(--bone);border-left:3px solid var(--rojo);border-radius:0 10px 10px 0;padding:12px 14px;font-size:.82rem;line-height:1.55;color:var(--ink);margin-bottom:16px}
+  .aviso svg{flex-shrink:0;margin-top:2px;color:var(--rojo)}
+  .aviso b{font-weight:700}
+
+  /* ---------- marcas (paso 3) ---------- */
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+  .toolbar .todas{font-size:.8rem;font-weight:600;color:var(--rojo);background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 0;border-bottom:1.5px solid transparent;transition:border-color .25s ease}
+  .toolbar .todas:hover{border-color:var(--rojo)}
+  .marcas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media(max-width:559px){.marcas{grid-template-columns:repeat(2,1fr)}}
+  .marca{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+    background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 8px 12px;
+    transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;margin:0}
+  .marca:hover{transform:translateY(-2px);box-shadow:0 14px 26px -18px rgba(22,20,15,.4)}
+  .marca input{position:absolute;opacity:0;pointer-events:none}
+  .marca img{height:34px;max-width:86%;object-fit:contain;filter:grayscale(1);opacity:.75;transition:filter .25s ease, opacity .25s ease}
+  .marca span{font-size:.7rem;font-weight:600;letter-spacing:.04em;color:var(--muted);transition:color .2s ease}
+  .marca .tick{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--rojo);display:none;place-items:center}
+  .marca.sel{border-color:var(--rojo);box-shadow:0 0 0 1px var(--rojo)}
+  .marca.sel img{filter:none;opacity:1}
+  .marca.sel span{color:var(--ink)}
+  .marca.sel .tick{display:grid}
+
+  /* ---------- navegación ---------- */
+  .nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;font-family:inherit;font-weight:600;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;border-radius:9999px;padding:.95rem 1.8rem;cursor:pointer;border:none;transition:background .3s ease,color .3s ease,transform .3s ease}
+  .btn:active{transform:scale(.96)}
+  .btn-next{background:var(--ink);color:var(--paper)}
+  .btn-next:hover{background:var(--rojo)}
+  .btn-next:disabled{opacity:.55;cursor:default}
+  .btn-prev{background:none;color:var(--muted);border:1px solid var(--line)}
+  .btn-prev:hover{color:var(--ink);border-color:var(--muted)}
+  .paso-err{display:none;font-size:.8rem;font-weight:500;color:var(--rojo);margin-top:14px;text-align:right}
+  .paso-err.show{display:block}
+
+  a:focus-visible,button:focus-visible,label:focus-within{outline:2px solid var(--rojo);outline-offset:2px;border-radius:4px}
+
+  /* ---------- gracias / error envío ---------- */
+  .final{text-align:center;padding:44px 20px 40px}
+  .final .circle{width:64px;height:64px;border-radius:50%;background:rgba(226,33,28,.08);display:grid;place-items:center;margin:0 auto 20px}
+  .final h2{font-size:1.5rem;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+  .final p{color:var(--muted);font-size:.92rem;line-height:1.7;max-width:400px;margin:0 auto 6px}
+  .final p b{color:var(--ink)}
+  .btn-wa{display:inline-flex;align-items:center;gap:.55rem;margin-top:22px;background:var(--ink);color:#fff;text-decoration:none;font-weight:600;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;border-radius:9999px;padding:.9rem 1.7rem;transition:background .3s ease}
+  .btn-wa:hover{background:var(--rojo)}
+  .err-box{display:flex;gap:10px;align-items:flex-start;background:rgba(226,33,28,.06);border:1px solid rgba(226,33,28,.35);border-radius:12px;padding:14px 16px;font-size:.84rem;line-height:1.6;margin-top:16px}
+  .err-box a{color:var(--rojo);font-weight:600}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="prog" id="prog" aria-label="Progreso de la solicitud">
+    <div class="seg on"><div class="bar"></div><span class="lbl">Datos personales</span></div>
+    <div class="seg"><div class="bar"></div><span class="lbl">Datos comerciales</span></div>
+    <div class="seg"><div class="bar"></div><span class="lbl">Marcas</span></div>
+  </div>
+
+  <div class="card" id="form-wrap">
+
+    <!-- ==================== PASO 1 ==================== -->
+    <section class="paso">
+      <h2 class="step-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>Datos de contacto</h2>
+      <p class="step-sub">Contanos quién sos. Tus datos solo se usan para evaluar tu solicitud.</p>
+
+      <div class="grid2">
+        <div class="campo"><label class="req" for="nombre">Nombre</label><input type="text" id="nombre" name="nombre" data-req autocomplete="given-name"><span class="err-msg">Completá tu nombre</span></div>
+        <div class="campo"><label class="req" for="apellido">Apellido</label><input type="text" id="apellido" name="apellido" data-req autocomplete="family-name"><span class="err-msg">Completá tu apellido</span></div>
+      </div>
+      <div class="campo"><label class="req" for="email">Email</label><input type="email" id="email" name="email" data-req data-pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$" autocomplete="email" placeholder="tu@email.com"><span class="err-msg">Ingresá un email válido</span></div>
+      <div class="campo"><label class="req" for="telefono">Teléfono celular</label><input type="tel" id="telefono" name="telefono" data-req data-pattern="^[\d\s()+-]{6,}$" autocomplete="tel" placeholder="Cód. de área + número"><span class="err-msg">Ingresá un teléfono válido</span></div>
+      <div class="grid2">
+        <div class="campo"><label class="req" for="ciudad">Ciudad</label><input type="text" id="ciudad" name="ciudad" data-req autocomplete="address-level2"><span class="err-msg">Completá tu ciudad</span></div>
+        <div class="campo"><label class="req" for="provincia">Provincia</label><select id="provincia" name="provincia" data-req><option value="">Seleccionar…</option></select><span class="err-msg">Elegí tu provincia</span></div>
+      </div>
+      <div class="campo"><label class="req">Preferencia de contacto</label>
+        <div class="pills" data-group="preferencia" data-req-group>
+          <label><input type="radio" name="preferencia" value="WhatsApp">WhatsApp</label>
+          <label><input type="radio" name="preferencia" value="Email">Email</label>
+          <label><input type="radio" name="preferencia" value="Llamada">Llamada</label>
+        </div><span class="err-msg">Elegí cómo preferís que te contactemos</span>
+      </div>
+
+      <div class="nav"><span></span><button type="button" class="btn btn-next" data-next>Siguiente <span aria-hidden="true">→</span></button></div>
+      <p class="paso-err">Revisá los campos marcados en rojo.</p>
+    </section>
+
+    <!-- ==================== PASO 2 ==================== -->
+    <section class="paso" hidden>
+      <h2 class="step-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9M3 9v11h18V9M3 9h18M9 20v-6h6v6"/></svg>Datos comerciales</h2>
+      <p class="step-sub">Tu negocio, tus datos fiscales y tus canales de venta — todo en un solo paso.</p>
+
+      <!-- ---- Local ---- -->
+      <div class="blq">
+        <h3 class="blq-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l1.5-5h15L21 9M4 9v11h16V9"/></svg>Local comercial</h3>
+        <div class="aviso"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><span>Si contás con local físico abierto al público, se te dará <b>prioridad en la apertura de cuenta</b>.</span></div>
+        <div class="campo"><label class="req">¿Tenés local comercial físico abierto al público?</label>
+          <div class="pills" data-group="localFisico" data-req-group>
+            <label><input type="radio" name="localFisico" value="Sí">Sí</label>
+            <label><input type="radio" name="localFisico" value="No">No</label>
+          </div><span class="err-msg">Indicá si tenés local físico</span>
+        </div>
+
+        <div id="blq-local-si" hidden>
+          <div class="campo"><label class="req" for="nombreFantasia">Nombre de fantasía del local</label><input type="text" id="nombreFantasia" name="nombreFantasia" data-req placeholder="Ej: Aventura Sur, Deportes ML"><span class="err-msg">Completá el nombre del local</span></div>
+          <div class="campo"><label class="req" for="direccionLocal">Dirección del local</label><input type="text" id="direccionLocal" name="direccionLocal" data-req placeholder="Calle, número, localidad"><span class="err-msg">Completá la dirección</span></div>
+          <div class="grid2">
+            <div class="campo"><label class="req" for="ciudadLocal">Ciudad</label><input type="text" id="ciudadLocal" name="ciudadLocal" data-req><span class="err-msg">Completá la ciudad</span></div>
+            <div class="campo"><label class="req" for="provinciaLocal">Provincia</label><select id="provinciaLocal" name="provinciaLocal" data-req><option value="">Seleccionar…</option></select><span class="err-msg">Elegí la provincia</span></div>
+          </div>
+          <div class="campo"><label for="gmaps">Link de Google Maps</label><input type="url" id="gmaps" name="gmaps" placeholder="https://maps.app.goo.gl/…"><span class="hint">Opcional — si tenés el link exacto de tu local</span></div>
+          <div class="campo"><label class="req">Rubros del local</label><span class="hint" style="margin:-2px 0 8px;display:block">Seleccioná todos los que apliquen</span>
+            <div class="pills" data-group="rubros" data-req-group>
+              <label><input type="checkbox" name="rubros" value="Bicicleta">Bicicleta</label>
+              <label><input type="checkbox" name="rubros" value="Camping">Camping</label>
+              <label><input type="checkbox" name="rubros" value="Escalada">Escalada</label>
+              <label><input type="checkbox" name="rubros" value="Indumentaria deportiva">Indumentaria deportiva</label>
+              <label><input type="checkbox" name="rubros" value="Montañismo">Montañismo</label>
+              <label><input type="checkbox" name="rubros" value="Náutica">Náutica</label>
+              <label><input type="checkbox" name="rubros" value="Pesca">Pesca</label>
+              <label><input type="checkbox" name="rubros" value="Running">Running</label>
+              <label><input type="checkbox" name="rubros" value="Trekking">Trekking</label>
+              <label><input type="checkbox" name="rubros" value="Otros">Otros</label>
+            </div><span class="err-msg">Elegí al menos un rubro</span>
+          </div>
+        </div>
+
+        <div id="blq-local-no" hidden>
+          <div class="campo"><label>¿Cómo comercializás actualmente?</label>
+            <div class="pills" data-group="comercializa">
+              <label><input type="checkbox" name="comercializa" value="Ecommerce propio">Ecommerce propio</label>
+              <label><input type="checkbox" name="comercializa" value="Mercado Libre">Mercado Libre</label>
+              <label><input type="checkbox" name="comercializa" value="Showroom">Showroom</label>
+              <label><input type="checkbox" name="comercializa" value="Redes sociales">Redes sociales</label>
+              <label><input type="checkbox" name="comercializa" value="Venta directa">Venta directa</label>
+              <label><input type="checkbox" name="comercializa" value="Otro">Otro</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- Fiscal ---- -->
+      <div class="blq">
+        <h3 class="blq-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M9 13h6M9 17h6"/></svg>Datos fiscales</h3>
+        <div class="aviso"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><span>Recordá que es <b>obligatorio estar inscripto fiscalmente</b> con capacidad de facturación para operar como mayorista.</span></div>
+        <div class="campo"><label class="req" for="razonSocial">Razón social</label><input type="text" id="razonSocial" name="razonSocial" data-req placeholder="Nombre registrado ante AFIP"><span class="err-msg">Completá la razón social</span></div>
+        <div class="grid2">
+          <div class="campo"><label class="req" for="cuit">CUIT</label><input type="text" id="cuit" name="cuit" data-req data-pattern="^\d{2}-\d{8}-\d$" inputmode="numeric" placeholder="XX-XXXXXXXX-X" maxlength="13"><span class="hint">Formato: XX-XXXXXXXX-X (ej: 20-12345678-9)</span><span class="err-msg">Ingresá un CUIT válido</span></div>
+          <div class="campo"><label class="req" for="dni">DNI del responsable</label><input type="text" id="dni" name="dni" data-req data-pattern="^\d{7,8}$" inputmode="numeric" maxlength="8"><span class="err-msg">Ingresá un DNI válido (solo números)</span></div>
+        </div>
+        <div class="campo"><label class="req">Condición frente al IVA</label>
+          <div class="pills" data-group="condicionIva" data-req-group>
+            <label><input type="radio" name="condicionIva" value="Responsable Inscripto">Responsable Inscripto</label>
+            <label><input type="radio" name="condicionIva" value="Monotributo">Monotributo</label>
+            <label><input type="radio" name="condicionIva" value="IVA Exento (Tierra del Fuego)">IVA Exento (Tierra del Fuego)</label>
+          </div><span class="err-msg">Elegí tu condición frente al IVA</span>
+        </div>
+      </div>
+
+      <!-- ---- Digital ---- -->
+      <div class="blq">
+        <h3 class="blq-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3z"/></svg>Canales digitales</h3>
+        <div class="campo"><label class="req">¿Tenés ecommerce propio?</label>
+          <div class="pills" data-group="ecommerce" data-req-group>
+            <label><input type="radio" name="ecommerce" value="Sí">Sí</label>
+            <label><input type="radio" name="ecommerce" value="No">No</label>
+          </div><span class="err-msg">Indicá si tenés ecommerce</span>
+        </div>
+        <div class="campo" id="blq-url-ecom" hidden><label for="urlEcommerce">URL del ecommerce</label><input type="url" id="urlEcommerce" name="urlEcommerce" placeholder="www.ejemplo.com"></div>
+        <div class="campo"><label class="req">¿Vendés en Mercado Libre?</label>
+          <div class="pills" data-group="mercadolibre" data-req-group>
+            <label><input type="radio" name="mercadolibre" value="Sí">Sí</label>
+            <label><input type="radio" name="mercadolibre" value="No">No</label>
+          </div><span class="err-msg">Indicá si vendés en Mercado Libre</span>
+        </div>
+        <div class="campo"><label>Redes sociales</label><span class="hint" style="margin:-2px 0 8px;display:block">Opcional — completá las que tengas</span>
+          <div class="grid2">
+            <div class="campo" style="margin-bottom:0"><input type="text" id="instagram" name="instagram" placeholder="Instagram — @usuario" aria-label="Instagram"></div>
+            <div class="campo" style="margin-bottom:0"><input type="text" id="facebook" name="facebook" placeholder="Facebook — usuario o link" aria-label="Facebook"></div>
+          </div>
+          <div class="campo" style="margin:14px 0 0"><input type="text" id="tiktok" name="tiktok" placeholder="TikTok — @usuario" aria-label="TikTok"></div>
+        </div>
+      </div>
+
+      <!-- ---- Experiencia ---- -->
+      <div class="blq">
+        <h3 class="blq-t"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>Experiencia comercial</h3>
+        <div class="campo"><label>¿Ya comercializás otras marcas?</label>
+          <div class="pills" data-group="otrasMarcas">
+            <label><input type="radio" name="otrasMarcas" value="Sí">Sí</label>
+            <label><input type="radio" name="otrasMarcas" value="No">No</label>
+          </div>
+        </div>
+        <div class="campo" id="blq-marcas-com" hidden><label for="marcasComercializa">Listá algunas de las marcas principales</label><input type="text" id="marcasComercializa" name="marcasComercializa" placeholder="Separadas por coma"></div>
+        <div class="campo"><label class="req" for="antiguedad">Antigüedad en el rubro</label>
+          <select id="antiguedad" name="antiguedad" data-req>
+            <option value="">Seleccionar…</option>
+            <option>Menos de 1 año</option>
+            <option>1 a 3 años</option>
+            <option>3 a 5 años</option>
+            <option>5 a 10 años</option>
+            <option>Más de 10 años</option>
+          </select><span class="err-msg">Elegí tu antigüedad en el rubro</span>
+        </div>
+      </div>
+
+      <div class="nav"><button type="button" class="btn btn-prev" data-prev>Anterior</button><button type="button" class="btn btn-next" data-next>Siguiente <span aria-hidden="true">→</span></button></div>
+      <p class="paso-err">Revisá los campos marcados en rojo.</p>
+    </section>
+
+    <!-- ==================== PASO 3 ==================== -->
+    <section class="paso" hidden>
+      <h2 class="step-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.2 6.6.8-4.9 4.6 1.3 6.6L12 17l-5.9 3.2 1.3-6.6L2.5 9l6.6-.8z"/></svg>Marcas de interés</h2>
+      <p class="step-sub">Elegí las marcas que te interesa comercializar.</p>
+
+      <div class="toolbar">
+        <span class="hint" style="font-size:.78rem;color:var(--muted)">Seleccioná una o más</span>
+        <button type="button" class="todas" id="btn-todas">Me interesan todas</button>
+      </div>
+
+      <div class="campo" style="margin-bottom:0">
+        <div class="marcas" data-group="marcasInteres" data-req-group id="grid-marcas"></div>
+        <span class="err-msg" style="margin-top:10px">Elegí al menos una marca</span>
+      </div>
+
+      <div class="err-box" id="error-envio" hidden>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e2211c" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/></svg>
+        <span>No pudimos enviar tu solicitud (tus datos no se perdieron). Reintentá en unos segundos o escribinos por <a id="wa-err" href="#" target="_blank" rel="noopener">WhatsApp</a>.</span>
+      </div>
+
+      <div class="nav"><button type="button" class="btn btn-prev" data-prev>Anterior</button><button type="button" class="btn btn-next" id="btn-enviar">Enviar solicitud</button></div>
+      <p class="paso-err">Elegí al menos una marca de interés.</p>
+    </section>
+  </div>
+
+  <!-- ==================== GRACIAS ==================== -->
+  <div class="card final" id="gracias" hidden>
+    <div class="circle"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#e2211c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+    <h2>¡Gracias por tu solicitud!</h2>
+    <p>Recibimos tu solicitud. Nuestro equipo la evaluará y te responderá dentro de los próximos <b>5 días hábiles</b>.</p>
+    <a class="btn-wa" id="wa-gracias" href="#" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4l-2.2-1c-.3-.14-.6-.1-.83.13l-.66.68a.66.66 0 01-.77.15 8.1 8.1 0 01-2.4-1.7 8.1 8.1 0 01-1.7-2.4.66.66 0 01.15-.77l.68-.66c.22-.22.27-.55.13-.83l-1-2.2a.7.7 0 00-.98-.33c-.9.47-1.6 1.3-1.6 2.3 0 2 1.3 4.3 3.4 6.4s4.4 3.4 6.4 3.4c1 0 1.85-.7 2.3-1.6a.7.7 0 00-.32-.98zM12 1a11 11 0 00-9.5 16.5L1 23l5.7-1.5A11 11 0 1012 1zm0 20a9 9 0 01-4.6-1.3l-.33-.2-3.4.9.9-3.3-.2-.34A9 9 0 1112 21z"/></svg>¿Consultas? Escribinos</a>
+  </div>
+</div>
+
+<script>
+/******** CONFIGURACIÓN ********/
+const ENDPOINT = "PEGAR_URL_APPS_SCRIPT_EXEC"; // URL del Web App de Apps Script (termina en /exec)
+const WHATSAPP = "COMPLETAR";                  // número con cód. país, ej: 5491122334455
+/*******************************/
+
+const PROVINCIAS = ["Buenos Aires","CABA","Catamarca","Chaco","Chubut","Córdoba","Corrientes","Entre Ríos","Formosa","Jujuy","La Pampa","La Rioja","Mendoza","Misiones","Neuquén","Río Negro","Salta","San Juan","San Luis","Santa Cruz","Santa Fe","Santiago del Estero","Tierra del Fuego","Tucumán"];
+
+const NAKA_IMG = "https://www.nakaoutdoors.com.ar/img/marcas/2025/07/";
+const PAGES = "https://mariela-perona.github.io/naka-sale-dashboard/mayoristas/logos/";
+const MARCAS = [
+  ["Acepac", PAGES+"acepac.svg"],
+  ["Altus", NAKA_IMG+"imagen_altus_1_imagen.webp"],
+  ["Aonijie", NAKA_IMG+"imagen_aonijie_1_imagen.webp"],
+  ["Edelrid", NAKA_IMG+"imagen_edelrid_1_imagen.webp"],
+  ["Epic", NAKA_IMG+"imagen_epic_1_imagen.webp"],
+  ["Fixe", NAKA_IMG+"imagen_fixe_1_imagen.webp"],
+  ["Flextail", "https://www.nakaoutdoors.com.ar/img/marcas/2025/09/imagen_flextail_5_imagen.webp"],
+  ["Karun", NAKA_IMG+"imagen_karuen_imagen.webp"],
+  ["La Sportiva", NAKA_IMG+"imagen_la_sportiva_1_imagen.webp"],
+  ["MSR", NAKA_IMG+"imagen_msr_1_imagen.webp"],
+  ["Naturehike", NAKA_IMG+"imagen_naturehike_imagen.webp"],
+  ["Seal Line", PAGES+"sealline.svg"],
+  ["Singing Rock", NAKA_IMG+"imagen_singing_rock_imagen.webp"],
+  ["Thermarest", NAKA_IMG+"imagen_thermarest_imagen.webp"],
+  ["TSL", NAKA_IMG+"imagen_tsl_imagen.webp"]
+];
+
+/* ---------- armado dinámico ---------- */
+document.querySelectorAll("select#provincia, select#provinciaLocal").forEach(sel=>{
+  PROVINCIAS.forEach(p=>{ const o=document.createElement("option"); o.textContent=p; sel.appendChild(o); });
+});
+const grid = document.getElementById("grid-marcas");
+MARCAS.forEach(([nombre,src])=>{
+  const l = document.createElement("label"); l.className="marca";
+  l.innerHTML = '<input type="checkbox" name="marcasInteres" value="'+nombre+'">'+
+    '<span class="tick"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>'+
+    '<img src="'+src+'" alt="'+nombre+'" loading="lazy" onerror="this.style.display=\'none\'">'+
+    '<span>'+nombre+'</span>';
+  grid.appendChild(l);
+});
+
+/* ---------- wizard ---------- */
+const pasos = [...document.querySelectorAll(".paso")];
+const segs = [...document.querySelectorAll("#prog .seg")];
+let actual = 0;
+function mostrar(i){
+  pasos.forEach((p,j)=>p.hidden = j!==i);
+  segs.forEach((s,j)=>{ s.classList.toggle("on", j===i); s.classList.toggle("done", j<i); });
+  actual = i;
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function validarPaso(i){
+  let ok = true;
+  const sec = pasos[i];
+  sec.querySelectorAll("[data-req]").forEach(el=>{
+    if (el.offsetParent === null) return; // ocultos por condicionales no validan
+    const vacio = !el.value.trim();
+    const invalido = vacio || (el.dataset.pattern && !new RegExp(el.dataset.pattern).test(el.value.trim()));
+    el.closest(".campo").classList.toggle("error", invalido);
+    if (invalido) ok = false;
+  });
+  sec.querySelectorAll("[data-req-group]").forEach(g=>{
+    if (g.offsetParent === null) return;
+    const alguno = !!g.querySelector("input:checked");
+    g.closest(".campo").classList.toggle("error", !alguno);
+    if (!alguno) ok = false;
+  });
+  sec.querySelector(".paso-err").classList.toggle("show", !ok);
+  if (!ok) {
+    const primero = sec.querySelector(".campo.error");
+    if (primero) primero.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+  return ok;
+}
+document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click", ()=>{ if (validarPaso(actual)) mostrar(actual+1); }));
+document.querySelectorAll("[data-prev]").forEach(b=>b.addEventListener("click", ()=>mostrar(actual-1)));
+
+/* limpiar error al corregir */
+document.addEventListener("input", e=>{
+  const c = e.target.closest(".campo.error"); if (c) c.classList.remove("error");
+});
+
+/* ---------- pills: estado visual + condicionales ---------- */
+document.addEventListener("change", e=>{
+  const inp = e.target;
+  if (inp.matches(".pills input, .marca input")) {
+    const cont = inp.closest(".pills, .marcas");
+    if (inp.type === "radio") cont.querySelectorAll("label").forEach(l=>l.classList.remove("sel"));
+    inp.closest("label").classList.toggle("sel", inp.checked);
+    const c = inp.closest(".campo"); if (c) { c.classList.remove("error"); }
+  }
+  if (inp.name === "localFisico") {
+    document.getElementById("blq-local-si").hidden = inp.value !== "Sí";
+    document.getElementById("blq-local-no").hidden = inp.value !== "No";
+  }
+  if (inp.name === "ecommerce") document.getElementById("blq-url-ecom").hidden = inp.value !== "Sí";
+  if (inp.name === "otrasMarcas") document.getElementById("blq-marcas-com").hidden = inp.value !== "Sí";
+});
+
+/* ---------- CUIT: auto-guiones ---------- */
+document.getElementById("cuit").addEventListener("input", e=>{
+  let v = e.target.value.replace(/\D/g,"").slice(0,11);
+  if (v.length > 10) v = v.slice(0,2)+"-"+v.slice(2,10)+"-"+v.slice(10);
+  else if (v.length > 2) v = v.slice(0,2)+"-"+v.slice(2);
+  e.target.value = v;
+});
+
+/* ---------- me interesan todas ---------- */
+document.getElementById("btn-todas").addEventListener("click", ()=>{
+  const inputs = [...grid.querySelectorAll("input")];
+  const activar = !inputs.every(i=>i.checked);
+  inputs.forEach(i=>{ i.checked = activar; i.closest("label").classList.toggle("sel", activar); });
+  grid.closest(".campo").classList.remove("error");
+});
+
+/* ---------- recolección y envío ---------- */
+function val(id){ return document.getElementById(id).value.trim(); }
+function radio(name){ const r = document.querySelector('[name="'+name+'"]:checked'); return r ? r.value : ""; }
+function checks(name){ return [...document.querySelectorAll('[name="'+name+'"]:checked')].map(i=>i.value); }
+function recolectar(){
+  const tieneLocal = radio("localFisico");
+  return {
+    nombre:val("nombre"), apellido:val("apellido"), email:val("email"), telefono:val("telefono"),
+    ciudad:val("ciudad"), provincia:val("provincia"), preferencia:radio("preferencia"),
+    localFisico:tieneLocal,
+    nombreFantasia: tieneLocal==="Sí" ? val("nombreFantasia") : "",
+    direccionLocal: tieneLocal==="Sí" ? val("direccionLocal") : "",
+    ciudadLocal:    tieneLocal==="Sí" ? val("ciudadLocal") : "",
+    provinciaLocal: tieneLocal==="Sí" ? val("provinciaLocal") : "",
+    gmaps:          tieneLocal==="Sí" ? val("gmaps") : "",
+    rubros:         tieneLocal==="Sí" ? checks("rubros") : [],
+    comercializa:   tieneLocal==="No" ? checks("comercializa") : [],
+    razonSocial:val("razonSocial"), cuit:val("cuit"), dni:val("dni"), condicionIva:radio("condicionIva"),
+    ecommerce:radio("ecommerce"),
+    urlEcommerce: radio("ecommerce")==="Sí" ? val("urlEcommerce") : "",
+    mercadolibre:radio("mercadolibre"),
+    instagram:val("instagram"), facebook:val("facebook"), tiktok:val("tiktok"),
+    otrasMarcas:radio("otrasMarcas"),
+    marcasComercializa: radio("otrasMarcas")==="Sí" ? val("marcasComercializa") : "",
+    antiguedad:val("antiguedad"),
+    marcasInteres:checks("marcasInteres")
+  };
+}
+async function enviar(){
+  if (!validarPaso(actual)) return;
+  const btn = document.getElementById("btn-enviar");
+  btn.disabled = true; btn.textContent = "Enviando…";
+  document.getElementById("error-envio").hidden = true;
+  try {
+    const ctl = new AbortController();
+    const to = setTimeout(()=>ctl.abort(), 20000);
+    const r = await fetch(ENDPOINT, {
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify(recolectar()),
+      signal: ctl.signal
+    });
+    clearTimeout(to);
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || "respuesta no ok");
+    document.getElementById("form-wrap").hidden = true;
+    document.getElementById("prog").style.visibility = "hidden";
+    document.getElementById("gracias").hidden = false;
+    window.scrollTo({top:0, behavior:"smooth"});
+  } catch(e){
+    document.getElementById("error-envio").hidden = false;
+    btn.disabled = false; btn.textContent = "Enviar solicitud";
+  }
+}
+document.getElementById("btn-enviar").addEventListener("click", enviar);
+
+/* ---------- WhatsApp ---------- */
+const waMsg = encodeURIComponent("Hola! Acabo de enviar mi solicitud mayorista.");
+["wa-gracias","wa-err"].forEach(id=>{
+  document.getElementById(id).href = "https://wa.me/"+WHATSAPP+"?text="+waMsg;
+});
+</script>
+</body>
+</html>
