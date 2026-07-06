@@ -79,9 +79,9 @@
   .toolbar .todas:hover{border-color:var(--rojo)}
   .marcas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   @media(max-width:559px){.marcas{grid-template-columns:repeat(2,1fr)}}
-  .marca{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+  label.marca{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
     background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 8px 12px;
-    transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;margin:0}
+    transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;margin:0;font-weight:400}
   .marca:hover{transform:translateY(-2px);box-shadow:0 14px 26px -18px rgba(22,20,15,.4)}
   .marca input{position:absolute;opacity:0;pointer-events:none}
   .marca img{height:34px;max-width:86%;object-fit:contain;filter:grayscale(1);opacity:.75;transition:filter .25s ease, opacity .25s ease}
