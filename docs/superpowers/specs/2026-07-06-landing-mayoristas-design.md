@@ -12,9 +12,17 @@ optimizada para conversión de leads.
 
 ## Contexto y restricciones
 
-- **Plataforma:** panel de HTML de **Nubixstore** (no Tiendanube). Un solo archivo
-  HTML autocontenido, **minificado, ≤65KB** (misma receta que las landings de marca
-  Therm-a-rest / MSR / EPIC — ver memoria `project_naka_landing_recipe`).
+- **Plataforma:** panel de HTML de **Nubixstore** (no Tiendanube). El editor
+  **elimina `<script>`/JS** y trunca en **~65KB** (restricciones probadas con las
+  landings Therm-a-rest / MSR / EPIC — ver memoria `project_naka_landing_recipe`).
+- **Arquitectura elegida (aprobada 2026-07-06):** la landing (hero, logos,
+  beneficios, cómo funciona, cita) va pegada en Nubixstore como **CSS puro sin
+  JS**; el **formulario wizard completo con JS vive en GitHub Pages**
+  (`https://mariela-perona.github.io/naka-sale-dashboard/mayoristas/form.html`)
+  y se embebe en la misma página con un `<iframe>`.
+  **Riesgo a verificar primero:** que Nubixstore no elimine iframes — probar con
+  snippet mínimo antes de construir todo; si lo elimina, fallback a formulario
+  sin JS de una sola página con POST nativo a Apps Script.
 - **Imágenes y logos:** servidos por URL externa (GitHub Pages), nunca base64.
 - **El editor de Nubixstore puede filtrar/alterar código:** validar tras pegar.
 - **Referencia funcional del formulario:** prototipo Lovable en
@@ -107,12 +115,17 @@ Naturehike, Seal Line, Singing Rock, Thermarest, TSL.
 
 ## Entregables
 
-1. `Landings/Mayoristas/mayoristas-naka.html` — versión fuente legible.
-2. `Landings/Mayoristas/mayoristas-naka-PEGAR.html` — minificado ≤65KB para Nubixstore.
-3. `Landings/Mayoristas/mayoristas-leads.gs` — Apps Script con constantes
+1. `Landings/Mayoristas/mayoristas-naka.html` — versión fuente legible (landing
+   completa de preview, con el iframe apuntando al form).
+2. `Landings/Mayoristas/mayoristas-naka-PEGAR.html` — landing minificada ≤65KB,
+   CSS puro + `<iframe>`, para pegar en Nubixstore.
+3. `mayoristas/form.html` — formulario wizard (HTML+CSS+JS autocontenido)
+   servido por GitHub Pages desde este repo, + `mayoristas/logos/` con los
+   logos de marcas.
+4. `Landings/Mayoristas/mayoristas-leads.gs` — Apps Script con constantes
    configurables + instrucciones de publicación paso a paso (formato como las
    de la agenda).
-4. Encabezados de la planilla documentados en las instrucciones.
+5. Encabezados de la planilla documentados en las instrucciones.
 
 ## Verificación
 
