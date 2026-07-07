@@ -15,7 +15,10 @@
     --line:#e7e1d5; --rojo:#e2211c; --rojo-deep:#b0140f; --ok:#1e7d32;
   }
   html,body{background:var(--bone)}
-  body{font-family:'Rubik',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding:10px 14px 28px}
+  /* scroll interno sin barra visible (el iframe scrollea con rueda/touch igual) */
+  html{scrollbar-width:none;-ms-overflow-style:none}
+  html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0}
+  body{font-family:'Rubik',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding:8px 14px 16px}
   .shell{max-width:720px;margin:0 auto}
 
   /* ---------- progreso ---------- */
