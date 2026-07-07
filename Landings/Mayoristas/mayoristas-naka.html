@@ -47,15 +47,20 @@
 
 /* ============ LOGOS ============ */
 .myx-logos{padding:40px 0 44px;border-bottom:1px solid var(--line)}
-.myx-logos .t{text-align:center;font-size:.68rem;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:26px}
-.myx-logos .row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px 34px}
-.myx-logos img{height:38px;width:auto;max-width:110px;object-fit:contain;filter:grayscale(1);opacity:.6;transition:filter .3s ease,opacity .3s ease}
-.myx-logos img.sm{height:20px}
+.myx-logos .t{text-align:center;font-size:.68rem;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:28px}
+.myx-logos .mq{overflow:hidden;position:relative}
+.myx-logos .mq::before,.myx-logos .mq::after{content:'';position:absolute;top:0;bottom:0;width:70px;z-index:2;pointer-events:none}
+.myx-logos .mq::before{left:0;background:linear-gradient(90deg,var(--paper),rgba(255,255,255,0))}
+.myx-logos .mq::after{right:0;background:linear-gradient(270deg,var(--paper),rgba(255,255,255,0))}
+.myx-logos .track{display:flex;width:max-content;animation:myxmq 38s linear infinite}
+.myx-logos .track:hover{animation-play-state:paused}
+.myx-logos .set{display:flex;align-items:center;gap:58px;padding-right:58px}
+@keyframes myxmq{to{transform:translateX(-50%)}}
+.myx-logos img{height:52px;width:auto;max-width:150px;object-fit:contain;filter:grayscale(1);opacity:.6;transition:filter .3s ease,opacity .3s ease;flex-shrink:0}
+.myx-logos img.sm{height:26px}
 .myx-logos img:hover{filter:none;opacity:1}
-@media(max-width:640px){
-  .myx-logos .row{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding-bottom:10px;-webkit-overflow-scrolling:touch}
-  .myx-logos img{flex-shrink:0}
-}
+@media(max-width:640px){.myx-logos img{height:42px}.myx-logos .set{gap:40px;padding-right:40px}}
+@media(prefers-reduced-motion:reduce){.myx-logos .track{animation:none;flex-wrap:wrap;justify-content:center;width:auto}.myx-logos .set{flex-wrap:wrap;justify-content:center;padding-right:0}.myx-logos .set+.set{display:none}}
 
 /* ============ BENEFICIOS ============ */
 .myx-benef{padding:72px 0 64px}
@@ -133,8 +138,10 @@
   <section class="myx-logos">
     <div class="wrap">
       <p class="t">Algunas de las marcas que representamos</p>
-      <div class="row">
-        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_la_sportiva_1_imagen.webp" alt="La Sportiva" loading="lazy">
+      <div class="mq">
+        <div class="track">
+          <div class="set">
+            <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_la_sportiva_1_imagen.webp" alt="La Sportiva" loading="lazy">
         <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_msr_1_imagen.webp" alt="MSR" loading="lazy">
         <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_thermarest_imagen.webp" alt="Thermarest" loading="lazy">
         <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_edelrid_1_imagen.webp" alt="Edelrid" loading="lazy">
@@ -149,6 +156,25 @@
         <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_karuen_imagen.webp" alt="Karun" loading="lazy">
         <img class="sm" src="https://mariela-perona.github.io/naka-sale-dashboard/mayoristas/logos/sealline.svg" alt="Seal Line" loading="lazy">
         <img class="sm" src="https://mariela-perona.github.io/naka-sale-dashboard/mayoristas/logos/acepac.svg" alt="Acepac" loading="lazy">
+          </div>
+          <div class="set">
+            <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_la_sportiva_1_imagen.webp" alt="La Sportiva" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_msr_1_imagen.webp" alt="MSR" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_thermarest_imagen.webp" alt="Thermarest" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_edelrid_1_imagen.webp" alt="Edelrid" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_singing_rock_imagen.webp" alt="Singing Rock" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_fixe_1_imagen.webp" alt="Fixe" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_altus_1_imagen.webp" alt="Altus" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_naturehike_imagen.webp" alt="Naturehike" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_tsl_imagen.webp" alt="TSL" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_epic_1_imagen.webp" alt="Epic" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/09/imagen_flextail_5_imagen.webp" alt="Flextail" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_aonijie_1_imagen.webp" alt="Aonijie" loading="lazy" aria-hidden="true">
+        <img src="https://www.nakaoutdoors.com.ar/img/marcas/2025/07/imagen_karuen_imagen.webp" alt="Karun" loading="lazy" aria-hidden="true">
+        <img class="sm" src="https://mariela-perona.github.io/naka-sale-dashboard/mayoristas/logos/sealline.svg" alt="Seal Line" loading="lazy" aria-hidden="true">
+        <img class="sm" src="https://mariela-perona.github.io/naka-sale-dashboard/mayoristas/logos/acepac.svg" alt="Acepac" loading="lazy" aria-hidden="true">
+          </div>
+        </div>
       </div>
     </div>
   </section>
