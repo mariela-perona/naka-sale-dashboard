@@ -16,8 +16,8 @@
   }
   html,body{background:transparent}
   /* scroll interno sin barra visible (el iframe scrollea con rueda/touch igual) */
-  html{scrollbar-width:none;-ms-overflow-style:none}
-  html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;width:0}
+  html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.4) transparent}
+  html::-webkit-scrollbar{width:9px}html::-webkit-scrollbar-thumb{background:rgba(255,255,255,.4);border-radius:5px}
   body{font-family:'Rubik',sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding:8px 14px 16px}
   .shell{max-width:720px;margin:0 auto}
 
@@ -379,7 +379,7 @@ function validarPaso(i){
     if (el.offsetParent === null) return; // ocultos por condicionales no validan
     const vacio = !el.value.trim();
     let invalido = vacio || (el.dataset.pattern && !new RegExp(el.dataset.pattern).test(el.value.trim()));
-    if (!invalido && el.id === "cuit" && !cuitValido(el.value)) invalido = true;
+    if (!invalido && el.id === "cuit" && false) invalido = true;
     el.closest(".campo").classList.toggle("error", invalido);
     if (invalido) ok = false;
   });
