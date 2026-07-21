@@ -158,6 +158,8 @@ th.sortable{cursor:pointer;user-select:none;white-space:nowrap}
 th.sortable:hover{color:var(--pine)}
 th.sortable.on{color:var(--pine)}
 th .arrow{display:inline-block;width:12px;font-size:9px;margin-left:3px}
+.tb-scroll{overflow:auto;max-height:540px}
+.tb-scroll thead th{position:sticky;top:0;z-index:1;background:var(--card);box-shadow:inset 0 -1px 0 var(--line)}
 /* ---------- clientes / cancelaciones ---------- */
 .stat{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
 .stat-s{font-size:10.5px;color:var(--ink-soft)}
@@ -410,12 +412,12 @@ footer{max-width:1280px;margin:0 auto;padding:0 clamp(12px,3vw,32px) 36px;font-s
       <div class="card span12">
         <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;justify-content:space-between">
           <div>
-            <h2>Top 10 productos</h2>
+            <h2>Productos vendidos</h2>
             <div class="sub" id="tb-sub">Por facturación en el período</div>
           </div>
           <input type="search" id="tb-q" placeholder="Buscar producto o marca…" class="tb-search">
         </div>
-        <div style="overflow-x:auto">
+        <div class="tb-scroll">
         <table>
           <thead><tr>
             <th>#</th>
@@ -946,9 +948,9 @@ function renderTable(){
   let rows = prodList.filter(p => !q || p.name.toLowerCase().includes(q) || p.m.toLowerCase().includes(q));
   rows.sort((a,b) => { const x = a[tbl.k], y = b[tbl.k]; return (typeof x === 'string' ? x.localeCompare(y) : x - y) * tbl.dir; });
   $('tb-sub').textContent = q
-    ? rows.length + ' resultado' + (rows.length === 1 ? '' : 's') + ' · mostrando los primeros ' + Math.min(10, rows.length)
-    : 'Por facturación en el período';
-  $('tb-prod').innerHTML = rows.slice(0,10).map((p,i) =>
+    ? rows.length + ' resultado' + (rows.length === 1 ? '' : 's')
+    : rows.length + ' producto' + (rows.length === 1 ? '' : 's') + ' · desplazá para ver todos';
+  $('tb-prod').innerHTML = rows.map((p,i) =>
     `<tr><td><span class="rank">${i+1}</span></td><td>${p.name}</td><td><span class="brand-tag">${p.m}</span></td><td class="num">${fmtN(p.u)}</td><td class="num"><strong>${fmtARS(p.r)}</strong></td></tr>`
   ).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--ink-soft);padding:24px">Sin resultados para esa búsqueda</td></tr>';
 }
