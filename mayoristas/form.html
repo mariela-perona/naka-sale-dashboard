@@ -8,6 +8,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Google tag (gtag.js) — Google Ads + GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-90QSENC8QP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-90QSENC8QP');   // GA4 (propiedad 348655537)
+  gtag('config', 'AW-1018587781');  // Google Ads
+</script>
+
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
@@ -485,6 +496,19 @@ async function enviar(){
     document.getElementById("prog").style.visibility = "hidden";
     document.getElementById("gracias").hidden = false;
     window.scrollTo({top:0, behavior:"smooth"});
+    /* Conversión: lead mayorista enviado con éxito (solo con j.ok, no cuenta abandonos) */
+    try {
+      if (typeof gtag === "function") {
+        gtag('event', 'conversion', {
+          send_to: 'AW-1018587781/0ERCCL3bitccEIXV2eUD'   // Google Ads — Lead Mayorista
+        });
+        gtag('event', 'generate_lead', {                   // GA4
+          form_name: 'mayorista',
+          currency: 'ARS',
+          value: 1
+        });
+      }
+    } catch(_) {}
   } catch(e){
     document.getElementById("error-envio").hidden = false;
     btn.disabled = false; btn.textContent = "Enviar solicitud";
