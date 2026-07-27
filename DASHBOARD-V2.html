@@ -578,7 +578,7 @@ footer{max-width:1280px;margin:0 auto;padding:0 clamp(12px,3vw,32px) 36px;font-s
 </main>
 
 <footer>
-  <span>Naka Outdoors · Dashboard V2 · datos al 10/06/2026</span>
+  <span id="foot-info">Naka Outdoors · Dashboard V2</span>
   <span>Web = Naka + Aonijie + Naturehike · pedidos cancelados y presupuestos excluidos</span>
 </footer>
 
@@ -1358,6 +1358,7 @@ function applyData(d){
   const maxT = D.traffic.reduce((a,r)=>r[1]>a?r[1]:a,'');
   const fd = s => s ? parseD(s).toLocaleDateString('es-AR') : '—';
   $('upd-info').textContent = 'Ventas al ' + fd(maxV) + ' · GA al ' + fd(maxT);
+  $('foot-info').textContent = 'Naka Outdoors · Dashboard V2 · datos al ' + fd(maxV);
   newsState.ready = false; newsTbl.page = 0;  // recalcular fechas/paginación del newsletter
   cmpInit();  // (re)inicializar el comparador con los datos actuales
   // habilitar/atenuar botones de canal según los datos cargados
