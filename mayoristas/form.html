@@ -509,6 +509,8 @@ async function enviar(){
         });
       }
     } catch(_) {}
+    /* Aviso a la página padre (nakaoutdoors) para que dispare la conversión con el gclid */
+    try { window.parent.postMessage("naka_lead_mayorista_ok", "*"); } catch(_) {}
   } catch(e){
     document.getElementById("error-envio").hidden = false;
     btn.disabled = false; btn.textContent = "Enviar solicitud";
